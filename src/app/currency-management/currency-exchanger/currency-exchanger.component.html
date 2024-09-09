@@ -1,0 +1,60 @@
+<div class="container parent">
+    <main>
+        <h1>Currency Converter</h1>
+      
+        <div class="controls">
+          <div class="control">
+            <button (click)="openDrawer('base')">{{ base }}</button>
+            <input
+              type="number"
+              [(ngModel)]="baseValue"
+              (input)="convertCurrency()"
+              min="0"
+              step="0.01"
+            />
+          </div>
+          <div class="control">
+            <button (click)="openDrawer('target')">{{ target }}</button>
+            <input type="number" [(ngModel)]="targetValue" readonly />
+          </div>
+          <button class="swap-btn" (click)="swapCurrencies()">
+            <i class="ri-arrow-up-down-line icon"></i>
+          </button>
+        </div>
+      
+        <div class="exchange-rate">
+          <h5>Exchange Rate</h5>
+          <span>{{ exchangeRateText }}</span>
+        </div>
+      
+        <div *ngIf="drawerOpen" class="drawer" [ngClass]="{ 'show': drawerOpen }">
+          <div class="title">
+            <button (click)="closeDrawer()">
+              <i class="ri-arrow-left-line"></i>
+            </button>
+            <h3>Select Currency</h3>
+          </div>
+          <div class="search">
+            <input
+              type="search"
+              [(ngModel)]="searchKeyword"
+              (input)="filterCurrencies()"
+              placeholder="Search"
+            />
+          </div>
+          <ul class="currency-list">
+            <li
+              *ngFor="let currency of filteredCurrencies"
+              (click)="selectCurrency(currency.code)"
+            >
+              <img [src]="getFlagUrl(currency.code)" alt="{{ currency.name }}" />
+              <div>
+                <h4>{{ currency.code }}</h4>
+                <p>{{ currency.name }}</p>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </main>
+</div>
+  

@@ -1,0 +1,91 @@
+.table-main {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.table-container {
+    width: 100%;
+    height: 85vh;
+    margin: 3rem 2rem;
+    background-color: var(--bg-clr-1);
+    border-radius: 0.8rem;
+    box-shadow: 0px 25px 75px rgba(25, 34, 64, 0.15);
+    overflow: hidden;
+}
+
+.ledger th {
+    font-weight: 500;
+}
+
+.ledger th, .ledger td {
+    padding: 1rem;
+    text-align: left;
+    font-size: 14px;
+}
+
+.table-header {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    display: flex;
+    align-items: center;
+}
+
+.table-header .table-heading {
+    font-weight: 500;
+    padding-left: 0.6rem;
+    font-size: 22px;
+}
+
+.table-body {
+    width: 95%;
+    max-height: calc(90% - 1.6rem);
+    margin: 0.8rem auto;
+    border-radius: 0.6rem;
+    overflow: auto;
+}
+
+.ledger {
+    width: 100%;
+}
+
+.ledger, th, td {
+    border-collapse: collapse;
+}
+
+.ledger td {
+    border-bottom: solid var(--bg-clr-2) 1px;
+}
+
+.ledger thead th {
+    position: sticky;
+    top: 0;
+    left: 0;
+    background-color: var(--accent-clr-1);
+    color: white;
+}
+
+.ledger tr {
+    background-color: var(--bg-clr-1);
+    transition: background-color 0.5s ease;
+}
+
+.ledger tr:hover {
+    background-color: var(--bg-clr-2);
+}
+
+.status {
+    display: inline-flex;
+    align-items: center;
+    padding: .25rem .45rem;
+    font-size: .75em;
+    font-weight: 500;
+    border-radius: .25rem;
+    text-align: center;
+    line-height: 1;
+}
+
+.status i {
+    margin-right: 0.25rem;
+}

@@ -1,0 +1,84 @@
+<div class="card-main">
+  <div class="commonCard">
+    <section class="heading">
+        <h2 class="cardHeading">
+          <i class="ri-money-dollar-circle-line"></i> Total Amount</h2>
+    </section>
+    <hr>
+    <section class="amount">
+      <h3>$ {{amount | number:'1.2-2' }}</h3>
+    </section>
+  </div>
+  <div class="commonCard">
+    <section class="heading">
+        <h2 class="cardHeading">
+          <i class="ri-arrow-down-circle-line"></i> Total Debits</h2>
+    </section>
+    <hr>
+    <section class="amount">
+      <h3>$ {{debit | number:'1.2-2' }}</h3>
+    </section>
+  </div><div class="commonCard">
+    <section class="heading">
+        <h2 class="cardHeading">
+          <i class="ri-arrow-up-circle-line"></i> Total Credits</h2>
+    </section>
+    <hr>
+    <section class="amount">
+      <h3>$ {{credit | number:'1.2-2' }}</h3>
+    </section>
+  </div>
+</div>
+
+<main class="table-main">
+  <div class="table-container">
+    <section class="table-header">
+      <h1 class="table-heading">
+        <i class="ri-table-line"></i> General Ledger
+      </h1>
+    </section>
+    <hr />
+    <section class="table-body scroll">
+      <table class="ledger">
+        <thead>
+          <tr>
+            <th>Transaction ID</th>
+            <th>Transaction Time</th>
+            <th>Amount</th>
+            <th>Currency</th>
+            <th>Type</th>
+            <th>Mode</th>
+            <th>External ID</th>
+            <th>Location</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let transaction of transactions">
+            <td>{{ transaction.transaction_id }}</td>
+            <td>
+              {{ transaction.transaction_time | date : "yyyy-MM-dd HH:mm" }}
+            </td>
+            <td>{{ transaction.transaction_value }}</td>
+            <td>{{ transaction.transaction_curr_code }}</td>
+            <td>
+              <p
+                class="status capitalize"
+                [ngClass]="getStatusClass(transaction.transaction_type)"
+              >
+                <i
+                  [ngClass]="getTransactionIcon(transaction.transaction_type)"
+                  class="ri"
+                >
+                </i>
+                {{ transaction.transaction_type }}
+              </p>
+            </td>
+            <td>{{ transaction.transaction_mode }}</td>
+            <td>{{ transaction.external_id }}</td>
+            <td>{{ transaction.location }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </div>
+</main>

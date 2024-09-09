@@ -1,0 +1,205 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+
+@import "~remixicon/fonts/remixicon.css";
+
+:root {
+  --blue: #136a8a;
+  --green: #267871;
+  --white: #fff;
+  --exchange-rate-color: #555;
+  --input-background: rgba(119, 136, 153, 0.15);
+  --input-shadow: rgba(119, 136, 153, 0.35);
+  --input-border: #ddd;
+  --shadow-1: rgba(0, 0, 0, 0.25);
+  --shadow-2: rgba(0, 0, 0, 0.15);
+  --loading-bg-1: #c2cfd6;
+  --loading-bg-2: #f0f3f5;
+
+  /* Colors  */
+  --body-color: #e4e9f7;
+  --bg-clr-1: #ffffff;
+  --bg-clr-2: #e3effd;
+  --prim-clr-1: #7cbaf7;
+  --prim-clr-2: #e3effd;
+  --accent-clr-1: #111e6c;
+  --accent-clr-2: #2a44dd;
+  --high-clr-3: #ff7043;
+  --txt-clr-1: #000000;
+  --txt-clr-2: #5a5a5a;
+  --sidebar-color: #ffffff;
+  --toggle-color: #ddd;
+  --text-color: #707070;
+  --body-text-color: #2d2d2d;
+
+  /* Status Colors  */
+  --sale-clr: 78 191 37;
+  --refund-clr: 160 31 240;
+  --charges-clr: 251 16 61;
+  --dues-clr: 255 87 51;
+  --cashback-clr: 44 121 160;
+
+  /* Transitions  */
+  --tran-02: all 0.2s ease;
+  --tran-03: all 0.3s ease;
+  --tran-04: all 0.4s ease;
+  --tran-05: all 0.5s ease;
+}
+
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+body,
+input {
+  background-color: var(--bg-clr-2);
+  transition: var(--tran-02);
+}
+
+.dark {
+  --body-color: #18191a;
+  --bg-clr-1: #111926;
+  --bg-clr-2: #1b263b;
+  --sidebar-color: #111926;
+  --toggle-color: #fff;
+  --text-color: #ccc;
+  --body-text-color: #f6f6f6;
+}
+
+.uppercase {
+  text-transform: uppercase;
+}
+
+.lowercase {
+  text-transform: lowercase;
+}
+
+.capitalize {
+  text-transform: capitalize;
+}
+
+.mainBody {
+  position: relative;
+  height: 100vh;
+  left: 250px;
+  width: calc(100% - 250px);
+  color: var(--body-text-color);
+  background-color: var(--bg-clr-2);
+  padding: 20px 20px 20px 30px;
+  transition: var(--tran-05);
+}
+
+.isNavbarClose.mainBody {
+  left: 88px;
+  width: calc(100% - 88px);
+}
+
+.card-main {
+  width: 100%;
+  padding: 3rem 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 1rem;
+}
+
+.commonCard {
+  min-height: 150px;
+  min-width: 275px;
+  border-radius: 0.8rem;
+  background-color: var(--bg-clr-1);
+  transition: var(--tran-05);
+}
+
+.commonCard:hover {
+  box-shadow: 0px 25px 75px rgba(25, 34, 64, 0.15);
+}
+
+.dark .commonCard:hover {
+  box-shadow: 0px 15px 45px rgba(0, 0, 0, 0.2);
+}
+
+.commonCard .heading {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.commonCard .cardHeading {
+  font-weight: 500;
+  padding: 0 0.6rem;
+  font-size: 22px;
+}
+
+hr {
+  margin: 1rem 0;
+  color: inherit;
+  border: 0;
+  border-top: 1px solid;
+  opacity: 0.25;
+  margin: 0 0.7rem;
+}
+
+.scroll {
+  overflow-x: hidden;
+  white-space: nowrap;
+  position: relative;
+  scrollbar-width: none;
+}
+
+.scroll::-webkit-scrollbar {
+  height: 8px;
+  display: none;
+}
+
+.scroll:hover {
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #888 transparent;
+}
+
+.scroll:hover::-webkit-scrollbar {
+  display: block;
+}
+
+.scroll::-webkit-scrollbar-thumb {
+  background-color: #888;
+  border-radius: 10px;
+}
+
+.scroll:hover::-webkit-scrollbar-thumb {
+  background-color: #555;
+}
+
+.status-sale {
+  color: rgb(var(--sale-clr));
+  background-color: rgb(var(--sale-clr) / .1);
+}
+
+.status-refund {
+  color: rgb(var(--refund-clr));
+  background-color: rgb(var(--refund-clr) / .1);
+}
+
+.status-cashback {
+  color: rgb(var(--cashback-clr));
+  background-color: rgb(var(--cashback-clr) / .1);
+}
+
+.status-dues {
+  color: rgb(var(--dues-clr));
+  background-color: rgb(var(--dues-clr) / .1);
+}
+
+.status-charges {
+  color: rgb(var(--charges-clr));
+  background-color: rgb(var(--charges-clr) / .1);
+}
+
+.status-default {
+  color: rgb(var(--success-clr));
+  background-color: rgb(var(--success-clr) / .1);
+}

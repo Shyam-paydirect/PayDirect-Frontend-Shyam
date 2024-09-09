@@ -1,0 +1,133 @@
+<div class="nav-body" [ngClass]="{ dark: isDarkMode }">
+    <i class="ri-arrow-left-s-line toggle" [ngClass]="{closeToggle: close}" (click) = "toggleClose()"></i>
+    <nav class="sidebar" [ngClass]="{close: close}">
+      <header>
+        <div class="image-text">
+          <span class="image">
+            <img src="assets/logoSmall.jpeg" alt="Logo" />
+          </span>
+          <div class="text headerText" *ngIf="!close">
+            <span class="logoFull" *ngIf="!isDarkMode">
+              <img src="assets/logoBlack.png" alt="Logo" />
+            </span>
+            <span class="logoFull" *ngIf="isDarkMode">
+              <img src="assets/logo.png" alt="Logo" />
+            </span>
+          </div>
+        </div>
+      </header>
+  
+      <div class="menuBar">
+        <div class="menu">
+          <li class="profile">
+            <div class="dpDiv">
+              <img class="dp" src="assets/img/DP.jpeg" alt="" class="dp" />
+            </div>
+            <div class="namePost">
+              <span class="userName">Aakash Deep</span>
+              <span class="userPost">SDE</span>
+            </div>
+          </li>
+          <li class="mode">
+            <div class="moonSun">
+              <i
+                class="ri-sun-fill icon sun"
+                style="color: #ffcc33"
+                *ngIf="!isDarkMode"
+              ></i>
+              <i
+                class="ri-moon-fill icon moon"
+                style="color: #dae0ee"
+                *ngIf="isDarkMode"
+              ></i>
+            </div>
+            <span class="modeText text" *ngIf="!isDarkMode">Light Mode</span>
+            <span class="modeText text" *ngIf="isDarkMode">Dark Mode</span>
+            <div class="toggleSwitch" (click)="toggleDarkMode()">
+              <span class="switch"></span>
+            </div>
+          </li>
+          <li class="searchBox">
+            <i class="ri-search-line icon"></i>
+            <input type="search" placeholder="Search" />
+          </li>
+          <ul class="menuLinks">
+            <a href="#">
+              <li class="navLink" (click)="toggleSublist('attendance')">
+                <i class="ri-copper-diamond-line icon"></i>
+                <span class="text navText">Currency Management</span>
+                <ul class="submenuLinks" *ngIf="isSublistOpen('attendance')">
+                  <li class="submenuNavLink" (click)="$event.stopPropagation()">Sign-in</li>
+                  <li class="submenuNavLink" (click)="$event.stopPropagation()">Sign-out</li>
+                  <li class="submenuNavLink" (click)="toggleSublist('report'); $event.stopPropagation()">Report
+                    <ul *ngIf="isSublistOpen('report')">
+                      <li (click)="$event.stopPropagation()">Daily Attendance</li>
+                      <li (click)="$event.stopPropagation()">Monthly attendance</li>
+                      <!-- Add more nested options here -->
+                    </ul>
+                  </li>
+                  <!-- Add more options here -->
+                </ul>
+              </li>
+            </a>
+            <a href="#">
+              <li class="navLink">
+                <i class="ri-database-2-line icon"></i>
+                <span class="text navText">General Ledger</span>
+              </li>
+            </a>
+            <a href="#">
+              <li class="navLink">
+                <i class="ri-bank-card-2-line icon"></i>
+                <span class="text navText">Financial Reporting</span>
+              </li>
+            </a>
+            <a href="#">
+              <li class="navLink">
+                <i class="ri-store-2-line icon"></i>
+                <span class="text navText">Taxation and Compliance</span>
+              </li>
+            </a>
+            <a href="#">
+              <li class="navLink">
+                <i class="ri-projector-line icon"></i>
+                <span class="text navText">Access and Security </span>
+              </li>
+            </a>
+            <a href="#">
+              <li class="navLink">
+                <i class="ri-service-line icon"></i>
+                <span class="text navText">Third-Party Integration</span>
+              </li>
+            </a>
+            <a href="#">
+              <li class="navLink">
+                <i class="ri-user-settings-line icon"></i>
+                <span class="text navText">Accounts</span>
+              </li>
+            </a>
+            <!-- <a href="#">
+              <li class="navLink">
+                <i class="ri-account-circle-line icon"></i>
+                <span class="text navText">Accounts</span>
+              </li>
+            </a>
+            <a href="#">
+              <li class="navLink">
+                <i class="ri-service-line icon"></i>
+                <span class="text navText">HR</span>
+              </li>
+            </a>
+            <a href="#">
+              <li class="navLink">
+                <i class="ri-logout-box-r-line icon"></i>
+                <span class="text navText">Logout</span>
+              </li>
+            </a> -->
+          </ul>
+        </div>
+        <div class="bottom-content"></div>
+      </div>
+    </nav>
+  </div>
+  
