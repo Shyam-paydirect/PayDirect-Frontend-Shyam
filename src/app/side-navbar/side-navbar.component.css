@@ -27,29 +27,30 @@
 .image-text {
   display: flex;
   justify-content: center;
+  padding: 10px 0;
 }
 
 .sidebar .image {
-  /* min-width: 60px; */
   display: flex;
   align-items: center;
 }
 
 .image-text .image img {
-  width: 40px;
-  border-radius: 50%;
-  margin: 10px 0;
+  height: 45px;
 }
 
 .sidebar .logoFull img {
-  width: 150px;
+  height: 45px;
   display: flex;
   align-items: center;
+}
+header hr {
+  margin: 0 0.1rem;
 }
 
 .toggle {
   position: fixed;
-  top: 28px;
+  top: 52px;
   left: 250px;
   transform: translate(-50%);
   height: 25px;
@@ -68,7 +69,7 @@
 }
 
 .closeToggle {
-  left: 70px;
+  left: 67px;
   transform: rotateY(180deg);
 }
 

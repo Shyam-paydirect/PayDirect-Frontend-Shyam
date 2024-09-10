@@ -3,18 +3,20 @@
     <nav class="sidebar" [ngClass]="{close: close}">
       <header>
         <div class="image-text">
-          <span class="image">
-            <img src="assets/logoSmall.jpeg" alt="Logo" />
+          <span class="image" *ngIf="close">
+            <img src="assets/svg/logos/logo.svg" *ngIf="!isDarkMode" alt="Logo" />
+            <img src="assets/svg/logos/logoDark.svg" *ngIf="isDarkMode" alt="Logo" />
           </span>
           <div class="text headerText" *ngIf="!close">
             <span class="logoFull" *ngIf="!isDarkMode">
-              <img src="assets/logoBlack.png" alt="Logo" />
+              <img src="assets/svg/logos/logoName.svg" alt="Logo" />
             </span>
             <span class="logoFull" *ngIf="isDarkMode">
-              <img src="assets/logo.png" alt="Logo" />
+              <img src="assets/svg/logos/logoNameDark.svg" alt="Logo" />
             </span>
           </div>
         </div>
+        <hr>
       </header>
   
       <div class="menuBar">

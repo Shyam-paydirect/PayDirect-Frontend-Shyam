@@ -81,6 +81,7 @@ form.sign-up-form {
   font-size: 0.78rem;
   text-decoration: none;
   transition: var(--tran-02);
+  cursor: pointer;
 }
 
 .toggle:hover {
