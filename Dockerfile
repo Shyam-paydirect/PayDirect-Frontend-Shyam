@@ -1,32 +1,11 @@
-# Stage 1: Build Angular App
-FROM node:18-alpine AS build
+FROM node:alpine
 
-# Set the working directory inside the container
-WORKDIR /app
+WORKDIR /usr/src/app
 
-# Copy the package.json and package-lock.json files to install dependencies
-COPY package*.json ./
+COPY . /usr/src/app
 
-# Install dependencies
+RUN npm install -g @angular/cli
+
 RUN npm install
 
-# Copy the rest of the application code
-COPY . .
-
-# Build the Angular app with production configuration
-RUN npm run build -- --prod
-
-# Stage 2: Serve Angular App
-FROM nginx:alpine
-
-# Copy the built Angular app from the previous stage to the NGINX folder
-COPY --from=build /app/dist/PayDirectFrontend /usr/share/nginx/html
-
-# Copy custom NGINX configuration file if you have one (optional)
-# COPY nginx.conf /etc/nginx/nginx.conf
-
-# Expose the port that NGINX will serve on
-EXPOSE 80
-
-# Start NGINX server
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["ng", "serve", "--host", "0.0.0.0"]
