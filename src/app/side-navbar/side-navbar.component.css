@@ -60,7 +60,7 @@ header hr {
   justify-content: center;
   align-items: center;
   border-radius: 50%;
-  color: var(--sidebar-color);
+  color: #eee;
   font-size: 18px;
   font-weight: 700;
   z-index: 100;
@@ -75,6 +75,10 @@ header hr {
 
 .dark .toggle {
   color: var(--toggle-color);
+}
+
+.menu {
+  margin-top: 15px;
 }
 
 .profile {

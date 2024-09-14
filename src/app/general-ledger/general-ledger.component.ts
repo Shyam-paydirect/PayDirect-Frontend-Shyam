@@ -4,9 +4,14 @@ import { GeneralLedgerService } from '../services/general-ledger.service';
 @Component({
   selector: 'app-general-ledger',
   templateUrl: './general-ledger.component.html',
-  styleUrls: ['./general-ledger.component.css'],
+  styleUrls: [
+    './general-ledger.component.css',
+    '../../assets/css/master.css',
+    '../../assets/css/table.css',
+  ],
 })
 export class GeneralLedgerComponent implements OnInit {
+  dashboardTitle: string = 'General Ledger';
   transactions: any;
   amount: number = 21230.3;
   debit: number = 30000.051;
@@ -45,7 +50,7 @@ export class GeneralLedgerComponent implements OnInit {
       default:
         return 'status-default';
     }
-  }  
+  }
   getTransactionIcon(transactionType: string): string {
     switch (transactionType.toUpperCase()) {
       case 'SALE':
@@ -61,5 +66,5 @@ export class GeneralLedgerComponent implements OnInit {
       default:
         return 'ri-question-line';
     }
-  }  
+  }
 }

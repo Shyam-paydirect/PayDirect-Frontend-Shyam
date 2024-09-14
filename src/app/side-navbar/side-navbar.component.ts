@@ -11,17 +11,13 @@ export class SideNavbarComponent implements OnInit {
   openSublists: { [key: string]: boolean } = {};
   close: boolean = false;
 
-  constructor(private dashboardService: MainService) {
+  constructor(private mainService: MainService) {
   }
 
   ngOnInit(): void {
-    this.dashboardService.darkMode$.subscribe((darkMode) => {
-      this.isDarkMode = darkMode;
+    this.mainService.theme$.subscribe((theme) => {
+      this.isDarkMode = (theme == 'dark');
     });
-  }
-
-  toggleDarkMode(): void {
-    this.dashboardService.toggleDarkMode();
   }
 
   toggleSublist(sublist: string): void {
@@ -34,6 +30,5 @@ export class SideNavbarComponent implements OnInit {
 
   toggleClose(){
     this.close = !this.close;
-    this.dashboardService.togglenavbarWidth(this.close);
   }
 }

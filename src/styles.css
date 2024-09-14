@@ -29,7 +29,9 @@
   --sidebar-color: #ffffff;
   --toggle-color: #ddd;
   --text-color: #707070;
-  --body-text-color: #2d2d2d;
+  --body-text-clr: #2d2d2d;
+  --shadow-1: 0px 25px 75px rgba(25, 34, 64, 0.15);
+  --shadow-2: 0px 25px 75px rgba(25, 34, 64, 0.15);
 
   /* Status Colors  */
   --sale-clr: 78 191 37;
@@ -54,7 +56,7 @@
 
 body,
 input {
-  background-color: var(--bg-clr-2);
+  background-color: var(--bg-clr-1);
   transition: var(--tran-02);
 }
 
@@ -65,19 +67,9 @@ input {
   --sidebar-color: #111926;
   --toggle-color: #fff;
   --text-color: #ccc;
-  --body-text-color: #f6f6f6;
-}
-
-.uppercase {
-  text-transform: uppercase;
-}
-
-.lowercase {
-  text-transform: lowercase;
-}
-
-.capitalize {
-  text-transform: capitalize;
+  --body-text-clr: #dbdbdb;
+  --shadow-1: 0px 15px 40px rgba(0, 0, 0, 0.2);
+  --shadow-2: 0px 25px 75px rgba(0, 0, 0, 0.15);
 }
 
 .mainBody {
@@ -96,42 +88,8 @@ input {
   width: calc(100% - 88px);
 }
 
-.card-main {
-  width: 100%;
-  padding: 3rem 2rem;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-start;
-  gap: 1rem;
-}
-
-.commonCard {
-  min-height: 150px;
-  min-width: 275px;
-  border-radius: 0.8rem;
-  background-color: var(--bg-clr-1);
-  transition: var(--tran-05);
-}
-
-.commonCard:hover {
-  box-shadow: 0px 25px 75px rgba(25, 34, 64, 0.15);
-}
-
-.dark .commonCard:hover {
-  box-shadow: 0px 15px 45px rgba(0, 0, 0, 0.2);
-}
-
-.commonCard .heading {
-  width: 100%;
-  padding: 0.8rem 1rem;
-  display: flex;
-  align-items: center;
-}
-
-.commonCard .cardHeading {
-  font-weight: 500;
-  padding: 0 0.6rem;
-  font-size: 22px;
+ul li {
+  list-style: none;
 }
 
 hr {
@@ -139,7 +97,7 @@ hr {
   color: inherit;
   border: 0;
   border-top: 1px solid;
-  opacity: 0.25;
+  color: #cccc;
   margin: 0 0.7rem;
 }
 

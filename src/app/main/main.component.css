@@ -13,7 +13,7 @@ app-side-navbar {
 .content {
   flex-grow: 1;
   height: 100%;
-  padding: 10px;
   overflow: auto;
+  color: var(--body-text-clr);
   background-color: var(--bg-clr-2);
 }

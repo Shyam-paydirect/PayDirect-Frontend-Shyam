@@ -11,6 +11,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { SideNavbarComponent } from './side-navbar/side-navbar.component';
 import { LoginSignupComponent } from './login-signup/login-signup.component';
 import { GeneralLedgerComponent } from './general-ledger/general-ledger.component';
+import { TopNavbarComponent } from './top-navbar/top-navbar.component';
 
 @NgModule({
   declarations: [
@@ -20,7 +21,8 @@ import { GeneralLedgerComponent } from './general-ledger/general-ledger.componen
     CurrencyExchangerComponent,
     SideNavbarComponent,
     LoginSignupComponent,
-    GeneralLedgerComponent
+    GeneralLedgerComponent,
+    TopNavbarComponent
   ],
   imports: [
     BrowserModule,

@@ -1,4 +1,4 @@
-<div class="nav-body" [ngClass]="{ dark: isDarkMode }">
+<div class="nav-body">
     <i class="ri-arrow-left-s-line toggle" [ngClass]="{closeToggle: close}" (click) = "toggleClose()"></i>
     <nav class="sidebar" [ngClass]="{close: close}">
       <header>
@@ -21,34 +21,6 @@
   
       <div class="menuBar">
         <div class="menu">
-          <li class="profile">
-            <div class="dpDiv">
-              <img class="dp" src="assets/img/DP.jpeg" alt="" class="dp" />
-            </div>
-            <div class="namePost">
-              <span class="userName">Aakash Deep</span>
-              <span class="userPost">SDE</span>
-            </div>
-          </li>
-          <li class="mode">
-            <div class="moonSun">
-              <i
-                class="ri-sun-fill icon sun"
-                style="color: #ffcc33"
-                *ngIf="!isDarkMode"
-              ></i>
-              <i
-                class="ri-moon-fill icon moon"
-                style="color: #dae0ee"
-                *ngIf="isDarkMode"
-              ></i>
-            </div>
-            <span class="modeText text" *ngIf="!isDarkMode">Light Mode</span>
-            <span class="modeText text" *ngIf="isDarkMode">Dark Mode</span>
-            <div class="toggleSwitch" (click)="toggleDarkMode()">
-              <span class="switch"></span>
-            </div>
-          </li>
           <li class="searchBox">
             <i class="ri-search-line icon"></i>
             <input type="search" placeholder="Search" />

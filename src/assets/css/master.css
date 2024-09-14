@@ -1,0 +1,45 @@
+.uppercase {
+  text-transform: uppercase;
+}
+
+.lowercase {
+  text-transform: lowercase;
+}
+
+.capitalize {
+  text-transform: capitalize;
+}
+
+.card-main {
+  width: 100%;
+  padding: 3rem 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 1rem;
+}
+
+.commonCard {
+  min-height: 150px;
+  min-width: 275px;
+  border-radius: 0.8rem;
+  background-color: var(--bg-clr-1);
+  transition: var(--tran-04);
+}
+
+.commonCard:hover {
+  box-shadow: var(--shadow-1);
+}
+
+.commonCard .heading {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.commonCard .cardHeading {
+  font-weight: 500;
+  padding: 0 0.6rem;
+  font-size: 22px;
+}

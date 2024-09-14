@@ -1,0 +1,41 @@
+<nav class="top-navbar">
+  <h1 class="dashboard-title">{{ dashboardTitle }}</h1>
+  <div class="controls">
+    <ul class="control-list">
+      <li class="mode">
+        <div class="icon-container" (click)="toggleTheme()">
+          <i
+            class="ri-sun-fill icon sun"
+            style="color: #ffcc33"
+            *ngIf="!isDarkMode"
+          ></i>
+          <i
+            class="ri-moon-fill icon moon"
+            style="color: #dae0ee"
+            *ngIf="isDarkMode"
+          ></i>
+        </div>
+      </li>
+      <li class="screen-size">
+        <div class="icon-container" (click)="toggleFullscreen()">
+          <i class="ri-fullscreen-line icon" *ngIf="!isFullScreen"></i>
+          <i class="ri-fullscreen-exit-line icon" *ngIf="isFullScreen"></i>
+        </div>
+      </li>
+      <li class="notification">
+        <div class="icon-container">
+          <i class="ri-notification-3-line icon"></i>
+        </div>
+      </li>
+      <li class="profile">
+        <div class="dpDiv">
+          <img class="dp" src="assets/img/DP.jpeg" alt="" class="dp" />
+        </div>
+        <div class="namePost">
+          <span class="userName">Aakash Deep</span>
+          <span class="userPost">SDE</span>
+        </div>
+      </li>
+    </ul>
+  </div>
+</nav>
