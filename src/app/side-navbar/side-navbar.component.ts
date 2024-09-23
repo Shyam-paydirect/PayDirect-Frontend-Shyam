@@ -31,4 +31,8 @@ export class SideNavbarComponent implements OnInit {
   toggleClose(){
     this.close = !this.close;
   }
+
+  selectDashboard(dashboard: string) {
+    this.mainService.changeDashboard(dashboard);
+  }
 }

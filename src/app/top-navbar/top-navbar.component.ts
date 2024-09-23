@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { MainService } from '../services/main.service';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-top-navbar',
@@ -11,12 +12,19 @@ export class TopNavbarComponent implements OnInit {
 
   isDarkMode: boolean = false;
   isFullScreen: boolean = false;
+  merchantDetails: any;
+  defaultImageUrl = 'assets/img/DP.jpeg';
 
-  constructor(private mainService: MainService) {}
+  constructor(private mainService: MainService, private authService: AuthService) {}
 
   ngOnInit() {
     this.mainService.theme$.subscribe((theme) => {
       this.isDarkMode = theme === 'dark';
+    });
+
+    // Subscribe to the merchantDetails$ BehaviorSubject to get merchant data
+    this.authService.merchantDetails$.subscribe(details => {
+      this.merchantDetails = details;
     });
   }
 
@@ -50,5 +58,14 @@ export class TopNavbarComponent implements OnInit {
         this.isFullScreen = false;
       }
     }
+  }
+
+  logout() {
+    this.authService.logout();
+  }
+
+  onImageError(event: Event) {
+    const target = event.target as HTMLImageElement;
+    target.src = this.defaultImageUrl; // Fallback to default image
   }
 }

@@ -12,6 +12,8 @@ import { SideNavbarComponent } from './side-navbar/side-navbar.component';
 import { LoginSignupComponent } from './login-signup/login-signup.component';
 import { GeneralLedgerComponent } from './general-ledger/general-ledger.component';
 import { TopNavbarComponent } from './top-navbar/top-navbar.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ToastrModule } from 'ngx-toastr';
 
 @NgModule({
   declarations: [
@@ -28,7 +30,16 @@ import { TopNavbarComponent } from './top-navbar/top-navbar.component';
     BrowserModule,
     HttpClientModule,
     AppRoutingModule,
-    FormsModule
+    FormsModule,
+    BrowserAnimationsModule,
+    ToastrModule.forRoot({
+      timeOut: 3000,
+      positionClass: 'toast-top-right',
+      preventDuplicates: true, 
+      closeButton: true, 
+      progressBar: true, 
+      progressAnimation: 'increasing'
+    })
   ],
   providers: [],
   bootstrap: [AppComponent]

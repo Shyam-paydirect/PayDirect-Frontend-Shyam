@@ -23,7 +23,8 @@
   --prim-clr-2: #e3effd;
   --accent-clr-1: #111e6c;
   --accent-clr-2: #2a44dd;
-  --high-clr-3: #ff7043;
+  --high-clr-1: #267871;
+  --high-clr-2: #136a8a;
   --txt-clr-1: #000000;
   --txt-clr-2: #5a5a5a;
   --sidebar-color: #ffffff;
@@ -86,6 +87,10 @@ input {
 .isNavbarClose.mainBody {
   left: 88px;
   width: calc(100% - 88px);
+}
+
+a {
+  cursor: pointer;
 }
 
 ul li {

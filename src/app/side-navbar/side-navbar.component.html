@@ -26,25 +26,23 @@
             <input type="search" placeholder="Search" />
           </li>
           <ul class="menuLinks">
-            <a href="#">
+            <a  (click)="selectDashboard('currency-exchanger')">
               <li class="navLink" (click)="toggleSublist('attendance')">
                 <i class="ri-copper-diamond-line icon"></i>
                 <span class="text navText">Currency Management</span>
-                <ul class="submenuLinks" *ngIf="isSublistOpen('attendance')">
+                <!-- <ul class="submenuLinks" *ngIf="isSublistOpen('attendance')">
                   <li class="submenuNavLink" (click)="$event.stopPropagation()">Sign-in</li>
                   <li class="submenuNavLink" (click)="$event.stopPropagation()">Sign-out</li>
                   <li class="submenuNavLink" (click)="toggleSublist('report'); $event.stopPropagation()">Report
                     <ul *ngIf="isSublistOpen('report')">
                       <li (click)="$event.stopPropagation()">Daily Attendance</li>
                       <li (click)="$event.stopPropagation()">Monthly attendance</li>
-                      <!-- Add more nested options here -->
                     </ul>
                   </li>
-                  <!-- Add more options here -->
-                </ul>
+                </ul> -->
               </li>
             </a>
-            <a href="#">
+            <a (click)="selectDashboard('general-ledger')">
               <li class="navLink">
                 <i class="ri-database-2-line icon"></i>
                 <span class="text navText">General Ledger</span>
@@ -80,24 +78,6 @@
                 <span class="text navText">Accounts</span>
               </li>
             </a>
-            <!-- <a href="#">
-              <li class="navLink">
-                <i class="ri-account-circle-line icon"></i>
-                <span class="text navText">Accounts</span>
-              </li>
-            </a>
-            <a href="#">
-              <li class="navLink">
-                <i class="ri-service-line icon"></i>
-                <span class="text navText">HR</span>
-              </li>
-            </a>
-            <a href="#">
-              <li class="navLink">
-                <i class="ri-logout-box-r-line icon"></i>
-                <span class="text navText">Logout</span>
-              </li>
-            </a> -->
           </ul>
         </div>
         <div class="bottom-content"></div>

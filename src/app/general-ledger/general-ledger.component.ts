@@ -11,7 +11,6 @@ import { GeneralLedgerService } from '../services/general-ledger.service';
   ],
 })
 export class GeneralLedgerComponent implements OnInit {
-  dashboardTitle: string = 'General Ledger';
   transactions: any;
   amount: number = 21230.3;
   debit: number = 30000.051;

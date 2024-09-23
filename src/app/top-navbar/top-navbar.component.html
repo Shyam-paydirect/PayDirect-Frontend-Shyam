@@ -27,13 +27,22 @@
           <i class="ri-notification-3-line icon"></i>
         </div>
       </li>
-      <li class="profile">
+      <li class="profile" (click)="logout()">
         <div class="dpDiv">
-          <img class="dp" src="assets/img/DP.jpeg" alt="" class="dp" />
+          <img
+            class="dp"
+            [src]="merchantDetails?.[0]?.merchant_photo"
+            alt="Merchant Photo"
+            (error)="onImageError($event)"
+          />
         </div>
-        <div class="namePost">
-          <span class="userName">Aakash Deep</span>
-          <span class="userPost">SDE</span>
+        <div class="namePost" *ngIf="merchantDetails?.length > 0">
+          <span class="userName" *ngIf="merchantDetails[0]?.merchant_name">{{
+            merchantDetails[0]?.merchant_name
+          }}</span>
+          <span class="userPost" *ngIf="merchantDetails[0]?.merchant_role">
+            {{ merchantDetails[0]?.merchant_role }}
+          </span>
         </div>
       </li>
     </ul>
