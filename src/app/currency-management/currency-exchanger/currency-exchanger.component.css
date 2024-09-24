@@ -1,7 +1,7 @@
 .parent {
   display: grid;
   place-items: center;
-  height: 100%;
+  height: calc(100% - 65px);
   background: var(--bg-clr-2);
 }
 
@@ -82,7 +82,7 @@ button {
   height: 40px;
   border-radius: 50%;
   background: var(--high-clr-2);
-  color: var(--white);
+  color: #eee;
   line-height: 1;
   box-shadow: 0 3px 5px var(--shadow-1);
   position: absolute;
@@ -93,7 +93,7 @@ button {
 }
 
 .swap-btn:hover {
-  background: var(--green);
+  background: var(--high-clr-1);
 }
 
 .swap-btn i {
@@ -112,7 +112,7 @@ button {
 
 .exchange-rate h5 {
   text-transform: uppercase;
-  color: var(--green);
+  color: var(--high-clr-1);
 }
 
 .exchange-rate span {
@@ -130,7 +130,7 @@ button {
 .drawer {
   position: absolute;
   inset: 0;
-  background: var(--white);
+  background: var(--bg-clr-1);
   padding: 20px;
   display: grid;
   align-content: start;
@@ -154,7 +154,9 @@ button {
   inset-inline-start: 0;
   transform: translateY(-50%);
   background: transparent;
-  opacity: 0.5;
+  opacity: 0.7;
+  color: var(--body-text-clr);
+  font-size: 20px;
 }
 
 .title button:hover {
@@ -167,7 +169,9 @@ button {
   padding: 10px 20px;
   border: 1px solid var(--input-border);
   border-radius: 10px;
-  outline-color: var(--green);
+  outline-color: var(--high-clr-1);
+  color: var(--body-text-clr);
+  background-color: var(--bg-clr-2);
 }
 
 .currency-list {
@@ -180,11 +184,12 @@ button {
   align-items: center;
   gap: 10px;
   cursor: pointer;
-  padding-block: 5px;
+  border-radius: 10px;
+  padding: 5px 15px;
 }
 
-.currency-list li:first-child {
-  padding-block-start: 0;
+.currency-list li:hover {
+  background-color: var(--bg-clr-2);
 }
 
 /* disable click events for non-list items */
