@@ -4,11 +4,15 @@ import { jwtDecode } from 'jwt-decode'; // Correctly import jwt-decode
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
+
+  private baseUrl = environment.baseUrl;
+  
   private readonly TOKEN_KEY = 'act';
   private token: string | null = null;
   jwtToken$ = new BehaviorSubject<string | null>(null);
@@ -68,7 +72,7 @@ export class AuthService {
   // Login method
   login(username: string, password: string) {
     this.http
-      .post<{ token: string }>(`http://3.110.23.50:3000/api/currencies/login`, {
+      .post<{ token: string }>(`${this.baseUrl}/users/login`, {
         username,
         password,
       })
@@ -99,7 +103,7 @@ export class AuthService {
   // Fetch merchant details based on the username
   private fetchMerchantDetails(username: string) {
     this.http
-      .get(`http://3.110.23.50:3000/api/merchants/?id=${username}`)
+      .get(`${this.baseUrl}/merchants/?id=${username}`)
       .subscribe(
         (res: any) => {
           this.merchantDetails$.next(res); // Store merchant details in BehaviorSubject

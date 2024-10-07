@@ -4,7 +4,8 @@
       <div class="forms-wrap">
         <form (submit)="onLogin()" autocomplete="off" class="sign-in-form">
           <div class="logo">
-            <img src="assets/svg/logos/logoName.svg" alt="Logo" />
+            <img *ngIf="!isDarkMode" src="assets/svg/logos/logoName.svg" alt="Logo" />
+            <img *ngIf="isDarkMode" src="assets/svg/logos/logoNameDark.svg" alt="Logo" />
           </div>
           <div class="heading">
             <h2>Welcome Back</h2>

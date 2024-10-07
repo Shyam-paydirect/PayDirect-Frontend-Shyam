@@ -2,6 +2,7 @@ import { Component, AfterViewInit, Renderer2, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { ToastrService } from 'ngx-toastr';
+import { MainService } from '../services/main.service';
 
 @Component({
   selector: 'app-login-signup',
@@ -9,14 +10,22 @@ import { ToastrService } from 'ngx-toastr';
   styleUrls: ['./login-signup.component.css'],
 })
 export class LoginSignupComponent implements AfterViewInit {
+  isDarkMode: boolean = false;
   username: string = '';
   password: string = '';
 
   constructor(
     private renderer: Renderer2,
     private el: ElementRef,
-    private authService: AuthService
+    private authService: AuthService,
+    private mainService: MainService
   ) {}
+
+  ngOnInit(): void {
+    this.mainService.theme$.subscribe((theme) => {
+      this.isDarkMode = (theme == 'dark');
+    });
+  }
 
   ngAfterViewInit(): void {
     const inputs = this.el.nativeElement.querySelectorAll('.input-field');

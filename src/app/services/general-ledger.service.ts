@@ -1,12 +1,13 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, Observable, of } from 'rxjs';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class GeneralLedgerService {
-  private baseUrl = 'http://3.110.23.50:3000/api/ledger/currencyLedger';
+  private baseUrl = environment.baseUrl;
 
   private dummyData = {
     "data": [
@@ -326,7 +327,7 @@ export class GeneralLedgerService {
     sortOn: string,
     sortBy: string
   ): Observable<any> {
-    const apiUrl = `${this.baseUrl}?page=${page}&pageSize=${pageSize}&filterOn=${filterOn}&filterVal=${filterVal}&sortOn=${sortOn}&sortBy=${sortBy}`;
+    const apiUrl = `${this.baseUrl}/ledger/currencyLedger?page=${page}&pageSize=${pageSize}&filterOn=${filterOn}&filterVal=${filterVal}&sortOn=${sortOn}&sortBy=${sortBy}`;
     return this.http.get<any>(apiUrl).pipe(
       catchError(error => {
         console.error('API error, using dummy data', error);

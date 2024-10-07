@@ -65,7 +65,7 @@ form.sign-up-form {
 .heading h2 {
   font-size: 2.1rem;
   font-weight: 600;
-  color: var(--txt-clr-1);
+  color: var(--body-text-clr);
 }
 
 .heading h6 {
@@ -104,7 +104,7 @@ form.sign-up-form {
   border-bottom: 1px solid #aaa;
   padding: 0;
   font-size: 0.95rem;
-  color: var(--txt-clr-1);
+  color: var(--body-text-clr);
   transition: var(--tran-04);
 }
 
@@ -248,6 +248,7 @@ main.sign-up-mode form.sign-up-form {
   text-align: center;
   transform: translateY(0);
   transition: var(--tran-04);
+  color: var(--body-text-clr);
 }
 
 .text-group h2 {
@@ -276,7 +277,7 @@ main.sign-up-mode form.sign-up-form {
 .bullets span.active {
   width: 1.1rem;
   border-radius: 1rem;
-  background-color: var(--txt-clr-1);
+  background-color: #505050;
 }
 
 @media (max-width: 850px) {
