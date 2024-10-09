@@ -14,6 +14,7 @@ import { GeneralLedgerComponent } from './general-ledger/general-ledger.componen
 import { TopNavbarComponent } from './top-navbar/top-navbar.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
+import { AdminPortalComponent } from './admin-portal/admin-portal.component';
 
 @NgModule({
   declarations: [
@@ -24,7 +25,8 @@ import { ToastrModule } from 'ngx-toastr';
     SideNavbarComponent,
     LoginSignupComponent,
     GeneralLedgerComponent,
-    TopNavbarComponent
+    TopNavbarComponent,
+    AdminPortalComponent
   ],
   imports: [
     BrowserModule,

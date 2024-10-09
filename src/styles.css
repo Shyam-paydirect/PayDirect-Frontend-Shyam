@@ -59,6 +59,7 @@ body,
 input {
   background-color: var(--bg-clr-1);
   transition: var(--tran-02);
+  line-height: normal;
 }
 
 .dark {
@@ -92,8 +93,16 @@ input {
   width: calc(100% - 88px);
 }
 
+h1, h2, h3, h4, h5, h6 {
+  line-height: normal;
+}
+
 a {
   cursor: pointer;
+}
+
+p {
+  margin-bottom: 0;
 }
 
 ul li {
@@ -107,6 +116,7 @@ hr {
   border-top: 1px solid;
   color: #cccc;
   margin: 0 0.7rem;
+  opacity: 1;
 }
 
 .scroll {

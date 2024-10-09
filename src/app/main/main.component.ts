@@ -4,17 +4,16 @@ import { MainService } from '../services/main.service';
 @Component({
   selector: 'app-main',
   templateUrl: './main.component.html',
-  styleUrls: ['./main.component.css']
+  styleUrls: ['./main.component.css'],
 })
 export class MainComponent implements OnInit {
-  
   currentDashboard!: string;
-  dashboardTitle: string = "Dashboard";
+  dashboardTitle: string = 'Dashboard';
 
   constructor(private mainService: MainService) {}
 
   ngOnInit() {
-    this.mainService.currentDashboard$.subscribe(dashboard => {
+    this.mainService.currentDashboard$.subscribe((dashboard) => {
       this.currentDashboard = dashboard;
       this.setDashboardTitle(dashboard);
     });
@@ -28,6 +27,9 @@ export class MainComponent implements OnInit {
         break;
       case 'general-ledger':
         this.dashboardTitle = 'General Ledger';
+        break;
+      case 'admin-portal':
+        this.dashboardTitle = 'Admin Portal';
         break;
       default:
         this.dashboardTitle = 'Dashboard'; // Fallback title
