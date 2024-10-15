@@ -22,7 +22,7 @@ export class MainComponent implements OnInit {
   // Method to set title based on current dashboard
   setDashboardTitle(dashboard: string) {
     switch (dashboard) {
-      case 'currency-exchanger':
+      case 'currency-management':
         this.dashboardTitle = 'Currency Management';
         break;
       case 'general-ledger':

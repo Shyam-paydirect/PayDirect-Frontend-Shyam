@@ -119,6 +119,22 @@ hr {
   opacity: 1;
 }
 
+.btn-1 {
+  padding: 12px 20px;
+  background-color: var(--accent-clr-1);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  transition: var(--tran-03);
+  box-shadow: 0 12px 35px #111e6c40;
+}
+
+.btn-1:hover {
+  background-color: var(--accent-clr-2);
+}
+
 .scroll {
   overflow-x: hidden;
   white-space: nowrap;

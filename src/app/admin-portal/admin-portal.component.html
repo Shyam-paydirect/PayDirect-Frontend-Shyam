@@ -1,94 +1,102 @@
 <div class="container parent">
-    <!-- Button to Open the Modal -->
-    <button
-      type="button"
-      class="btn btn-primary"
-      data-bs-toggle="modal"
-      data-bs-target="#addMemberModal"
-    >
-      Add New Member
-    </button>
-    
-    <!-- Modal Structure -->
-    <div
-      class="modal fade"
-      id="addMemberModal"
-      tabindex="-1"
-      aria-labelledby="addMemberModalLabel"
-      aria-hidden="true"
-    >
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="addMemberModalLabel">Add New Member</h5>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
-          </div>
-          <div class="modal-body">
-            <!-- Modal Form -->
-            <form id="addMemberForm">
-              <div class="mb-3">
-                <label for="username" class="form-label">Username</label>
+  <!-- Button to Open the Modal -->
+  <button
+    type="button"
+    class="btn-1 add-user"
+    data-bs-toggle="modal"
+    data-bs-target="#addMemberModal"
+  >
+  <i class="ri-user-add-line"></i>
+    Add New User
+  </button>
+
+  <!-- Modal Structure -->
+  <div
+    class="modal fade"
+    id="addMemberModal"
+    tabindex="-1"
+    aria-labelledby="addMemberModalLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addMemberModalLabel">Add New Member</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <!-- Modal Form -->
+          <form id="addMemberForm">
+            <div class="row">
+              <div class="col-md-6 mb-3 input-group-border">
                 <input
                   type="text"
-                  class="form-control"
                   id="username"
                   name="username"
-                  placeholder="Enter username"
                   required
+                  autocomplete="off"
                 />
+                <label for="username">Username</label>
               </div>
-              <div class="mb-3">
-                <label for="password" class="form-label">Password</label>
+              <div class="col-md-6 mb-3 input-group-border">
                 <input
                   type="password"
-                  class="form-control"
                   id="password"
                   name="password"
-                  placeholder="Enter password"
                   required
+                  autocomplete="off"
                 />
+                <label for="password">Password</label>
               </div>
-              <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
-                <input
-                  type="email"
-                  class="form-control"
-                  id="email"
-                  name="email"
-                  placeholder="Enter email"
-                  required
-                />
-              </div>
-              <div class="mb-3">
+            </div>
+            <div class="row">
+                <div class="mb-3 input-group-border">
+                  <input
+                    type="text"
+                    id="email"
+                    name="email"
+                    required
+                    autocomplete="off"
+                  />
+                  <label for="email">Email</label>
+                </div>
+            </div>
+            <div class="row">
+              <div class="col-6 mb-3">
                 <label for="role" class="form-label">Role</label>
                 <select class="form-select" id="role" name="role">
                   <option value="admin">Admin</option>
                   <option value="analyst">Analyst</option>
                 </select>
               </div>
-              <div class="mb-3">
+              <div class="col-6 mb-3">
                 <label for="status" class="form-label">Status</label>
                 <select class="form-select" id="status" name="status">
                   <option value="active">Active</option>
                   <option value="inactive">Inactive</option>
                 </select>
               </div>
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-              Close
-            </button>
-            <button type="button" class="btn btn-primary" onclick="submitForm()">
-              Save changes
-            </button>
-          </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            Close
+          </button>
+          <button type="button" class="btn btn-primary save" (click)="submitForm()">
+            Save changes
+          </button>
         </div>
       </div>
     </div>
+  </div>
 </div>

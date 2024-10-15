@@ -5,9 +5,9 @@
     <ng-container [ngSwitch]="currentDashboard">
       <app-top-navbar [dashboardTitle]="dashboardTitle"></app-top-navbar>
 
-      <app-currency-exchanger
-        *ngSwitchCase="'currency-exchanger'"
-      ></app-currency-exchanger>
+      <app-currency-management
+        *ngSwitchCase="'currency-management'"
+      ></app-currency-management>
 
       <app-general-ledger *ngSwitchCase="'general-ledger'"></app-general-ledger>
 

@@ -1,4 +1,18 @@
 .parent {
-    min-height: calc(100% - 65px);
-    position: relative;
+  min-height: calc(100% - 65px);
+  position: relative;
+}
+
+.parent .add-user {
+    position: absolute;
+    right: 0;
+    margin: 24px;
+}
+
+.parent .save {
+    background-color: var(--accent-clr-1);
+}
+
+.parent .save:hover {
+    background-color: var(--accent-clr-2);
 }

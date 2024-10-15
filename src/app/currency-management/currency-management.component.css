@@ -1,0 +1,8 @@
+.currency-management-parent {
+  position: relative;
+  display: grid;
+  grid-template-columns: 2fr 1fr; /* Two columns: left column wider, right column narrower */
+  gap: 20px;
+  padding: 20px;
+  border-radius: 8px;
+}

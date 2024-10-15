@@ -44,3 +44,60 @@
   font-size: 22px;
   margin-bottom: 0;
 }
+
+/* Input and Bootstrap Modal CSS  */
+
+.modal-content {
+  background-color: var(--bg-clr-1);
+  box-shadow: var(--shadow-1);
+}
+
+.modal-body {
+    padding: 2rem 1.5rem;
+}
+
+.input-group-border {
+  font-family: "Segoe UI", sans-serif;
+  margin: 1em 0 1em 0;
+  position: relative;
+}
+
+.input-group-border input {
+  font-size: 100%;
+  padding: 0.8em;
+  outline: none;
+  border: 1px solid var(--text-color);
+  background-color: transparent;
+  border-radius: 14px;
+  width: 100%;
+  color: var(--body-text-clr);
+}
+
+.input-group-border label {
+  font-size: 100%;
+  position: absolute;
+  left: 0;
+  padding: 0.7em 1.2em;
+  margin-left: 0.5em;
+  pointer-events: none;
+  transition: all 0.3s ease;
+  color: var(--text-color);
+}
+
+.input-group-border :is(input:focus, input:valid) ~ label {
+  transform: translateY(-50%) scale(0.9);
+  margin: 0em;
+  margin-left: 1em;
+  padding: 0.4em;
+  background-color: var(--bg-clr-1);
+  color: var(--accent-clr-1);
+}
+
+.input-group-border :is(input:focus, input:valid) {
+  border-color: var(--accent-clr-1);
+}
+
+.modal select {
+    background-color: var(--bg-clr-2);
+    color: var(--body-text-clr);
+}

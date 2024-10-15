@@ -6,7 +6,7 @@ import { AppComponent } from './app.component';
 import { CurrencyManagementComponent } from './currency-management/currency-management.component';
 import { MainComponent } from './main/main.component';
 import { CurrencyExchangerComponent } from './currency-management/currency-exchanger/currency-exchanger.component';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { SideNavbarComponent } from './side-navbar/side-navbar.component';
 import { LoginSignupComponent } from './login-signup/login-signup.component';
@@ -15,6 +15,9 @@ import { TopNavbarComponent } from './top-navbar/top-navbar.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
 import { AdminPortalComponent } from './admin-portal/admin-portal.component';
+import { CurrencyTransactionsComponent } from './currency-management/currency-transactions/currency-transactions.component';
+import { AccountDetailsComponent } from './currency-management/account-details/account-details.component';
+import { RecentPaymentsComponent } from './currency-management/recent-payments/recent-payments.component';
 
 @NgModule({
   declarations: [
@@ -26,7 +29,10 @@ import { AdminPortalComponent } from './admin-portal/admin-portal.component';
     LoginSignupComponent,
     GeneralLedgerComponent,
     TopNavbarComponent,
-    AdminPortalComponent
+    AdminPortalComponent,
+    CurrencyTransactionsComponent,
+    AccountDetailsComponent,
+    RecentPaymentsComponent
   ],
   imports: [
     BrowserModule,
@@ -34,6 +40,7 @@ import { AdminPortalComponent } from './admin-portal/admin-portal.component';
     AppRoutingModule,
     FormsModule,
     BrowserAnimationsModule,
+    ReactiveFormsModule,
     ToastrModule.forRoot({
       timeOut: 3000,
       positionClass: 'toast-top-right',

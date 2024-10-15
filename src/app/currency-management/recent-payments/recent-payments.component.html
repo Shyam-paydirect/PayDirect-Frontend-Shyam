@@ -1,0 +1,32 @@
+<div class="table-main">
+  <div class="table-container">
+    <section class="table-header">
+      <h1 class="table-heading">
+        <i class="ri-table-line"></i> Recent Payments
+      </h1>
+    </section>
+    <hr />
+    <section class="table-body scroll">
+      <table class="ledger">
+        <thead>
+          <tr>
+            <th>Transaction Time</th>
+            <th>Amount</th>
+            <th>Currency</th>
+            <th>Location</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let transaction of transactions">
+            <td>
+              {{ transaction.transaction_time | date : "yyyy-MM-dd HH:mm" }}
+            </td>
+            <td>{{ transaction.transaction_value }}</td>
+            <td>{{ transaction.transaction_curr_code }}</td>
+            <td>{{ transaction.location }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </div>
+</div>

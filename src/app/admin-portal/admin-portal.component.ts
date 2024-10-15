@@ -6,7 +6,7 @@ declare var bootstrap: any;
 @Component({
   selector: 'app-admin-portal',
   templateUrl: './admin-portal.component.html',
-  styleUrls: ['./admin-portal.component.css'],
+  styleUrls: ['./admin-portal.component.css', '../../assets/css/master.css'],
 })
 export class AdminPortalComponent {
   constructor(
@@ -36,14 +36,16 @@ export class AdminPortalComponent {
     // Call the signupUser method from UserService
     this.userService.signupUser(newUser).subscribe(
       (response) => {
-        this.toastr.success('User created successfully!', 'Success', { timeOut: 1500} ); // Success toast
+        this.toastr.success('User created successfully!', 'Success', {
+          timeOut: 1500,
+        }); // Success toast
         this.closeModal(); // Close modal if needed
       },
       (error) => {
         this.toastr.error(
           'User already exists or invalid data. Please try again.',
           'Error',
-          { timeOut: 2000}
+          { timeOut: 2000 }
         ); // Error toast
       }
     );

@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Popover } from 'bootstrap';
 import { CurrencyManagementService } from 'src/app/services/currency-management.service';
 
 @Component({
@@ -24,6 +25,10 @@ export class CurrencyExchangerComponent implements OnInit {
   ngOnInit() {
     this.fetchCurrencies();
     this.loadExchangeRate();
+    const popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
+    popoverTriggerList.map(function (popoverTriggerEl) {
+      return new Popover(popoverTriggerEl);
+    });
   }
 
   fetchCurrencies() {
@@ -41,7 +46,7 @@ export class CurrencyExchangerComponent implements OnInit {
   }
 
   updateConversion() {
-    this.targetValue = this.baseValue * this.exchangeRate;
+    this.targetValue = parseFloat((this.baseValue * this.exchangeRate).toFixed(2));
     this.exchangeRateText = `1 ${this.base} = ${this.exchangeRate.toFixed(4)} ${this.target}`;
   }
 
