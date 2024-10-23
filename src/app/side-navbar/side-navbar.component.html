@@ -1,32 +1,43 @@
 <div class="nav-body">
-    <i class="ri-arrow-left-s-line toggle" [ngClass]="{closeToggle: close}" (click) = "toggleClose()"></i>
-    <nav class="sidebar" [ngClass]="{close: close}">
-      <header>
-        <div class="image-text">
-          <span class="image" *ngIf="close">
-            <img src="assets/svg/logos/logo.svg" *ngIf="!isDarkMode" alt="Logo" />
-            <img src="assets/svg/logos/logoDark.svg" *ngIf="isDarkMode" alt="Logo" />
+  <i
+    class="ri-arrow-left-s-line toggle"
+    [ngClass]="{ closeToggle: close }"
+    (click)="toggleSidenav()"
+  ></i>
+  <nav class="sidebar" [ngClass]="{ close: close }">
+    <header class="header">
+      <span class="nav-closer">
+        <i class="ri-close-large-line" (click)="closeSidenav()"></i>
+      </span>
+      <div class="image-text">
+        <span class="image" *ngIf="close">
+          <img src="assets/svg/logos/logo.svg" *ngIf="!isDarkMode" alt="Logo" />
+          <img
+            src="assets/svg/logos/logoDark.svg"
+            *ngIf="isDarkMode"
+            alt="Logo"
+          />
+        </span>
+        <div class="text headerText" *ngIf="!close">
+          <span class="logoFull" *ngIf="!isDarkMode">
+            <img src="assets/svg/logos/logoName.svg" alt="Logo" />
           </span>
-          <div class="text headerText" *ngIf="!close">
-            <span class="logoFull" *ngIf="!isDarkMode">
-              <img src="assets/svg/logos/logoName.svg" alt="Logo" />
-            </span>
-            <span class="logoFull" *ngIf="isDarkMode">
-              <img src="assets/svg/logos/logoNameDark.svg" alt="Logo" />
-            </span>
-          </div>
+          <span class="logoFull" *ngIf="isDarkMode">
+            <img src="assets/svg/logos/logoNameDark.svg" alt="Logo" />
+          </span>
         </div>
-        <hr>
-      </header>
-  
-      <div class="menuBar">
-        <div class="menu">
-          <ul class="menuLinks">
-            <a (click)="selectDashboard('currency-management')">
-              <li class="navLink" (click)="toggleSublist('attendance')">
-                <i class="ri-copper-diamond-line icon"></i>
-                <span class="text navText">Currency Management</span>
-                <!-- <ul class="submenuLinks" *ngIf="isSublistOpen('attendance')">
+      </div>
+    </header>
+    <hr />
+
+    <div class="menuBar">
+      <div class="menu">
+        <ul class="menuLinks">
+          <a (click)="selectDashboard('currency-management')">
+            <li class="navLink" (click)="toggleSublist('attendance')">
+              <i class="ri-copper-diamond-line icon"></i>
+              <span class="text navText">Currency Management</span>
+              <!-- <ul class="submenuLinks" *ngIf="isSublistOpen('attendance')">
                   <li class="submenuNavLink" (click)="$event.stopPropagation()">Sign-in</li>
                   <li class="submenuNavLink" (click)="$event.stopPropagation()">Sign-out</li>
                   <li class="submenuNavLink" (click)="toggleSublist('report'); $event.stopPropagation()">Report
@@ -36,48 +47,50 @@
                     </ul>
                   </li>
                 </ul> -->
-              </li>
-            </a>
-            <a (click)="selectDashboard('general-ledger')">
-              <li class="navLink">
-                <i class="ri-database-2-line icon"></i>
-                <span class="text navText">General Ledger</span>
-              </li>
-            </a>
-            <a href="#">
-              <li class="navLink">
-                <i class="ri-bank-card-2-line icon"></i>
-                <span class="text navText">Financial Reporting</span>
-              </li>
-            </a>
-            <a href="#">
-              <li class="navLink">
-                <i class="ri-store-2-line icon"></i>
-                <span class="text navText">Taxation and Compliance</span>
-              </li>
-            </a>
-            <a href="#">
-              <li class="navLink">
-                <i class="ri-projector-line icon"></i>
-                <span class="text navText">Access and Security </span>
-              </li>
-            </a>
-            <a href="#">
-              <li class="navLink">
-                <i class="ri-service-line icon"></i>
-                <span class="text navText">Third-Party Integration</span>
-              </li>
-            </a>
-            <a (click)="selectDashboard('admin-portal')">
-              <li class="navLink">
-                <i class="ri-user-settings-line icon"></i>
-                <span class="text navText">Accounts</span>
-              </li>
-            </a>
-          </ul>
-        </div>
-        <div class="bottom-content"></div>
+            </li>
+          </a>
+          <a (click)="selectDashboard('general-ledger')">
+            <li class="navLink">
+              <i class="ri-database-2-line icon"></i>
+              <span class="text navText">General Ledger</span>
+            </li>
+          </a>
+          <a href="#">
+            <li class="navLink">
+              <i class="ri-bank-card-2-line icon"></i>
+              <span class="text navText">Financial Reporting</span>
+            </li>
+          </a>
+          <a href="#">
+            <li class="navLink">
+              <i class="ri-store-2-line icon"></i>
+              <span class="text navText">Taxation and Compliance</span>
+            </li>
+          </a>
+          <a href="#">
+            <li class="navLink">
+              <i class="ri-projector-line icon"></i>
+              <span class="text navText">Access and Security </span>
+            </li>
+          </a>
+          <a href="#">
+            <li class="navLink">
+              <i class="ri-service-line icon"></i>
+              <span class="text navText">Third-Party Integration</span>
+            </li>
+          </a>
+          <a (click)="selectDashboard('admin-portal')">
+            <li class="navLink">
+              <i class="ri-user-settings-line icon"></i>
+              <span class="text navText">Accounts</span>
+            </li>
+          </a>
+        </ul>
       </div>
-    </nav>
-  </div>
-  
+      <div class="bottom-content"></div>
+    </div>
+  </nav>
+</div>
+
+<!-- Overlay -->
+<div class="overlay" [ngClass]="{ 'show-overlay': !close }" (click)="toggleSidenav()"></div>

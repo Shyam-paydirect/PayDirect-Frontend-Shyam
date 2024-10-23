@@ -1,9 +1,15 @@
+.center {
+  display: flex;
+  justify-content: center;
+}
+
 .card {
   width: 400px;
   height: 250px;
   perspective: 1000px;
   border: none;
-  background-color: var(--bg-clr-2);
+  background-color: var(--bg-clr-2); 
+  border-radius: 15px;   
 }
 
 @keyframes flip {

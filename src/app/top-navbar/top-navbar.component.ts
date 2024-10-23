@@ -10,6 +10,7 @@ import { AuthService } from '../services/auth.service';
 export class TopNavbarComponent implements OnInit {
   @Input() dashboardTitle!: string;
 
+  close: boolean = false;
   isDarkMode: boolean = false;
   isFullScreen: boolean = false;
   merchantDetails: any;
@@ -18,6 +19,10 @@ export class TopNavbarComponent implements OnInit {
   constructor(private mainService: MainService, private authService: AuthService) {}
 
   ngOnInit() {
+    this.mainService.sidenavState$.subscribe((state) => {
+      this.close = state;
+    });
+
     this.mainService.theme$.subscribe((theme) => {
       this.isDarkMode = theme === 'dark';
     });
@@ -26,6 +31,14 @@ export class TopNavbarComponent implements OnInit {
     this.authService.merchantDetails$.subscribe(details => {
       this.merchantDetails = details;
     });
+  }
+
+  toggleSidenav() {
+    this.mainService.toggleSidenav();
+  }
+
+  openSidenav() {
+    this.mainService.openSidenav();
   }
 
   toggleTheme() {

@@ -17,11 +17,21 @@
   font-weight: 500;
   font-size: 28px;
   margin-bottom: 0;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dashboard-title i {
+  display: none;
+  padding-right: 3px;
 }
 
 .control-list {
   display: flex;
-  margin-right: 2rem;
+  margin-right: 1rem;
   margin-bottom: 0;
 }
 
@@ -84,11 +94,52 @@
     font-weight: 400;
 }
 
-@media only screen and (max-width: 720px) {
+@media only screen and (max-width: 768px) {
+  .dashboard-title {
+    font-size: 22px;
+  }
+
+  .dashboard-title i {
+    display: unset;
+  }
+
   .namePost {
     display: none;
   }
+
+  .dp {
+    width: 35px;
+    height: 35px;
+  }
+
+  .icon-container {
+    padding: 4px 4px;
+  }
+
+  .icon {
+    font-size: 1.1rem;
+  }
+
   .control-list {
-    margin-right: 10px;
+    margin-right: 0px;
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  .dashboard-title {
+    font-size: 20px;
+  }
+
+  .icon-container {
+    padding: 3px 3px;
+  }
+
+  .icon {
+    font-size: 1rem;
+  }
+
+  .dp {
+    width: 30px;
+    height: 30px;
   }
 }

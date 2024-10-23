@@ -1,21 +1,18 @@
 .trade-payments-parent {
-    width: 100%;
-    height: 100%;
-    background-color: var(--bg-clr-1);
-    border-radius: 10px;
-    box-shadow: var(--shadow-2);
+  width: 100%;
+  height: 100%;
+  background-color: var(--bg-clr-1);
+  border-radius: 10px;
+  box-shadow: var(--shadow-2);
 }
 
 .trade-payments-parent h2 {
-    padding: 10px 20px 0;
+  padding: 10px 20px 0;
 }
 
 .trade-payments {
   display: grid;
-  grid-template-columns: repeat(
-    2,
-    1fr
-  ); /* Three equal columns for the buttons */
+  grid-template-columns: repeat(2, 1fr); /* Two equal columns by default */
   gap: 40px;
   padding: 35px 30px;
   width: 100%;
@@ -40,15 +37,65 @@
 }
 
 .payment-text {
-    display: flex;
-    flex-direction: column;
-    margin-left: 15px;
-    text-align: start;
-    font-size: 18px;
-    font-weight: 500;
-    line-height: 22px;
+  display: flex;
+  flex-direction: column;
+  margin-left: 15px;
+  text-align: start;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 22px;
 }
 
 .currency-icon {
-    height: 60px;
+  height: 60px;
+}
+
+/* Tablet View */
+@media only screen and (max-width: 1024px) {
+  .trade-payments {
+    grid-template-columns: 1fr 1fr; /* Keeps two columns for tablets */
+    gap: 20px;
+    padding: 25px 20px;
+  }
+
+  .payment-text {
+    font-size: 16px;
+  }
+}
+
+/* Mobile View */
+@media only screen and (max-width: 768px) {
+  .trade-payments {
+    gap: 15px;
+    padding: 20px 15px;
+  }
+
+  .trade-payments button {
+    padding: 20px 10px;
+  }
+
+  .currency-icon {
+    height: 50px; /* Reduce icon size for mobile */
+  }
+
+  .payment-text {
+    font-size: 16px;
+    margin-left: 10px;
+  }
+}
+
+/* Very Small Mobile Devices */
+@media only screen and (max-width: 480px) {
+  .trade-payments {
+    padding: 15px 10px;
+  }
+
+  .currency-icon {
+    height: 45px; /* Further reduce icon size */
+  }
+
+  .payment-text {
+    font-size: 14px;
+    margin-left: 5px;
+  }
 }

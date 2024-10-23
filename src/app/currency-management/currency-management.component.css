@@ -6,3 +6,23 @@
   padding: 20px;
   border-radius: 8px;
 }
+
+@media only screen and (max-width: 1190px) {
+  .currency-management-parent {
+    grid-template-columns: 1fr; /* Single column layout */
+  }
+}
+
+@media only screen and (max-width: 768px) {
+  .currency-management-parent {
+    padding: 10px;
+    gap: 15px;
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  .currency-management-parent {
+    padding: 5px;
+    gap: 10px;
+  }
+}

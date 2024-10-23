@@ -25,7 +25,6 @@ export class RecentPaymentsComponent implements OnInit {
       .subscribe((data) => {
         this.transactions = data.data;
       });
-    console.log(this.transactions);
   }
   getStatusClass(transactionType: string): string {
     switch (transactionType.toUpperCase()) {

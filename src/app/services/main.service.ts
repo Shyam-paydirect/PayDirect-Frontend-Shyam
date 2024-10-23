@@ -5,6 +5,9 @@ import { BehaviorSubject, Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class MainService {
+  private sidenavStateSubject = new BehaviorSubject<boolean>(false); // Default closed on smaller screens
+  sidenavState$ = this.sidenavStateSubject.asObservable();
+
   private currentTheme = new BehaviorSubject<string>('light'); // Default theme
   theme$ = this.currentTheme.asObservable();
 
@@ -12,7 +15,31 @@ export class MainService {
   currentDashboard$ = this.currentDashboard.asObservable();
 
   constructor() {
+    this.checkScreenWidth();
+    window.addEventListener('resize', this.checkScreenWidth.bind(this)); // Call checkScreenWidth on resize
+
     this.loadDashboard(); // Load the dashboard from localStorage on service initialization
+  }
+
+  toggleSidenav() {
+    this.sidenavStateSubject.next(!this.sidenavStateSubject.value);
+  }
+
+  closeSidenav() {
+    this.sidenavStateSubject.next(true);
+  }
+
+  openSidenav() {
+    this.sidenavStateSubject.next(false);
+  }
+
+  private checkScreenWidth() {
+    const screenWidth = window.innerWidth;
+    if (screenWidth <= 992) {
+      this.sidenavStateSubject.next(true); // Closed on smaller screens
+    } else {
+      this.sidenavStateSubject.next(false); // Open on larger screens
+    }
   }
 
   setTheme(theme: string) {

@@ -18,6 +18,7 @@ import { AdminPortalComponent } from './admin-portal/admin-portal.component';
 import { CurrencyTransactionsComponent } from './currency-management/currency-transactions/currency-transactions.component';
 import { AccountDetailsComponent } from './currency-management/account-details/account-details.component';
 import { RecentPaymentsComponent } from './currency-management/recent-payments/recent-payments.component';
+import { FinancialReportingComponent } from './financial-reporting/financial-reporting.component';
 
 @NgModule({
   declarations: [
@@ -32,7 +33,8 @@ import { RecentPaymentsComponent } from './currency-management/recent-payments/r
     AdminPortalComponent,
     CurrencyTransactionsComponent,
     AccountDetailsComponent,
-    RecentPaymentsComponent
+    RecentPaymentsComponent,
+    FinancialReportingComponent
   ],
   imports: [
     BrowserModule,

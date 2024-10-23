@@ -15,6 +15,12 @@ export class SideNavbarComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // Subscribe to sidenav state
+    this.mainService.sidenavState$.subscribe((state) => {
+      this.close = state;
+    });
+
+    // Subscribe to theme changes
     this.mainService.theme$.subscribe((theme) => {
       this.isDarkMode = (theme == 'dark');
     });
@@ -28,11 +34,18 @@ export class SideNavbarComponent implements OnInit {
     return this.openSublists[sublist];
   }
 
-  toggleClose(){
-    this.close = !this.close;
+  toggleSidenav() {
+    this.mainService.toggleSidenav();
+  }
+
+  closeSidenav() {
+    this.mainService.closeSidenav();
   }
 
   selectDashboard(dashboard: string) {
     this.mainService.changeDashboard(dashboard);
+    if (window.innerWidth <= 768) {
+      this.toggleSidenav();
+    }
   }
 }

@@ -5,9 +5,9 @@ import { GeneralLedgerService } from '../services/general-ledger.service';
   selector: 'app-general-ledger',
   templateUrl: './general-ledger.component.html',
   styleUrls: [
-    './general-ledger.component.css',
     '../../assets/css/master.css',
     '../../assets/css/table.css',
+    './general-ledger.component.css',
   ],
 })
 export class GeneralLedgerComponent implements OnInit {
@@ -32,7 +32,6 @@ export class GeneralLedgerComponent implements OnInit {
       .subscribe((data) => {
         this.transactions = data.data;
       });
-    console.log(this.transactions);
   }
   getStatusClass(transactionType: string): string {
     switch (transactionType.toUpperCase()) {

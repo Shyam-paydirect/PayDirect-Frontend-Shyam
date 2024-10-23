@@ -1,5 +1,8 @@
 <nav class="top-navbar">
-  <h1 class="dashboard-title">{{ dashboardTitle }}</h1>
+  <h1 class="dashboard-title">
+    <i class="ri-menu-line" (click)="openSidenav()"></i>
+    {{ dashboardTitle }}
+  </h1>
   <div class="controls">
     <ul class="control-list">
       <li class="mode">

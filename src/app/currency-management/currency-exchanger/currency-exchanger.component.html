@@ -36,7 +36,7 @@
               style="cursor: pointer; color: #17a2b8;"
               data-bs-toggle="popover"
               data-bs-trigger="hover focus"
-              data-bs-content="Amount deducted by PayDirect"
+              data-bs-content="And here's some amazing content. It's very engaging. Right?"
             ></i>
           </span>
           <span class="rate-reason">@ PayDirect rate per USD</span>
@@ -64,7 +64,7 @@
       </ul>
     </div>
 
-    <div *ngIf="drawerOpen" class="drawer" [ngClass]="{ show: drawerOpen }">
+    <div class="drawer" [ngClass]="{ show: drawerOpen }">
       <div class="title">
         <button (click)="closeDrawer()">
           <i class="ri-arrow-left-line"></i>
@@ -86,7 +86,7 @@
         >
           <img [src]="getFlagUrl(currency.code)" alt="{{ currency.name }}" />
           <div>
-            <h4>{{ currency.code }}</h4>
+            <h5>{{ currency.code }}</h5>
             <p>{{ currency.name }}</p>
           </div>
         </li>
