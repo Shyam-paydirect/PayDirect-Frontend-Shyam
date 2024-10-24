@@ -19,6 +19,9 @@ import { CurrencyTransactionsComponent } from './currency-management/currency-tr
 import { AccountDetailsComponent } from './currency-management/account-details/account-details.component';
 import { RecentPaymentsComponent } from './currency-management/recent-payments/recent-payments.component';
 import { FinancialReportingComponent } from './financial-reporting/financial-reporting.component';
+import { FinancialAnalyticsComponent } from './financial-reporting/financial-analytics/financial-analytics.component';
+import { FinancialOverviewComponent } from './financial-reporting/financial-overview/financial-overview.component';
+import { NgApexchartsModule } from 'ng-apexcharts';
 
 @NgModule({
   declarations: [
@@ -34,7 +37,9 @@ import { FinancialReportingComponent } from './financial-reporting/financial-rep
     CurrencyTransactionsComponent,
     AccountDetailsComponent,
     RecentPaymentsComponent,
-    FinancialReportingComponent
+    FinancialReportingComponent,
+    FinancialAnalyticsComponent,
+    FinancialOverviewComponent
   ],
   imports: [
     BrowserModule,
@@ -43,6 +48,7 @@ import { FinancialReportingComponent } from './financial-reporting/financial-rep
     FormsModule,
     BrowserAnimationsModule,
     ReactiveFormsModule,
+    NgApexchartsModule,
     ToastrModule.forRoot({
       timeOut: 3000,
       positionClass: 'toast-top-right',

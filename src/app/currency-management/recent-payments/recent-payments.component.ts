@@ -4,7 +4,7 @@ import { GeneralLedgerService } from 'src/app/services/general-ledger.service';
 @Component({
   selector: 'app-recent-payments',
   templateUrl: './recent-payments.component.html',
-  styleUrls: ['../../../assets/css/table.css', './recent-payments.component.css',],
+  styleUrls: ['./recent-payments.component.css',],
 })
 export class RecentPaymentsComponent implements OnInit {
   transactions: any;
