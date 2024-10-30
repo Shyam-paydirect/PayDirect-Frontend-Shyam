@@ -28,6 +28,9 @@ export class MainComponent implements OnInit {
       case 'general-ledger':
         this.dashboardTitle = 'General Ledger';
         break;
+      case 'financial-reporting':
+        this.dashboardTitle = 'Financial Reporting';
+        break;
       case 'admin-portal':
         this.dashboardTitle = 'Admin Portal';
         break;

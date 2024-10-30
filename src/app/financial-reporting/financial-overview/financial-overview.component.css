@@ -1,0 +1,11 @@
+.overview-parent {
+    margin-top: 1rem;
+}
+
+.commonCard-2-heading {
+    font-weight: 600;
+}
+
+.commonCard-2-desc {
+    color: var(--text-color);
+}

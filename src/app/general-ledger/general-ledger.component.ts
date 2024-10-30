@@ -5,8 +5,6 @@ import { GeneralLedgerService } from '../services/general-ledger.service';
   selector: 'app-general-ledger',
   templateUrl: './general-ledger.component.html',
   styleUrls: [
-    '../../assets/css/master.css',
-    '../../assets/css/table.css',
     './general-ledger.component.css',
   ],
 })

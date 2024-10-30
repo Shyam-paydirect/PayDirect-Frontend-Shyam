@@ -45,6 +45,33 @@
   margin-bottom: 0;
 }
 
+.commonCard-2 {
+  position: relative;
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  border-radius: 0.5rem;
+  background-color: var(--bg-clr-1);
+  transition: var(--tran-04);
+  font-size: 0.813rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.icon-parent {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-right: 1rem;
+}
+
+.commonCard-2-icon {
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.commonCard-2-body {
+  padding: 1.25rem;
+}
+
 /* Input and Bootstrap Modal CSS  */
 
 .modal-content {
@@ -53,7 +80,7 @@
 }
 
 .modal-body {
-    padding: 2rem 1.5rem;
+  padding: 2rem 1.5rem;
 }
 
 .input-group-border {
@@ -98,18 +125,17 @@
 }
 
 .modal select {
-    background-color: var(--bg-clr-2);
-    color: var(--body-text-clr);
+  background-color: var(--bg-clr-2);
+  color: var(--body-text-clr);
 }
-
 
 @media (max-width: 768px) {
   .card-main {
     padding: 1rem 0.5rem;
   }
   .commonCard {
-      min-height: 120px;
-      min-width: 220px;
+    min-height: 120px;
+    min-width: 220px;
   }
   .commonCard .heading {
     padding: 0.6rem 0.8rem;
@@ -124,6 +150,6 @@
     padding: 0;
   }
   .commonCard {
-      flex: 1 1 100%;
+    flex: 1 1 100%;
   }
 }

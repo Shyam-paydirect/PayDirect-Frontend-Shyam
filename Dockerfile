@@ -4,7 +4,7 @@ WORKDIR /usr/src/app
 
 COPY . /usr/src/app
 
-EXPOSE 80
+EXPOSE 4201
 
 RUN npm install -g @angular/cli
 

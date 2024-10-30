@@ -195,3 +195,32 @@ hr {
   color: rgb(var(--success-clr));
   background-color: rgb(var(--success-clr) / .1);
 }
+
+.apexcharts-text.apexcharts-yaxis-label tspan, .apexcharts-text.apexcharts-xaxis-label tspan {
+  fill: var(--text-color);
+}
+
+.apexcharts-tooltip.apexcharts-theme-light.apexcharts-active {
+  border-color: #ccc !important;
+  background-color: var(--bg-clr-1) !important;
+}
+
+.apexcharts-tooltip.apexcharts-theme-light .apexcharts-tooltip-title {
+  background: var(--bg-clr-2) !important;
+  border-bottom: 1px solid #ddd;
+}
+
+.apexcharts-menu.apexcharts-menu-open {
+  border-radius: .5rem !important;
+  background-color: var(--bg-clr-1) !important;
+  color: var(--text-color);
+  white-space: nowrap;
+}
+
+.apexcharts-menu-item {
+  border-radius: .2rem !important;
+}
+
+.apexcharts-menu-item:hover {
+  background-color: var(--bg-clr-2);
+}

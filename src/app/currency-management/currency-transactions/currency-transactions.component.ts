@@ -4,7 +4,6 @@ import { Component } from '@angular/core';
   selector: 'app-currency-transactions',
   templateUrl: './currency-transactions.component.html',
   styleUrls: [
-    // '../../../assets/css/master.css',
     './currency-transactions.component.css'
   ]
 })
