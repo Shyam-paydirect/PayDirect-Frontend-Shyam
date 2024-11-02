@@ -2,9 +2,9 @@ name: ImageBuild_AWS
 on:
   workflow_dispatch: 
   push:
-    branches: [ "master" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "main" ]
 jobs:
   Build_Upload:
     runs-on: ubuntu-latest
