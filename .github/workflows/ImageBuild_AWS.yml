@@ -5,9 +5,12 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+
 jobs:
   Build_Upload:
     runs-on: ubuntu-latest
+    outputs:
+      ecrImage: ${{ steps.build-image.outputs.image }}
     steps:
     - name: Checkout Repo
       uses: actions/checkout@v4
@@ -21,6 +24,7 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v2
     - name: Build Image (GITHUB_SHA)
+      id: build-image
       env:
         REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         REPOSITORY: paydirectfrontend
@@ -29,3 +33,37 @@ jobs:
           docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -t $REGISTRY/$REPOSITORY:latest .
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
           docker push $REGISTRY/$REPOSITORY:latest
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:latest" >> $GITHUB_OUTPUT
+
+  ECS_Deploy:
+      needs: [Build_Upload]
+      runs-on: ubuntu-latest
+      steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+      - name: Setup AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ap-south-1
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def
+        env:
+          CONTAINER_NAME: paydirect-frontend
+          ECS_TASK_DEFINITION: TaskDefinitions/td-prod.json
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ${{ env.ECS_TASK_DEFINITION }}
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: ${{ needs.Build_Upload.outputs.ecrImage }}
+      - name: Deploy Amazon ECS task definition
+        env: 
+          ECS_SERVICE: paydirect-portal-service-prod
+          ECS_CLUSTER: Paydirect-Prod
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: ${{ env.ECS_SERVICE }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: true
