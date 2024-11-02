@@ -52,7 +52,7 @@ jobs:
         env:
           CONTAINER_NAME: paydirect-frontend
           ECS_TASK_DEFINITION: TaskDefinitions/td-prod.json
-        uses: aws-actions/amazon-ecs-render-task-definition@c804dfbdd57f713b6c079302a4c01db7017a36fc
+        uses: aws-actions/amazon-ecs-render-task-definition@v1.6.0
         with:
           task-definition: ${{ env.ECS_TASK_DEFINITION }}
           container-name: ${{ env.CONTAINER_NAME }}
@@ -61,7 +61,7 @@ jobs:
         env: 
           ECS_SERVICE: paydirect-portal-service-prod
           ECS_CLUSTER: Paydirect-Prod
-        uses: aws-actions/amazon-ecs-deploy-task-definition@df9643053eda01f169e64a0e60233aacca83799a
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2.1.2
         with:
           task-definition: ${{ steps.task-def.outputs.task-definition }}
           service: ${{ env.ECS_SERVICE }}
