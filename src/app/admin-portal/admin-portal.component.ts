@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { UserService } from '../services/user.service';
 import { ToastrService } from 'ngx-toastr';
+import { Title } from '@angular/platform-browser';
 declare var bootstrap: any;
 
 @Component({
@@ -11,8 +12,11 @@ declare var bootstrap: any;
 export class AdminPortalComponent {
   constructor(
     private userService: UserService,
-    private toastr: ToastrService
-  ) {}
+    private toastr: ToastrService,
+    private titleService: Title
+  ) {
+    this.titleService.setTitle('Admin Portal');
+  }
 
   submitForm() {
     const username = (document.getElementById('username') as HTMLInputElement)

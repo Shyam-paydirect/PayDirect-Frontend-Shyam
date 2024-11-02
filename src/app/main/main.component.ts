@@ -8,7 +8,7 @@ import { MainService } from '../services/main.service';
 })
 export class MainComponent implements OnInit {
   currentDashboard!: string;
-  dashboardTitle: string = 'Dashboard';
+  dashboardTitle: string = 'General Ledger';
 
   constructor(private mainService: MainService) {}
 
@@ -35,7 +35,8 @@ export class MainComponent implements OnInit {
         this.dashboardTitle = 'Admin Portal';
         break;
       default:
-        this.dashboardTitle = 'Dashboard'; // Fallback title
+        this.dashboardTitle = 'General Ledger';
+        this.currentDashboard = 'general-ledger';
         break;
     }
   }
