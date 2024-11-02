@@ -3,7 +3,6 @@
     "containerDefinitions": [
         {
             "name": "paydirect-frontend",
-            "image": "992382377156.dkr.ecr.ap-south-1.amazonaws.com/paydirectfrontend:latest",
             "cpu": 0,
             "memory": 2048,
             "memoryReservation": 1024,

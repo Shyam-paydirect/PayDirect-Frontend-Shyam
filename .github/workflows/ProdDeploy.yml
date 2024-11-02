@@ -1,4 +1,4 @@
-name: ImageBuild_AWS
+name: Deploy-AWS-Frontend-Prod
 on:
   workflow_dispatch: 
   push:
