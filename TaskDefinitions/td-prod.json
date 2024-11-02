@@ -17,9 +17,6 @@
                 }
             ],
             "essential": true,
-            "restartPolicy": {
-                "enabled": true
-            },
             "environment": [],
             "environmentFiles": [],
             "mountPoints": [],
