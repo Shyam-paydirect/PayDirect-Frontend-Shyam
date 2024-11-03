@@ -33,7 +33,7 @@ jobs:
           docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -t $REGISTRY/$REPOSITORY:latest .
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
           docker push $REGISTRY/$REPOSITORY:latest
-          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+          echo "image=$REGISTRY/$REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
   ECS_Deploy:
       needs: [Build_Upload]
@@ -56,7 +56,7 @@ jobs:
         with:
           task-definition: ${{ env.ECS_TASK_DEFINITION }}
           container-name: ${{ env.CONTAINER_NAME }}
-          image:  992382377156.dkr.ecr.ap-south-1.amazonaws.com/paydirectfrontend:latest
+          image: 992382377156.dkr.ecr.ap-south-1.amazonaws.com/paydirectfrontend:latest
       - name: Deploy Amazon ECS task definition
         env: 
           ECS_SERVICE: paydirect-portal-service-prod
