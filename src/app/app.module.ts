@@ -22,7 +22,6 @@ import { FinancialReportingComponent } from './financial-reporting/financial-rep
 import { FinancialAnalyticsComponent } from './financial-reporting/financial-analytics/financial-analytics.component';
 import { FinancialOverviewComponent } from './financial-reporting/financial-overview/financial-overview.component';
 import { NgApexchartsModule } from 'ng-apexcharts';
-import { RouterModule } from '@angular/router';
 
 @NgModule({
   declarations: [
@@ -44,7 +43,6 @@ import { RouterModule } from '@angular/router';
   ],
   imports: [
     BrowserModule,
-    RouterModule,
     HttpClientModule,
     AppRoutingModule,
     FormsModule,
