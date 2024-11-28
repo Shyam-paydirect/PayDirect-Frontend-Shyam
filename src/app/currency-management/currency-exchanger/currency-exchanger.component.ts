@@ -8,12 +8,13 @@ import { CurrencyManagementService } from 'src/app/services/currency-management.
   styleUrls: ['./currency-exchanger.component.css']
 })
 export class CurrencyExchangerComponent implements OnInit {
-  base: string = 'USD';
-  target: string = 'EUR';
-  baseValue: number = 1;
+  base: string = 'INR';
+  target: string = 'USD';
+  baseValue: number = 0;
   targetValue: number = 0;
   exchangeRate: number = 0;
   exchangeRateText: string = '';
+  totalPayment: number = 0;
   currencies: any[] = [];
   filteredCurrencies: any[] = [];
   drawerOpen: boolean = false;
@@ -21,12 +22,14 @@ export class CurrencyExchangerComponent implements OnInit {
   searchKeyword: string = '';
   timer: number = 0;
   intervalId: any;
+  isLoading: boolean = true;
+  errorMsg: string = "";
 
   constructor(private currencyService: CurrencyManagementService) {}
 
   ngOnInit() {
     this.fetchCurrencies();
-    this.loadExchangeRate();
+    // this.loadExchangeRate();
     const popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
     popoverTriggerList.map(function (popoverTriggerEl) {
       return new Popover(popoverTriggerEl);
@@ -57,8 +60,8 @@ export class CurrencyExchangerComponent implements OnInit {
   }
 
   openDrawer(type: string) {
-    this.openedDrawer = type;
-    this.drawerOpen = true;
+    // this.openedDrawer = type;
+    // this.drawerOpen = true;
   }
 
   closeDrawer() {
@@ -105,6 +108,7 @@ export class CurrencyExchangerComponent implements OnInit {
   }
 
   refreshExchangeRate() {
+    this.errorMsg = "";
     // Prepare API payload
     const payload = {
       ccyPair: `${this.base}${this.target}`,
@@ -122,11 +126,13 @@ export class CurrencyExchangerComponent implements OnInit {
       (response: any) => {
         if (response?.data?.rate) {
           this.exchangeRate = parseFloat(response.data.rate);
+          this.totalPayment = this.baseValue + 2000;
           this.updateConversion();
           this.startTimer(); // Restart the timer
         }
       },
       (error) => {
+        this.errorMsg = error.error.error;
         console.error('Error fetching exchange rate:', error);
       }
     );

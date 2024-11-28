@@ -164,9 +164,9 @@ button {
 
 .title h3 {
   font-weight: 500;
-    padding-left: 0.6rem;
-    font-size: 22px;
-    margin-bottom: 0;
+  padding-left: 0.6rem;
+  font-size: 22px;
+  margin-bottom: 0;
 }
 
 .search input {
@@ -265,6 +265,11 @@ button {
   text-align: right;
 }
 
+.gst {
+  font-size: 10px;
+  font-weight: 600;
+}
+
 .book-parent {
   display: flex;
   justify-content: end;
@@ -281,6 +286,13 @@ button {
   margin-top: 12px;
 }
 
+.error-message {
+  font-size: 0.8rem;
+  color: rgb(var(--charges-clr));
+  font-weight: 500;
+  margin-bottom: 5px;
+}
+
 .timer {
   font-size: 0.8rem;
   font-weight: bold;
@@ -293,12 +305,14 @@ button {
 
 .control-label {
   color: var(--text-color);
-    font-size: 14px;
-    font-weight: 500;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .final-charge-parent {
   padding: 0 10px;
+  display: flex;
+  justify-content: space-between;
 }
 
 .final-charge-label {
@@ -309,4 +323,25 @@ button {
   .title h3 {
     font-size: 18px;
   }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.skeleton-loader {
+  border-radius: 4px;
+  height: 16px;
+  width: 120px;
 }

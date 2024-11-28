@@ -20,6 +20,7 @@
         </div>
       </div>
       <span class="refresh-container">
+        <div *ngIf="errorMsg" class="error-message">{{ errorMsg }}</div>
         <span *ngIf="timer > 0" class="timer"> {{ timer }}s </span>
         <button
           type="button"
@@ -48,40 +49,47 @@
       <ul class="rate-details-list">
         <li class="rate-detail">
           <span class="rate">
-            <i class="ri-close-line sign"></i>
-            ₹ 84.96
-            <i
-              class="ri-information-line"
-              style="cursor: pointer; color: #17a2b8"
-              data-bs-toggle="popover"
-              data-bs-trigger="hover focus"
-              data-bs-content="And here's some amazing content. It's very engaging. Right?"
-            ></i>
+            <i class="ri-equal-line sign"></i>
+            ₹ {{ exchangeRate }}
+            <!-- <i
+                class="ri-information-line"
+                style="cursor: pointer; color: #17a2b8"
+                data-bs-toggle="popover"
+                data-bs-trigger="hover focus"
+                data-bs-content="And here's some amazing content. It's very engaging. Right?"
+              ></i> -->
           </span>
           <span class="rate-reason">@ PayDirect rate per USD</span>
         </li>
-        <li class="rate-detail">
-          <span class="rate"><i class="ri-equal-line sign"></i>₹ 836829.24</span
+        <!-- <li class="rate-detail">
+          <span class="rate"><i class="ri-equal-line sign"></i>₹ {{ FXAmount }}</span
           ><span class="rate-reason">FX Amount</span>
-        </li>
+        </li> -->
         <li class="rate-detail">
+          <span class="rate"><i class="ri-add-line sign"></i>₹ 2000.00</span
+          ><span class="rate-reason"
+            >Service Charge <span class="gst">(incl. GST)</span></span
+          >
+        </li>
+        <!-- <li class="rate-detail">
           <span class="rate"><i class="ri-add-line sign"></i>₹ 500</span
           ><span class="rate-reason">Approx SWIFT Charges</span>
         </li>
         <li class="rate-detail">
           <span class="rate"><i class="ri-add-line sign"></i>₹ 0.00</span
           ><span class="rate-reason">Approx Transaction Charges</span>
-        </li>
+        </li> -->
         <!-- <li class="rate-detail">
           <span class="rate"><i class="ri-add-line sign"></i>₹ 0.00</span
           ><span class="rate-reason">Approx Correspondent Bank Charges</span>
         </li> -->
-        <li class="rate-detail">
+        <!-- <li class="rate-detail">
           <span class="rate"><i class="ri-add-line sign"></i>₹ 240.64</span
           ><span class="rate-reason">GST</span>
-        </li>
+        </li> -->
       </ul>
       <div class="final-charge-parent">
+        <h6 class="final-charge-label totalPayment rate"><i class="ri-equal-line sign"></i>₹ {{ totalPayment }}</h6>
         <h6 class="final-charge-label">Total Payment</h6>
       </div>
       <div class="book-parent">
