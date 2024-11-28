@@ -19,6 +19,8 @@ export class CurrencyExchangerComponent implements OnInit {
   drawerOpen: boolean = false;
   openedDrawer: string = '';
   searchKeyword: string = '';
+  timer: number = 0;
+  intervalId: any;
 
   constructor(private currencyService: CurrencyManagementService) {}
 
@@ -93,4 +95,56 @@ export class CurrencyExchangerComponent implements OnInit {
   getFlagUrl(code: string): string {
     return `https://wise.com/public-resources/assets/flags/rectangle/${code.toLowerCase()}.png`;
   }
+
+  onBaseValueChange() {
+    this.targetValue = 0;
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+    }
+    this.timer = 0;
+  }
+
+  refreshExchangeRate() {
+    // Prepare API payload
+    const payload = {
+      ccyPair: `${this.base}${this.target}`,
+      dealtSide: 'BUY',
+      txnAmount: this.baseValue.toString(),
+      txnCcy: this.target,
+      tenor: 'TODAY',
+      executable: 'Y',
+      dealType: 'SPOT/OUTRIGHT',
+      clientTxnsId: 'CLIENT-00000001',
+    };
+
+    // Fetch the exchange rate
+    this.currencyService.getExchangeData(payload).subscribe(
+      (response: any) => {
+        if (response?.data?.rate) {
+          this.exchangeRate = parseFloat(response.data.rate);
+          this.updateConversion();
+          this.startTimer(); // Restart the timer
+        }
+      },
+      (error) => {
+        console.error('Error fetching exchange rate:', error);
+      }
+    );
+  }
+
+  startTimer() {
+    this.timer = 30;
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+    }
+    this.intervalId = setInterval(() => {
+      if (this.timer > 0) {
+        this.timer--;
+      } else {
+        clearInterval(this.intervalId);
+      }
+    }, 1000);
+  }
+
+  submitForm() {}
 }

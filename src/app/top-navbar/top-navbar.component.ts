@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
 import { MainService } from '../services/main.service';
 import { AuthService } from '../services/auth.service';
 
@@ -14,9 +14,13 @@ export class TopNavbarComponent implements OnInit {
   isDarkMode: boolean = false;
   isFullScreen: boolean = false;
   merchantDetails: any;
-  defaultImageUrl = 'assets/img/DP.jpeg';
+  defaultImageUrl = 'assets/img/defaultDP.jpeg';
 
-  constructor(private mainService: MainService, private authService: AuthService) {}
+  constructor(
+    private mainService: MainService,
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit() {
     this.mainService.sidenavState$.subscribe((state) => {
@@ -28,8 +32,9 @@ export class TopNavbarComponent implements OnInit {
     });
 
     // Subscribe to the merchantDetails$ BehaviorSubject to get merchant data
-    this.authService.merchantDetails$.subscribe(details => {
+    this.authService.merchantDetails$.subscribe((details) => {
       this.merchantDetails = details;
+      this.cdr.detectChanges();
     });
   }
 
@@ -80,5 +85,10 @@ export class TopNavbarComponent implements OnInit {
   onImageError(event: Event) {
     const target = event.target as HTMLImageElement;
     target.src = this.defaultImageUrl; // Fallback to default image
+  }
+
+  toggleProfileMenu() {
+    let profileMenuParent = document.getElementById("profileMenuParent");
+    profileMenuParent?.classList.toggle("open-menu");
   }
 }

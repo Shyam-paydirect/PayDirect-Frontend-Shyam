@@ -4,12 +4,20 @@
       <div class="forms-wrap">
         <form (submit)="onLogin()" autocomplete="off" class="sign-in-form">
           <div class="logo">
-            <img *ngIf="!isDarkMode" src="assets/svg/logos/logoName.svg" alt="Logo" />
-            <img *ngIf="isDarkMode" src="assets/svg/logos/logoNameDark.svg" alt="Logo" />
+            <img
+              *ngIf="!isDarkMode"
+              src="assets/svg/logos/logoName.svg"
+              alt="Logo"
+            />
+            <img
+              *ngIf="isDarkMode"
+              src="assets/svg/logos/logoNameDark.svg"
+              alt="Logo"
+            />
           </div>
           <div class="heading">
             <h2>Welcome Back</h2>
-            <h6>Not registered yet? </h6>
+            <h6>Not registered yet?</h6>
             <a class="toggle">Sign up</a>
           </div>
           <div class="actual-form">
@@ -44,14 +52,14 @@
             </p>
           </div>
         </form>
-        
-        <form action="index.html" autocomplete="off" class="sign-up-form">
+
+        <form (submit)="onSignup()" autocomplete="off" class="sign-up-form">
           <div class="logo">
             <img src="assets/svg/logos/logoName.svg" alt="Logo" />
           </div>
           <div class="heading">
             <h2>Get Started</h2>
-            <h6>Already have an account? </h6>
+            <h6>Already have an account?</h6>
             <a class="toggle">Sign in</a>
           </div>
           <div class="actual-form">
@@ -62,6 +70,8 @@
                 id="email"
                 autocomplete="off"
                 required
+                [(ngModel)]="email"
+                name="email"
               />
               <label>Email</label>
             </div>
@@ -72,6 +82,8 @@
                 id="name-signup"
                 autocomplete="off"
                 required
+                [(ngModel)]="usernameSignup"
+                name="usernameSignup"
               />
               <label>Username</label>
             </div>
@@ -82,13 +94,24 @@
                 id="pass-signup"
                 autocomplete="off"
                 required
+                [(ngModel)]="passwordSignup"
+                name="passwordSignup"
               />
               <label>Password</label>
             </div>
             <input type="submit" value="Sign up" class="sign-btn" />
+            <!-- <button
+              type="button"
+              class="sign-btn"
+              data-bs-toggle="modal"
+              data-bs-target="#verifyOTP"
+            >
+              <i class="ri-wallet-line"></i>
+              Book Now
+            </button> -->
             <p class="text">
-              By signing up, I agree to the 
-              <a href="">Terms of services</a> and 
+              By signing up, I agree to the
+              <a href="">Terms of services</a> and
               <a href="">Privacy Policy</a>
             </p>
           </div>
@@ -96,26 +119,118 @@
       </div>
       <div class="carousel">
         <div class="images-wrapper">
-            <img src="assets/svg/login/image1.svg" class="image img-1 show" alt="">
-            <img src="assets/svg/login/image2.svg" class="image img-2" alt="">
-            <img src="assets/img/login/image3.png" class="image img-3" alt="">
+          <img
+            src="assets/svg/login/image1.svg"
+            class="image img-1 show"
+            alt=""
+          />
+          <img src="assets/svg/login/image2.svg" class="image img-2" alt="" />
+          <img src="assets/img/login/image3.png" class="image img-3" alt="" />
         </div>
 
         <div class="text-slider">
-            <div class="text-wrap">
-                <div class="text-group">
-                    <h2>Streamline your finances effortlessly</h2>
-                    <h2>Your all-in-one accounting solution</h2>
-                    <h2>Effortless financial management</h2>
-                </div>
+          <div class="text-wrap">
+            <div class="text-group">
+              <h2>Streamline your finances effortlessly</h2>
+              <h2>Your all-in-one accounting solution</h2>
+              <h2>Effortless financial management</h2>
             </div>
-            <div class="bullets">
-                <span class="active" data-value="1"></span>
-                <span data-value="2"></span>
-                <span data-value="3"></span>
-            </div>
+          </div>
+          <div class="bullets">
+            <span class="active" data-value="1"></span>
+            <span data-value="2"></span>
+            <span data-value="3"></span>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </main>
+
+<div
+  class="modal fade"
+  id="verifyOTP"
+  tabindex="-1"
+  aria-labelledby="verifyOTPLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="verifyOTPLabel">Add New Member</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <form id="addMemberForm">
+          <div class="row">
+            <div class="col-md-6 mb-3 input-group-border">
+              <input
+                type="text"
+                id="username"
+                name="username"
+                required
+                autocomplete="off"
+              />
+              <label for="username">Username</label>
+            </div>
+            <div class="col-md-6 mb-3 input-group-border">
+              <input
+                type="password"
+                id="password"
+                name="password"
+                required
+                autocomplete="off"
+              />
+              <label for="password">Password</label>
+            </div>
+          </div>
+          <div class="row">
+            <div class="mb-3 input-group-border">
+              <input
+                type="text"
+                id="email"
+                name="email"
+                required
+                autocomplete="off"
+              />
+              <label for="email">Email</label>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-6 mb-3">
+              <label for="role" class="form-label">Role</label>
+              <select class="form-select" id="role" name="role">
+                <option value="admin">Admin</option>
+                <option value="analyst">Analyst</option>
+              </select>
+            </div>
+            <div class="col-6 mb-3">
+              <label for="status" class="form-label">Status</label>
+              <select class="form-select" id="status" name="status">
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Close
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary save"
+          (click)="sendOTP()"
+        >
+          Save changes
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

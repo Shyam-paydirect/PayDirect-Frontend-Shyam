@@ -11,6 +11,9 @@ import { MainService } from '../services/main.service';
 })
 export class LoginSignupComponent implements AfterViewInit {
   isDarkMode: boolean = false;
+  email: string = '';
+  usernameSignup: string = '';
+  passwordSignup: string = '';
   username: string = '';
   password: string = '';
 
@@ -101,4 +104,18 @@ export class LoginSignupComponent implements AfterViewInit {
   onLogin() {
     this.authService.login(this.username, this.password);
   }
+
+  onSignup() {
+    this.authService.signup(this.email, this.usernameSignup, this.passwordSignup).subscribe(
+      (success) => {
+        if (success) {
+          const main = this.el.nativeElement.querySelector('main');
+          this.renderer.removeClass(main, 'sign-up-mode');
+          this.renderer.addClass(main, 'sign-up-mode');
+        }
+      }
+    );
+  }
+
+  sendOTP() {}
 }

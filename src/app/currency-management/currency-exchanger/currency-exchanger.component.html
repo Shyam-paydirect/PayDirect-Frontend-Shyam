@@ -1,28 +1,47 @@
 <div class="container parent">
   <main>
     <div class="exchange-rate">
-      <h5>Exchange Rate</h5>
-      <span>{{ exchangeRateText }}</span>
+      <h5>BOOK FX RATE</h5>
+      <!-- <span>{{ exchangeRateText }}</span> -->
     </div>
 
     <div class="controls">
-      <div class="control">
-        <button (click)="openDrawer('base')">{{ base }}</button>
-        <input
-          type="number"
-          [(ngModel)]="baseValue"
-          (input)="convertCurrency()"
-          min="0"
-          step="0.01"
-        />
+      <div class="control-parent">
+        <span class="control-label">Sending Amount</span>
+        <div class="control">
+          <button (click)="openDrawer('base')">{{ base }}</button>
+          <input
+            type="number"
+            [(ngModel)]="baseValue"
+            (input)="onBaseValueChange()"
+            min="0"
+            step="0.01"
+          />
+        </div>
       </div>
-      <div class="control">
-        <button (click)="openDrawer('target')">{{ target }}</button>
-        <input type="number" [(ngModel)]="targetValue" readonly />
+      <span class="refresh-container">
+        <span *ngIf="timer > 0" class="timer"> {{ timer }}s </span>
+        <button
+          type="button"
+          class="btn-1 btn-small"
+          *ngIf="timer === 0"
+          (click)="refreshExchangeRate()"
+          style="cursor: pointer"
+        >
+          <i class="ri-refresh-line"></i>
+          Get Rate
+        </button>
+      </span>
+      <div class="control-parent">
+        <span class="control-label">Receiving Amount</span>
+        <div class="control">
+          <button (click)="openDrawer('target')">{{ target }}</button>
+          <input type="number" [(ngModel)]="targetValue" readonly />
+        </div>
       </div>
-      <button class="swap-btn" (click)="swapCurrencies()">
+      <!-- <button class="swap-btn" (click)="swapCurrencies()">
         <i class="ri-arrow-up-down-line icon"></i>
-      </button>
+      </button> -->
     </div>
 
     <div class="rate-details">
@@ -33,14 +52,14 @@
             ₹ 84.96
             <i
               class="ri-information-line"
-              style="cursor: pointer; color: #17a2b8;"
+              style="cursor: pointer; color: #17a2b8"
               data-bs-toggle="popover"
               data-bs-trigger="hover focus"
               data-bs-content="And here's some amazing content. It's very engaging. Right?"
             ></i>
           </span>
           <span class="rate-reason">@ PayDirect rate per USD</span>
-        </li>        
+        </li>
         <li class="rate-detail">
           <span class="rate"><i class="ri-equal-line sign"></i>₹ 836829.24</span
           ><span class="rate-reason">FX Amount</span>
@@ -53,15 +72,24 @@
           <span class="rate"><i class="ri-add-line sign"></i>₹ 0.00</span
           ><span class="rate-reason">Approx Transaction Charges</span>
         </li>
-        <li class="rate-detail">
+        <!-- <li class="rate-detail">
           <span class="rate"><i class="ri-add-line sign"></i>₹ 0.00</span
           ><span class="rate-reason">Approx Correspondent Bank Charges</span>
-        </li>
+        </li> -->
         <li class="rate-detail">
           <span class="rate"><i class="ri-add-line sign"></i>₹ 240.64</span
           ><span class="rate-reason">GST</span>
         </li>
       </ul>
+      <div class="final-charge-parent">
+        <h6 class="final-charge-label">Total Payment</h6>
+      </div>
+      <div class="book-parent">
+        <button type="button" class="btn-1 book-button">
+          <i class="ri-wallet-line"></i>
+          Book Now
+        </button>
+      </div>
     </div>
 
     <div class="drawer" [ngClass]="{ show: drawerOpen }">

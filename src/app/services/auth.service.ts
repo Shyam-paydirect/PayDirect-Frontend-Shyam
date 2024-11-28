@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, catchError, map, Observable, of } from 'rxjs';
 import { jwtDecode } from 'jwt-decode'; // Correctly import jwt-decode
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
@@ -69,6 +69,32 @@ export class AuthService {
     this.merchantDetails$.next(null);
   }
 
+  signup(email: string, username: string, password: string): Observable<boolean> {
+    return this.http
+      .post<{ message: string }>(`${this.baseUrl}/users/signup`, {
+        email,
+        username,
+        password,
+        role: 'admin',
+        status: 'active'
+      })
+      .pipe(
+        map((res) => {
+          this.toast.success(res.message || 'Signup successful! Please login using the credentials.', '', {
+            timeOut: 1500
+          });
+          return true; // Return true for success
+        }),
+        catchError((err) => {
+          const errorMessage =
+            err.error?.message || 'Signup failed. Please try again.';
+          this.toast.error(errorMessage, '', { timeOut: 2000 });
+          return of(false); // Return false for failure
+        })
+      );
+  }
+  
+
   // Login method
   login(username: string, password: string) {
     this.http
@@ -103,10 +129,10 @@ export class AuthService {
   // Fetch merchant details based on the username
   private fetchMerchantDetails(username: string) {
     this.http
-      .get(`${this.baseUrl}/merchants/?id=${username}`)
+      .get(`${this.baseUrl}/users/search?username=${username}`)
       .subscribe(
         (res: any) => {
-          this.merchantDetails$.next(res); // Store merchant details in BehaviorSubject
+          this.merchantDetails$.next(res.users[0]); // Store merchant details in BehaviorSubject
         },
         (err) => {
           console.error('Error fetching merchant details:', err);

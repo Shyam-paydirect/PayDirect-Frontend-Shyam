@@ -1,18 +1,23 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { MainService } from '../services/main.service';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-side-navbar',
   templateUrl: './side-navbar.component.html',
-  styleUrls: ['./side-navbar.component.css']
+  styleUrls: ['./side-navbar.component.css'],
 })
 export class SideNavbarComponent implements OnInit {
   isDarkMode: boolean = true;
   openSublists: { [key: string]: boolean } = {};
   close: boolean = false;
+  merchantDetails: any;
 
-  constructor(private mainService: MainService) {
-  }
+  constructor(
+    private mainService: MainService,
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     // Subscribe to sidenav state
@@ -22,7 +27,12 @@ export class SideNavbarComponent implements OnInit {
 
     // Subscribe to theme changes
     this.mainService.theme$.subscribe((theme) => {
-      this.isDarkMode = (theme == 'dark');
+      this.isDarkMode = theme == 'dark';
+    });
+
+    this.authService.merchantDetails$.subscribe((details) => {
+      this.merchantDetails = details;
+      this.cdr.detectChanges();
     });
   }
 

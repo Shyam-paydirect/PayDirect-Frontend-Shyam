@@ -67,7 +67,7 @@
               <span class="text navText">Taxation and Compliance</span>
             </li>
           </a>
-          <a href="#">
+          <!-- <a href="#">
             <li class="navLink">
               <i class="ri-projector-line icon"></i>
               <span class="text navText">Access and Security </span>
@@ -78,8 +78,8 @@
               <i class="ri-service-line icon"></i>
               <span class="text navText">Third-Party Integration</span>
             </li>
-          </a>
-          <a (click)="selectDashboard('admin-portal')">
+          </a> -->
+          <a *ngIf="merchantDetails?.role == 'admin'" (click)="selectDashboard('admin-portal')">
             <li class="navLink">
               <i class="ri-user-settings-line icon"></i>
               <span class="text navText">Accounts</span>

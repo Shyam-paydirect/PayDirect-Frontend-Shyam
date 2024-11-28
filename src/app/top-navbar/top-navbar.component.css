@@ -31,7 +31,6 @@
 
 .control-list {
   display: flex;
-  margin-right: 1rem;
   margin-bottom: 0;
 }
 
@@ -72,26 +71,110 @@
 }
 
 .dp {
-    width: 40px;
-    height: 40px;
+    width: 35px;
+    height: 35px;
+    border: var(--accent-clr-1) 1px solid;
     border-radius: 50%;
     margin: 5px;
-    margin-right: 10px;
+    cursor: pointer;
+}
+
+.profile-menu-parent {
+  position: absolute;
+  top: 100%;
+  right: 10px;
+  width: 320px;
+  max-height: 0px;
+  transition: all 0.4s;
+  clip-path: polygon(0px 0px, 100% 0px, 100% 0px, 0px 0px);
+}
+
+.profile-menu-parent.open-menu {
+  max-height: 400px;
+  clip-path: polygon(0px 0px, 105% 0px, 105% 110%, 0px 110%);
+}
+
+.profile-menu {
+  background-color: var(--bg-clr-1);
+  padding: 10px;
+  margin: 10px;
+  box-shadow: 0 4px 10px #ccc7;
+  border-radius: 0.5rem;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+}
+
+.user-info .dp {
+  width: 45px;
+  height: 45px;
+  cursor: unset;
 }
 
 .namePost {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .userName {
-    font-size: 16px;
-    font-weight: 400;
+  font-size: 16px;
+  font-weight: 400;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .userPost {
-    font-size: 15px;
-    font-weight: 400;
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.profile-menu hr {
+  height: 1px;
+  width: 100%;
+  margin: 8px 0px;
+}
+
+.profile-menu-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: var(--txt-clr-1);
+  margin: 12px 0px;
+  transition: transform 0.4s;
+}
+
+.logout {
+  color: rgb(var(--charges-clr));
+}
+
+.profile-menu-link p {
+  width: 100%;
+}
+
+.profile-menu-link i {
+  font-size: 20px;
+  padding: 8px;
+  margin-right: 5px;
+  border-radius: 50%;
+}
+
+.profile-menu-link span {
+  margin-right: 5px;
+  transition: transform 0.4s;
+}
+
+.profile-menu-link:hover {
+  transform: translateX(3px);
+}
+
+.profile-menu-link:hover p, i {
+  font-weight: 500;
 }
 
 @media only screen and (max-width: 768px) {
@@ -118,10 +201,6 @@
 
   .icon {
     font-size: 1.1rem;
-  }
-
-  .control-list {
-    margin-right: 0px;
   }
 }
 

@@ -30,7 +30,7 @@
           <i class="ri-notification-3-line icon"></i>
         </div>
       </li>
-      <li class="profile" (click)="logout()">
+      <li class="profile" (click)="toggleProfileMenu()">
         <div class="dpDiv">
           <img
             class="dp"
@@ -39,14 +39,40 @@
             (error)="onImageError($event)"
           />
         </div>
-        <div class="namePost" *ngIf="merchantDetails?.length > 0">
-          <span class="userName" *ngIf="merchantDetails[0]?.merchant_name">{{
-            merchantDetails[0]?.merchant_name
-          }}</span>
-          <span class="userPost" *ngIf="merchantDetails[0]?.merchant_role">
-            {{ merchantDetails[0]?.merchant_role }}
-          </span>
+        <div class="profile-menu-parent" id="profileMenuParent">
+          <div class="profile-menu">
+            <div class="user-info">
+              <img
+                class="dp"
+                [src]="merchantDetails?.[0]?.merchant_photo"
+                alt="DP"
+                (error)="onImageError($event)"
+              />
+              <div class="namePost" *ngIf="merchantDetails">
+                <span class="userName" *ngIf="merchantDetails.username">
+                  {{ merchantDetails.username }}
+                </span>
+                <span class="capitalize userPost" *ngIf="merchantDetails.role">
+                  {{ merchantDetails.role }}
+                </span>
+              </div>
+            </div>
+            <hr>
+            <a (click)="logout()" class="profile-menu-link logout">
+              <i class="ri-logout-box-r-line"></i>
+              <p>Logout</p>
+              <!-- <span>></span> -->
+            </a>
+          </div>
         </div>
+        <!-- <div class="namePost" *ngIf="merchantDetails">
+          <span class="userName" *ngIf="merchantDetails.username">
+            {{ merchantDetails.username }}
+          </span>
+          <span class="capitalize userPost" *ngIf="merchantDetails.role">
+            {{ merchantDetails.role }}
+          </span>
+        </div> -->
       </li>
     </ul>
   </div>

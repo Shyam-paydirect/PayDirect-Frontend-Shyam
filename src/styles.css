@@ -135,6 +135,11 @@ hr {
   background-color: var(--accent-clr-2);
 }
 
+.btn-small {
+  padding: 6px 10px;
+  font-size: 0.85rem;
+}
+
 .scroll {
   overflow-x: hidden;
   white-space: nowrap;
