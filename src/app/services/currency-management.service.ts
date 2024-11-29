@@ -1,21 +1,23 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CurrencyManagementService {
+  private baseUrl = environment.baseUrl;
   private apiKey = 'fca_live_rMwakp88F0k0BVUFVWtwtgUPdd2OEsIASXs0KFna';
   private currencyApiUrl = `https://api.freecurrencyapi.com/v1`;
 
   constructor(private http: HttpClient) { }
 
   getCurrencies() {
-    return this.http.get(`${this.currencyApiUrl}/currencies?apikey=${this.apiKey}`);
+    return this.http.get(`${this.baseUrl}/currencies`);
   }
 
-  getExchangeRate(base: string) {
-    return this.http.get(`${this.currencyApiUrl}/latest?apikey=${this.apiKey}&base_currency=${base}`);
+  getCurrencies1() {
+    return this.http.get(`${this.currencyApiUrl}/currencies?apikey=${this.apiKey}`);
   }
 
   getExchangeData(payload: any) {

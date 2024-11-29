@@ -74,6 +74,14 @@ button {
   appearance: none;
 }
 
+.curr-flag {
+  width: 30px;
+  height: 30px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+
 .swap-btn {
   width: 40px;
   height: 40px;

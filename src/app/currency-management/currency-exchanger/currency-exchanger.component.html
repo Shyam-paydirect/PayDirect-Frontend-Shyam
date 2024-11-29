@@ -9,7 +9,14 @@
       <div class="control-parent">
         <span class="control-label">Sending Amount</span>
         <div class="control">
-          <button (click)="openDrawer('base')">{{ base }}</button>
+          <button (click)="openDrawer('base')">
+            <span class="curr-flag-parent"
+              ><img
+                [src]="getFlagUrl(base)"
+                alt="flag"
+                class="curr-flag" /></span
+            >{{ base }}
+          </button>
           <input
             type="number"
             [(ngModel)]="baseValue"
@@ -36,7 +43,14 @@
       <div class="control-parent">
         <span class="control-label">Receiving Amount</span>
         <div class="control">
-          <button (click)="openDrawer('target')">{{ target }}</button>
+          <button (click)="openDrawer('target')">
+            <span class="curr-flag-parent"
+              ><img
+                [src]="getFlagUrl(target)"
+                alt="flag"
+                class="curr-flag" /></span
+            >{{ target }}
+          </button>
           <input type="number" [(ngModel)]="targetValue" readonly />
         </div>
       </div>
@@ -89,7 +103,9 @@
         </li> -->
       </ul>
       <div class="final-charge-parent">
-        <h6 class="final-charge-label totalPayment rate"><i class="ri-equal-line sign"></i>₹ {{ totalPayment }}</h6>
+        <h6 class="final-charge-label totalPayment rate">
+          <i class="ri-equal-line sign"></i>₹ {{ totalPayment }}
+        </h6>
         <h6 class="final-charge-label">Total Payment</h6>
       </div>
       <div class="book-parent">

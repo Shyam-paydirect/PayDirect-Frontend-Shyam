@@ -28,8 +28,7 @@ export class CurrencyExchangerComponent implements OnInit {
   constructor(private currencyService: CurrencyManagementService) {}
 
   ngOnInit() {
-    this.fetchCurrencies();
-    // this.loadExchangeRate();
+    // this.fetchCurrencies();
     const popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
     popoverTriggerList.map(function (popoverTriggerEl) {
       return new Popover(popoverTriggerEl);
@@ -37,26 +36,10 @@ export class CurrencyExchangerComponent implements OnInit {
   }
 
   fetchCurrencies() {
-    this.currencyService.getCurrencies().subscribe((response: any) => {
+    this.currencyService.getCurrencies1().subscribe((response: any) => {
       this.currencies = Object.values(response.data);
       this.filteredCurrencies = this.currencies;
     });
-  }
-
-  loadExchangeRate() {
-    this.currencyService.getExchangeRate(this.base).subscribe((response: any) => {
-      this.exchangeRate = response.data[this.target];
-      this.updateConversion();
-    });
-  }
-
-  updateConversion() {
-    this.targetValue = parseFloat((this.baseValue * this.exchangeRate).toFixed(2));
-    this.exchangeRateText = `1 ${this.base} = ${this.exchangeRate.toFixed(4)} ${this.target}`;
-  }
-
-  convertCurrency() {
-    this.updateConversion();
   }
 
   openDrawer(type: string) {
@@ -70,6 +53,7 @@ export class CurrencyExchangerComponent implements OnInit {
     this.filteredCurrencies = this.currencies;
   }
 
+  // To search from the available currency list 
   filterCurrencies() {
     this.filteredCurrencies = this.currencies.filter(currency =>
       currency.code.toLowerCase().includes(this.searchKeyword.toLowerCase()) ||
@@ -83,7 +67,6 @@ export class CurrencyExchangerComponent implements OnInit {
     } else {
       this.target = code;
     }
-    this.loadExchangeRate();
     this.closeDrawer();
   }
 
@@ -92,7 +75,6 @@ export class CurrencyExchangerComponent implements OnInit {
     this.base = this.target;
     this.target = temp;
     this.baseValue = this.targetValue;
-    this.loadExchangeRate();
   }
 
   getFlagUrl(code: string): string {
@@ -111,10 +93,10 @@ export class CurrencyExchangerComponent implements OnInit {
     this.errorMsg = "";
     // Prepare API payload
     const payload = {
-      ccyPair: `${this.base}${this.target}`,
+      ccyPair: `${this.target}${this.base}`,
       dealtSide: 'BUY',
       txnAmount: this.baseValue.toString(),
-      txnCcy: this.target,
+      txnCcy: this.base,
       tenor: 'TODAY',
       executable: 'Y',
       dealType: 'SPOT/OUTRIGHT',
@@ -125,9 +107,10 @@ export class CurrencyExchangerComponent implements OnInit {
     this.currencyService.getExchangeData(payload).subscribe(
       (response: any) => {
         if (response?.data?.rate) {
+          this.targetValue = parseFloat(response.data.contraAmount);
+          this.exchangeRateText = `1 ${this.base} = ${this.exchangeRate.toFixed(4)} ${this.target}`;
           this.exchangeRate = parseFloat(response.data.rate);
           this.totalPayment = this.baseValue + 2000;
-          this.updateConversion();
           this.startTimer(); // Restart the timer
         }
       },
