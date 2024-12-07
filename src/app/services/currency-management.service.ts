@@ -21,6 +21,7 @@ export class CurrencyManagementService {
   }
 
   getExchangeData(payload: any) {
+    //added https request
     const apiUrl = 'https://stage.paydirectgo.com:5000/api/fxrate/spot-rate';
     return this.http.post(apiUrl, payload);
   }
