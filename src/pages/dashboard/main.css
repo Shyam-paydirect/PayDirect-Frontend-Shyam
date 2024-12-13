@@ -1,0 +1,20 @@
+.app-container {
+    display: flex;
+    overflow: hidden;
+    height: 100vh;
+  }
+  
+  app-side-navbar {
+    flex-shrink: 0;
+    height: 100%;
+    overflow-y: auto;
+  }
+  
+  .content {
+    flex-grow: 1;
+    height: 100%;
+    overflow: auto;
+    color: var(--body-text-clr);
+    background-color: var(--bg-clr-2);
+  }
+  

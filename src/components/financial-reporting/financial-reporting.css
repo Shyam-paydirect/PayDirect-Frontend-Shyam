@@ -1,0 +1,36 @@
+.icon-parent {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 40px; /* Icon container size */
+    height: 40px;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.05); /* Light background */
+    margin-right: 15px; /* Spacing between icon and text */
+  }
+  
+  .icon-parent i {
+    font-size: 20px; /* Icon size */
+    color: inherit; /* Inherit color based on type */
+  }
+  
+  .status-sale .icon-parent {
+    background-color: rgba(78, 191, 37, 0.1);
+    color: rgb(78, 191, 37); /* Green for sales */
+  }
+  
+  .status-charges .icon-parent {
+    background-color: rgba(251, 16, 61, 0.1);
+    color: rgb(251, 16, 61); /* Red for charges */
+  }
+  
+  .status-cashback .icon-parent {
+    background-color: rgba(44, 121, 160, 0.1);
+    color: rgb(44, 121, 160); /* Blue for cashback */
+  }
+  
+  .status-dues .icon-parent {
+    background-color: rgba(255, 87, 51, 0.1);
+    color: rgb(255, 87, 51); /* Orange for dues */
+  }
+  
