@@ -1,0 +1,231 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+
+@import "remixicon/fonts/remixicon.css";
+
+:root {
+  --blue: #136a8a;
+  --green: #267871;
+  --white: #fff;
+  --exchange-rate-color: #555;
+  --input-background: rgba(119, 136, 153, 0.15);
+  --input-shadow: rgba(119, 136, 153, 0.35);
+  --input-border: #ddd;
+  --shadow-1: rgba(0, 0, 0, 0.25);
+  --shadow-2: rgba(0, 0, 0, 0.15);
+  --loading-bg-1: #c2cfd6;
+  --loading-bg-2: #f0f3f5;
+
+  /* Colors  */
+  --body-color: #e4e9f7;
+  --bg-clr-1: #ffffff;
+  --bg-clr-2: #e3effd;
+  --prim-clr-1: #7cbaf7;
+  --prim-clr-2: #e3effd;
+  --accent-clr-1: #111e6c;
+  --accent-clr-2: #2a44dd;
+  --high-clr-1: #267871;
+  --high-clr-2: #136a8a;
+  --txt-clr-1: #000000;
+  --txt-clr-2: #5a5a5a;
+  --sidebar-color: #ffffff;
+  --toggle-color: #ddd;
+  --text-color: #707070;
+  --body-text-clr: #2d2d2d;
+  --shadow-1: 0px 25px 75px rgba(25, 34, 64, 0.15);
+  --shadow-2: 0px 25px 75px rgba(25, 34, 64, 0.15);
+
+  /* Status Colors  */
+  --sale-clr: 78 191 37;
+  --refund-clr: 160 31 240;
+  --charges-clr: 251 16 61;
+  --dues-clr: 255 87 51;
+  --cashback-clr: 44 121 160;
+
+  /* Transitions  */
+  --tran-02: all 0.2s ease;
+  --tran-03: all 0.3s ease;
+  --tran-04: all 0.4s ease;
+  --tran-05: all 0.5s ease;
+}
+
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+/* global.css or index.css */
+body {
+  font-family: 'Poppins', sans-serif;
+}
+
+input {
+  background-color: var(--bg-clr-1);
+  transition: var(--tran-02);
+  line-height: normal;
+}
+
+.dark {
+  --body-color: #18191a;
+  --bg-clr-1: #111926;
+  --bg-clr-2: #1b263b;
+  --prim-clr-1: #192337;
+  --accent-clr-1: #0c6ccb;
+  --accent-clr-2: #1785f1;
+  --sidebar-color: #111926;
+  --toggle-color: #fff;
+  --text-color: #ccc;
+  --body-text-clr: #dbdbdb;
+  --shadow-1: 0px 15px 40px rgba(0, 0, 0, 0.2);
+  --shadow-2: 0px 25px 75px rgba(0, 0, 0, 0.15);
+}
+
+.mainBody {
+  position: relative;
+  height: 100vh;
+  left: 250px;
+  width: calc(100% - 250px);
+  color: var(--body-text-color);
+  background-color: var(--bg-clr-2);
+  padding: 20px 20px 20px 30px;
+  transition: var(--tran-05);
+}
+
+.isNavbarClose.mainBody {
+  left: 88px;
+  width: calc(100% - 88px);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  line-height: normal;
+}
+
+a {
+  cursor: pointer;
+}
+
+p {
+  margin-bottom: 0;
+}
+
+ul li {
+  list-style: none;
+}
+
+hr {
+  margin: 1rem 0;
+  color: inherit;
+  border: 0;
+  border-top: 1px solid;
+  color: #cccc;
+  margin: 0 0.7rem;
+  opacity: 1;
+}
+
+.btn-1 {
+  padding: 12px 20px;
+  background-color: var(--accent-clr-1);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  transition: var(--tran-03);
+  box-shadow: 0 12px 35px #111e6c40;
+}
+
+.btn-1:hover {
+  background-color: var(--accent-clr-2);
+}
+
+.scroll {
+  overflow-x: hidden;
+  white-space: nowrap;
+  position: relative;
+  scrollbar-width: none;
+}
+
+.scroll::-webkit-scrollbar {
+  height: 8px;
+  display: none;
+}
+
+.scroll:hover {
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #888 transparent;
+}
+
+.scroll:hover::-webkit-scrollbar {
+  display: block;
+}
+
+.scroll::-webkit-scrollbar-thumb {
+  background-color: #888;
+  border-radius: 10px;
+}
+
+.scroll:hover::-webkit-scrollbar-thumb {
+  background-color: #555;
+}
+
+.status-sale {
+  color: rgb(var(--sale-clr));
+  background-color: rgb(var(--sale-clr) / .1);
+}
+
+.status-refund {
+  color: rgb(var(--refund-clr));
+  background-color: rgb(var(--refund-clr) / .1);
+}
+
+.status-cashback {
+  color: rgb(var(--cashback-clr));
+  background-color: rgb(var(--cashback-clr) / .1);
+}
+
+.status-dues {
+  color: rgb(var(--dues-clr));
+  background-color: rgb(var(--dues-clr) / .1);
+}
+
+.status-charges {
+  color: rgb(var(--charges-clr));
+  background-color: rgb(var(--charges-clr) / .1);
+}
+
+.status-default {
+  color: rgb(var(--success-clr));
+  background-color: rgb(var(--success-clr) / .1);
+}
+
+.apexcharts-text.apexcharts-yaxis-label tspan, .apexcharts-text.apexcharts-xaxis-label tspan {
+  fill: var(--text-color);
+}
+
+.apexcharts-tooltip.apexcharts-theme-light.apexcharts-active {
+  border-color: #ccc !important;
+  background-color: var(--bg-clr-1) !important;
+}
+
+.apexcharts-tooltip.apexcharts-theme-light .apexcharts-tooltip-title {
+  background: var(--bg-clr-2) !important;
+  border-bottom: 1px solid #ddd;
+}
+
+.apexcharts-menu.apexcharts-menu-open {
+  border-radius: .5rem !important;
+  background-color: var(--bg-clr-1) !important;
+  color: var(--text-color);
+  white-space: nowrap;
+}
+
+.apexcharts-menu-item {
+  border-radius: .2rem !important;
+}
+
+.apexcharts-menu-item:hover {
+  background-color: var(--bg-clr-2);
+}
+

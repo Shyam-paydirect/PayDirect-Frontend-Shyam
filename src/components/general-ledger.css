@@ -1,0 +1,19 @@
+.general-ledger-parent {
+    padding: 20px;
+}
+
+.amount h3 {
+    font-size: 28px;
+    font-weight: 600;
+    padding: 0.8rem 1.8rem;
+}
+
+@media (max-width: 768px) {
+    .general-ledger-parent {
+        padding: 15px;
+    }
+
+    .amount h3  {
+        font-size: 22px;
+    }
+}
