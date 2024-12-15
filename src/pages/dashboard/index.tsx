@@ -1,3 +1,5 @@
+"use client"
+
 // Main.tsx (Main layout including SideNavbar and TopNavbar)
 import React, { useEffect, useState } from 'react';
 import SideNavbar from '@/components/sideNavbar/side-navbar';
@@ -12,9 +14,6 @@ import FinancialReporting from '@/components/financial-reporting/financial-repor
 
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/router';
-import UserProfileMenu from '@/components/logout-menu';
-
-
 
 const Main: React.FC = () => {
   const router = useRouter();
@@ -48,7 +47,6 @@ const Main: React.FC = () => {
       <SideNavbar/>
       <div className="content">
         <TopNavbar/>
-        <UserProfileMenu />
         <div className="dashboard-content">
           {renderDashboard()}
         </div>

@@ -10,33 +10,38 @@ import { useRouter } from 'next/router';
 interface CustomJwtPayload {
     username: string;
     id?: number;
-    exp?: number;
-    iat?: number;
   }
   
+  interface UserProfileMenuProps {
+    anchorEl: HTMLElement | null;
+    isMenuOpen: boolean;
+    handleMenuClose: () => void;
+  }
 
-const UserProfileMenu: React.FC = () => {
-    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+const UserProfileMenu: React.FC<UserProfileMenuProps> = ({
+    anchorEl,
+    isMenuOpen,
+    handleMenuClose,
+  }) => {
     const open = Boolean(anchorEl);
     const dispatch = useDispatch();
     const router = useRouter();
 
-    const handleMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
-        setAnchorEl(event.currentTarget);
-    };
-
-    const handleMenuClose = () => {
-        setAnchorEl(null);
-    };
-
     const handleLogout = () => {
-            dispatch(logout());
-            router.push('/')
+        dispatch(logout());
+        router.push('/');
+        handleMenuClose();
     };
 
     const token = Cookies.get('token') || "";
 
-    const decodedToken: CustomJwtPayload = jwtDecode<CustomJwtPayload>(token);
+    let decodedToken: CustomJwtPayload | null = null; // Initialize with null
+
+    if (token !== "") {
+        decodedToken = jwtDecode<CustomJwtPayload>(token); // Assign the decoded token
+    }
+
 
     return (
         <div>
@@ -49,7 +54,7 @@ const UserProfileMenu: React.FC = () => {
                         }
                     }}
                 anchorEl={anchorEl}
-                open={true}
+                open={isMenuOpen}
                 onClose={handleMenuClose}
                 anchorOrigin={{
                     vertical: 'top',
