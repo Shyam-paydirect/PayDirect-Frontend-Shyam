@@ -7,6 +7,7 @@ import { styled } from '@mui/system';
 import { AppBar, Toolbar, Typography, Box, IconButton, Avatar } from '@mui/material';
 import { WbSunny, NightlightRound, Notifications, Fullscreen, FullscreenExit } from '@mui/icons-material';
 import { toggleDarkMode } from '@/app/redux/slices/uiSlice';
+import UserProfileMenu from './logout-menu';
 
 const TopNavbar: React.FC = () => {
   const dispatch = useDispatch();
@@ -31,6 +32,13 @@ const TopNavbar: React.FC = () => {
   // const [isDarkMode, setIsDarkMode] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
 
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const isMenuOpen = Boolean(anchorEl);
+
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
   const toggleTheme = () => {
     // setIsDarkMode(!isDarkMode);
     dispatch(toggleDarkMode())
@@ -44,6 +52,10 @@ const TopNavbar: React.FC = () => {
       document.exitFullscreen();
     }
     setIsFullScreen(!isFullScreen);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
   };
 
   return (
@@ -159,12 +171,20 @@ const TopNavbar: React.FC = () => {
               </IconButton>
             </li>
             {/* Profile */}
-            <li className="profile" style={{ display: 'flex', alignItems: 'center', marginLeft: '5px', marginTop: '10px', lineHeight: '20px' }}>
+            <li 
+              className="profile" 
+              style={{ display: 'flex', alignItems: 'center', marginLeft: '5px', marginTop: '10px', lineHeight: '20px' }}>
               <Avatar
+                onClick={handleMenuOpen}
                 alt="Merchant Photo"
                 src="/assets/fallback-photo.png "
                 sx={{ width: 40, height: 40, margin: '5px', marginRight: '10px', alignItems: 'center' }}
               /> 
+              <UserProfileMenu 
+              anchorEl={anchorEl}
+              isMenuOpen={isMenuOpen}
+              handleMenuClose={handleMenuClose}
+              />
             </li>
           </ul>
         </Box>

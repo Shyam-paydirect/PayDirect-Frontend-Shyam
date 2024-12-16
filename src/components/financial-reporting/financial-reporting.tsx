@@ -7,9 +7,12 @@ import {
     Typography
 } from '@mui/material';
 
-import FinancialAnalytics from './financial-analytics';
 import FinancialOverview from './financial-overview';
 import './financial-reporting.css'
+import dynamic from "next/dynamic";
+
+
+const FinancialAnalytics = dynamic(() => import('./financial-analytics'), { ssr: false });
 
 const FinancialReporting: React.FC = () => {
     return (
