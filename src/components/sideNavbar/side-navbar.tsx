@@ -5,6 +5,7 @@ import "./side-navbar.css";
 import { RootState } from '@/app/redux/store';
 import { useSelector, useDispatch } from 'react-redux';
 import { setCurrentDashboard } from '@/app/redux/slices/dashboardSlice';
+import { useMediaQuery, useTheme } from '@mui/material'
 
 
 const SideNavbar: React.FC = () => {
@@ -15,22 +16,45 @@ const SideNavbar: React.FC = () => {
 
   const toggleSidenav = () => setClose(!close);
   const closeSidenav = () => setClose(true);
-  const selectDashboard = (dashboard: string) => {
-    setCurrentDashboard(dashboard);
+
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+
+
+  const handleMenuClick = (id: string) => {
+    dispatch(setCurrentDashboard(id));
+    setClose(true); // Ensure the sidebar is marked as closed
+    document.body.classList.remove('sidebar-open'); // Remove any overlay effect
   };
 
+  const menuItems = [
+    { id: 'currency-management', icon: 'ri-copper-diamond-line', text: 'Currency Management' },
+    { id: 'general-ledger', icon: 'ri-database-2-line', text: 'General Ledger' },
+    { id: 'financial-reporting', icon: 'ri-bank-card-2-line', text: 'Financial Reporting' },
+    { id: 'payment-details', icon: 'ri-store-2-line', text: 'Payment Details' },
+    { id: 'access-security', icon: 'ri-projector-line', text: 'Access and Security' },
+    { id: 'third-party-integration', icon: 'ri-service-line', text: 'Third-Party Integration' },
+    { id: 'accounts', icon: 'ri-user-settings-line', text: 'Accounts' },
+  ];
+
   return (
-    
+
     <div className="nav-body">
-      <i
-        className={`ri-arrow-left-s-line toggle ${close ? 'closeToggle' : ''}`}
-        onClick={toggleSidenav}
-      ></i>
+      {
+        !isSmallScreen &&
+        <i
+          className={`ri-arrow-left-s-line toggle ${close ? 'closeToggle' : ''}`}
+          onClick={toggleSidenav}
+        ></i>
+      }
       <nav className={`sidebar ${close ? 'close' : ''}`}>
         <header className="header">
-          <span className="nav-closer">
-            <i className="ri-close-large-line" onClick={closeSidenav}></i>
-          </span>
+          {
+            !isSmallScreen &&
+              <span className="nav-closer">
+                <i className="ri-close-large-line" onClick={closeSidenav}></i>
+              </span>
+          }
           <div className="image-text">
             {close ? (
               <span className="image">
@@ -49,53 +73,21 @@ const SideNavbar: React.FC = () => {
         <div className="menuBar">
           <div className="menu">
             <ul className="menuLinks">
-              <a onClick={() => dispatch(setCurrentDashboard('currency-management'))}>
-                <li className="navLink">
-                  <i className="ri-copper-diamond-line icon"></i>
-                  <span className="text navText">Currency Management</span>
+              {menuItems.map((item) => (
+                <li
+                  key={item.id}
+                  className="navLink"
+                  onClick={() => handleMenuClick(item.id)}>
+                  <i className={`${item.icon} icon`}></i>
+                  <span className="text navText">{item.text}</span>
                 </li>
-              </a>
-              <a onClick={() => dispatch(setCurrentDashboard('general-ledger'))}>
-                <li className="navLink">
-                  <i className="ri-database-2-line icon"></i>
-                  <span className="text navText">General Ledger</span>
-                </li>
-              </a>
-              <a onClick={() => dispatch(setCurrentDashboard('financial-reporting'))}>
-                <li className="navLink">
-                  <i className="ri-bank-card-2-line icon"></i>
-                  <span className="text navText">Financial Reporting</span>
-                </li>
-              </a>
-              <a onClick={() => dispatch(setCurrentDashboard('taxation-compliance'))}>
-                <li className="navLink">
-                  <i className="ri-store-2-line icon"></i>
-                  <span className="text navText">Taxation and Compliance</span>
-                </li>
-              </a>
-              <a onClick={() => dispatch(setCurrentDashboard('access-security'))}>
-                <li className="navLink">
-                  <i className="ri-projector-line icon"></i>
-                  <span className="text navText">Access and Security</span>
-                </li>
-              </a>
-              <a onClick={() => dispatch(setCurrentDashboard('third-party-integration'))}>
-                <li className="navLink">
-                  <i className="ri-service-line icon"></i>
-                  <span className="text navText">Third-Party Integration</span>
-                </li>
-              </a>
-              <a onClick={() => dispatch(setCurrentDashboard('accounts'))}>
-                <li className="navLink">
-                  <i className="ri-user-settings-line icon"></i>
-                  <span className="text navText">Accounts</span>
-                </li>
-              </a>
+              ))}
             </ul>
           </div>
         </div>
       </nav>
     </div>
+
   );
 };
 

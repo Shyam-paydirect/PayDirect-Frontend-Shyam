@@ -30,6 +30,8 @@ function getTitleByDashboard(dashboard: string): string {
       return 'General Ledger';
     case 'financial-reporting':
       return 'Financial Reporting';
+    case 'payment-details':
+      return 'Payment Details';
     case 'admin-portal':
       return 'Admin Portal';
     default:

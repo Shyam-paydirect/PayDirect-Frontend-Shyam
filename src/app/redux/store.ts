@@ -3,14 +3,15 @@ import dashboardReducer from './slices/dashboardSlice';
 import uiReducer from './slices/uiSlice';
 import fxRateReducer from './slices/api/fxRateSlice';
 import authReducer from './slices/api/authSlice';
-
+import paymentReducer from './slices/paymentDetailsSlice'
 
 export const store = configureStore({
   reducer: {
     dashboard: dashboardReducer,
     ui: uiReducer,
     fxRate: fxRateReducer,
-    auth: authReducer
+    auth: authReducer,
+    payment: paymentReducer
   },
 });
 
