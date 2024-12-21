@@ -14,6 +14,7 @@ import FinancialReporting from '@/components/financial-reporting/financial-repor
 
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/router';
+import PaymentDetails from '@/components/paymentDetails/payment-details';
 
 const Main: React.FC = () => {
   const router = useRouter();
@@ -35,6 +36,8 @@ const Main: React.FC = () => {
         return <GeneralLedger />;
       case 'financial-reporting':
         return <FinancialReporting />;
+      case 'payment-details':
+        return <PaymentDetails />;
       case 'admin-portal':
         // return <AdminPortal />;
       default:

@@ -4,15 +4,25 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/app/redux/store';
 import "@/styles/global.css";
 import { styled } from '@mui/system';
-import { AppBar, Toolbar, Typography, Box, IconButton, Avatar } from '@mui/material';
-import { WbSunny, NightlightRound, Notifications, Fullscreen, FullscreenExit } from '@mui/icons-material';
+import { AppBar, Toolbar, Typography, Box, IconButton, Avatar, useMediaQuery, useTheme, Drawer } from '@mui/material';
+import { Menu, WbSunny, NightlightRound, Notifications, Fullscreen, FullscreenExit } from '@mui/icons-material';
 import { toggleDarkMode } from '@/app/redux/slices/uiSlice';
 import UserProfileMenu from './logout-menu';
+import SideNavbar from './sideNavbar/side-navbar'; // Import SideNavbar for the drawer
 
 const TopNavbar: React.FC = () => {
+  const theme = useTheme();
   const dispatch = useDispatch();
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
-  const dashboardTitle = useSelector((state: RootState) => state.dashboard.dashboardTitle)
+  const dashboardTitle = useSelector((state: RootState) => state.dashboard.dashboardTitle);
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  const toggleDrawer = (open: boolean) => {
+    setIsDrawerOpen(open);
+  };
+
 
   const getDashboardTitle = (dashboard: string) => {
     switch (dashboard) {
@@ -58,6 +68,8 @@ const TopNavbar: React.FC = () => {
     setAnchorEl(null);
   };
 
+  const iconSize = isSmallScreen ? 16 : 30;
+
   return (
     <AppBar
       position="sticky"
@@ -75,14 +87,22 @@ const TopNavbar: React.FC = () => {
         fontFamily: 'Poppins, sans-serif',
       }}
     >
-      <Toolbar disableGutters sx={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 20px', minHeight: '55px'}}>
+      <Toolbar disableGutters sx={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 10px 10px 10px', minHeight: '55px' }}>
+        {isSmallScreen && (
+          <IconButton
+            onClick={() => toggleDrawer(true)}
+            sx={{ color: 'var(--body-text-clr)' }}
+          >
+            <Menu sx={{ fontSize: iconSize }} />
+          </IconButton>
+        )}
         <Typography
           variant="h6"
           noWrap
           sx={{
             fontFamily: "'Poppins', sans-serif",
             fontWeight: 500,
-            fontSize: { xs: '20px', sm: '22px', md: '28px' },
+            fontSize: isSmallScreen ? '16px' : '28px',
             marginBottom: 0,
             display: 'flex',
             alignItems: 'center',
@@ -102,7 +122,7 @@ const TopNavbar: React.FC = () => {
                 onClick={toggleTheme}
                 sx={{
                   padding: '10px',
-                  margin: '14px 5px',
+                  margin: isSmallScreen ? '14px 2px' : '14px 5px',
                   display: 'flex',
                   justifyContent: 'center',
                   alignItems: 'center',
@@ -116,9 +136,9 @@ const TopNavbar: React.FC = () => {
                 }}
               >
                 {isDarkMode ? (
-                  <NightlightRound sx={{ color: 'var(--text-color)' }} /> 
+                  <NightlightRound sx={{ fontSize: iconSize, color: 'var(--text-color)' }} />
                 ) : (
-                  <WbSunny sx={{ color: '#ffcc33' }} /> 
+                  <WbSunny sx={{ fontSize: iconSize, color: '#ffcc33' }} />
                 )}
               </IconButton>
             </li>
@@ -128,7 +148,7 @@ const TopNavbar: React.FC = () => {
                 onClick={toggleFullScreen}
                 sx={{
                   padding: '10px',
-                  margin: '14px 5px',
+                  margin: isSmallScreen ? '14px 2px' : '14px 5px',
                   display: 'flex',
                   justifyContent: 'center',
                   alignItems: 'center',
@@ -143,10 +163,10 @@ const TopNavbar: React.FC = () => {
                 }}
               >
                 {isFullScreen ? (
-                  <FullscreenExit sx={{ color: 'var(--text-color)' }} /> 
-                  ) : (
-                    <Fullscreen sx={{ color: 'var(--text-color)' }} /> 
-                    )}
+                  <FullscreenExit sx={{ fontSize: iconSize, color: 'var(--text-color)' }} />
+                ) : (
+                  <Fullscreen sx={{ fontSize: iconSize, color: 'var(--text-color)' }} />
+                )}
               </IconButton>
             </li>
             {/* Notifications */}
@@ -154,7 +174,7 @@ const TopNavbar: React.FC = () => {
               <IconButton
                 sx={{
                   padding: '10px',
-                  margin: '14px 5px',
+                  margin: isSmallScreen ? '14px 2px' : '14px 5px',
                   display: 'flex',
                   justifyContent: 'center',
                   alignItems: 'center',
@@ -167,28 +187,49 @@ const TopNavbar: React.FC = () => {
                   color: 'var(--body-text-clr)',
                 }}
               >
-                <Notifications sx={{ color: 'var(--text-color)' }} /> 
+                <Notifications sx={{ fontSize: iconSize, color: 'var(--text-color)' }} />
               </IconButton>
             </li>
             {/* Profile */}
-            <li 
-              className="profile" 
-              style={{ display: 'flex', alignItems: 'center', marginLeft: '5px', marginTop: '10px', lineHeight: '20px' }}>
+            <li
+              className="profile"
+              style={{
+                padding: isSmallScreen ? '0px' : '10px',
+                display: 'flex',
+                alignItems: 'center',
+                // marginLeft: '5px',
+                // marginTop: '10px',
+                lineHeight: '20px'
+              }}>
               <Avatar
                 onClick={handleMenuOpen}
                 alt="Merchant Photo"
                 src="/assets/fallback-photo.png "
-                sx={{ width: 40, height: 40, margin: '5px', marginRight: '10px', alignItems: 'center' }}
-              /> 
-              <UserProfileMenu 
-              anchorEl={anchorEl}
-              isMenuOpen={isMenuOpen}
-              handleMenuClose={handleMenuClose}
+                sx={{ width: isSmallScreen ? 30 : 35, height: isSmallScreen ? 30 : 35, margin: isSmallScreen ? '6px' : '5px', alignItems: 'center' }}
+              />
+              <UserProfileMenu
+                anchorEl={anchorEl}
+                isMenuOpen={isMenuOpen}
+                handleMenuClose={handleMenuClose}
               />
             </li>
           </ul>
         </Box>
       </Toolbar>
+      {isSmallScreen &&
+        <Drawer
+          anchor="left"
+          open={isDrawerOpen}
+          onClose={() => toggleDrawer(false)}
+          slotProps={{
+            backdrop: {
+              style: { backgroundColor: 'transparent' }, // Removes the dark overlay
+            },
+          }}
+        >
+          <SideNavbar />
+        </Drawer>
+      }
     </AppBar>
   );
 };

@@ -19,12 +19,13 @@ interface Currency {
 
 const CurrencyExchanger: React.FC = () => {
   const [base, setBase] = useState<string>('USD');
-  const [target, setTarget] = useState<string>('EUR');
-  const [baseValue, setBaseValue] = useState<number>(1);
+  const [target, setTarget] = useState<string>('INR');
+  const [baseValue, setBaseValue] = useState<string>("1");
   const [targetValue, setTargetValue] = useState<string>("0");
   const [uId, setUId] = useState<string>("")
 
   const [timer, setTimer] = useState<number>(0); // Timer state added
+  const [errorMsg, setErrorMsg] = useState<string>("");
 
   const dispatch = useDispatch<AppDispatch>();
 
@@ -36,12 +37,13 @@ const CurrencyExchanger: React.FC = () => {
   }, []);
 
   const handleGetFxRateClick = async () => {
-
+    
+    setErrorMsg("");
     const bodyData = {
       ccyPair: 'USDINR',
       dealtSide: 'BUY',
       txnAmount: baseValue,
-      txnCcy: 'INR',
+      txnCcy: base,
       tenor: 'TODAY',
       executable: 'Y',
       dealType: 'SPOT/OUTRIGHT',
@@ -61,14 +63,14 @@ const CurrencyExchanger: React.FC = () => {
           : error instanceof Error
             ? error.message
             : "An unknown error occurred";
-      toast.dismiss();
-      toast.error(errorMessage)
+
+      setErrorMsg(errorMessage)
     }
 
 
   };
 
-  const handleBookFxRate = async() => {
+  const handleBookFxRate = async () => {
     const bodyData = {
       uid: uId,
       clientTxnsId: "CLIENT-00000001"
@@ -86,7 +88,9 @@ const CurrencyExchanger: React.FC = () => {
             ? error.message
             : "An unknown error occurred";
       toast.dismiss();
-      toast.error(errorMessage)
+      // toast.error(errorMessage)
+      setErrorMsg(errorMessage)
+
     }
   }
 
@@ -107,7 +111,7 @@ const CurrencyExchanger: React.FC = () => {
 
   return (
     <>
-    <ToastContainer />
+      <ToastContainer />
       <Card className="main">
         <CardContent>
           <div className="exchange-rate">
@@ -115,7 +119,7 @@ const CurrencyExchanger: React.FC = () => {
             {/* <span>{exchangeRateText}</span> */}
 
           </div>
-          <div className="controls">
+          <div className="  ">
             <div className="control-parent">
               <Typography className="control-label">Sending Amount</Typography>
               <div className="control">
@@ -124,13 +128,22 @@ const CurrencyExchanger: React.FC = () => {
                 <Input
                   type="number"
                   value={baseValue}
-                  onChange={(e) => setBaseValue(Number(e.target.value))}
+                  onChange={(e) => setBaseValue(e.target.value)}
                   inputProps={{ min: 0, step: 0.01 }}
                 />
 
               </div>
             </div>
-            <Box className="timer-button-wrapper" sx={{ display: 'flex', alignItems: 'center', gap: 2, justifyContent: 'flex-end', marginTop: 2 }}>
+            <Typography
+              sx={{
+                color: 'red',
+                fontSize: 12,
+                fontWeight: 600,
+                textAlign: 'right'
+              }}
+            >{errorMsg}</Typography>
+
+            <Box className="timer-button-wrapper" sx={{ display: 'flex', alignItems: 'center', gap: 2, justifyContent: 'flex-end', marginTop: (errorMsg ? '4px' : '22px') }}>
 
               <Box className="timer" sx={{ marginLeft: 'auto', position: 'relative', display: 'flex', justifyContent: 'center', alignItems: 'center' }}> {/* Timer Circle */}
                 <CircularProgress
@@ -154,7 +167,7 @@ const CurrencyExchanger: React.FC = () => {
                     {timer}
                   </Typography>
                 }
-              </Box>
+              </Box>  
               <Button
                 onClick={handleGetFxRateClick}
                 sx={{
@@ -175,7 +188,8 @@ const CurrencyExchanger: React.FC = () => {
                   }
                 }}>  <AutorenewIcon sx={{ fontSize: 16 }} />
 
-                Get FX Rate</Button>
+                Get FX Rate
+              </Button>
             </Box>
             <div className="control-parent">
 
@@ -258,7 +272,7 @@ const CurrencyExchanger: React.FC = () => {
               <Typography className="final-charge-label">Total Payment</Typography>
             </div>
             <div className="book-parent">
-              <Button type="button" className="btn-1 book-button" variant="contained" disabled={timer == 0} onClick ={handleBookFxRate}>
+              <Button type="button" className="btn-1 book-button" variant="contained" disabled={timer == 0} onClick={handleBookFxRate}>
                 <i className="ri-wallet-line"></i> Book Now
               </Button>
             </div>

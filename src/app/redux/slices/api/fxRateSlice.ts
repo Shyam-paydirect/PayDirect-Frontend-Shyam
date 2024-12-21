@@ -21,7 +21,8 @@ export const fetchFxRate = createAsyncThunk(
         const response = await axios.post(`${stagingApi}/fxrate/spot-rate`, bodyData);
         return response.data;
       } catch (err: any) {
-        return rejectWithValue(err.response?.data?.message || err?.message || 'Failed to fetch FX rate');
+        console.log("errrrr", err);
+        return rejectWithValue(err.response?.data?.error || err?.message || 'Failed to fetch FX rate');
       }
     }
   );
@@ -33,7 +34,7 @@ export const fetchFxRate = createAsyncThunk(
         const response = await axios.post(`${stagingApi}/fxrate/forward-rate`, bodyData);
         return response.data;
       } catch (err: any) {
-        return rejectWithValue(err.response?.data?.message || err?.message || 'Failed to book FX rate');
+        return rejectWithValue(err.response?.data?.error || err?.message || 'Failed to book FX rate');
       }
     }
   );
