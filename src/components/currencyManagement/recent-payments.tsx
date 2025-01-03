@@ -36,7 +36,7 @@ const RecentPayments: React.FC = () => {
   return (
     <Card className="table-container">
       <CardContent>
-        <section className="table-header">
+        <section className="table-header mb-40">
           <Typography variant="h4" className="cardHeading">
             <i className="ri-table-line"></i> Recent Payments
           </Typography>
@@ -53,14 +53,19 @@ const RecentPayments: React.FC = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {transactions.map((transaction, index) => (
+              {
+                transactions.length > 0 ? 
+              transactions.map((transaction, index) => (
                 <TableRow key={index}>
                   <TableCell>{new Date(transaction.transaction_time).toLocaleString()}</TableCell>
                   <TableCell>{transaction.transaction_value}</TableCell>
                   <TableCell>{transaction.transaction_curr_code}</TableCell>
                   <TableCell>{transaction.location}</TableCell>
                 </TableRow>
-              ))}
+              ))
+              :
+              "No Records Found"
+              }
             </TableBody>
           </Table>
         </section>

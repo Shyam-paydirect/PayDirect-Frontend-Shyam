@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
     Box,
     Container,
@@ -15,15 +15,34 @@ import {
     useMediaQuery,
     useTheme,
     Button,
+    CircularProgress,
     Modal
 } from "@mui/material";
 import './payment-details.css';
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import DocumentUploads from "../documents-upload/documents-upload";
-import { saveBankDetails } from '@/app/redux/slices/paymentDetailsSlice'; // Action to save data in Redux
+import { savePaymentDetails } from '@/app/redux/slices/paymentDetailsSlice'; // Action to save data in Redux
+import BankDetails from "./bank-details";
+import { RootState } from "@/app/redux/store"; // Adjust based on your store setup
+import { submitPayment } from "@/app/redux/slices/api/ttpaymentSlice";
+import { AppDispatch } from '@/app/redux/store';
+import { toast, ToastContainer } from "react-toastify";
+import { createOrder, fetchAllOrders, CreateOrderRequest, selectOrderState } from '@/app/redux/slices/api/orderSlice'; 
 
 const PaymentDetails: React.FC = () => {
     const dispatch = useDispatch();
+    const dispatchApi = useDispatch<AppDispatch>();
+
+    const [isLoading, setIsLoading] = useState(false);
+
+    // State variables for form fields
+    const [remittanceAmount, setRemittanceAmount] = useState('');
+    const [currency, setCurrency] = useState('INR');
+    const [dateOfTransfer, setDateOfTransfer] = useState('2025-01-01');
+    const [invoiceNumber, setInvoiceNumber] = useState('');
+    const [purposeCode, setPurposeCode] = useState('');
+    const [customerReference, setCustomerReference] = useState("");
+
 
     const theme = useTheme();
     const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
@@ -33,42 +52,150 @@ const PaymentDetails: React.FC = () => {
         "bankDetails"
     );
 
-    const handleNextStep = () => setStep("documentUploads");
+    useEffect(() => {
+        const number = generateRandom11DigitNumber();
+        setCustomerReference("TT" + number);
+    }, []);
 
-    const handleSubmit = () => {
+    const bankDetails = useSelector((state: RootState) => state.paymentDetails.bankDetails);
+
+    const handleNextStep = () => setStep("documentUploads");
+    const generateRandom11DigitNumber = () => {
+        return Math.floor(1e10 + Math.random() * 9e10).toString();
+    };
+
+    const paymentData = {
+        txnAmount: remittanceAmount,
+        customerReference: customerReference,
+        txnCcy: currency,
+        debitAccountAmount: remittanceAmount,
+        purposeOfPayment: "OTHR",
+        chargeBearer: "DEBT",
+        senderParty: {
+            name: "Sender Name",
+            accountNo: "8827210000027502"
+        },
+        receivingParty: {
+            name: bankDetails.beneficiaryName,
+            accountNo: bankDetails.beneficiaryAccountNumber,
+            swiftBic: bankDetails.swiftCode,
+            bankName: bankDetails.beneficiaryBank,
+            bankAddress: bankDetails.bankAddress,
+            beneficiaryAddresses: [
+                { address: bankDetails.city },
+                { address: bankDetails.state },
+                { address: bankDetails.country },
+            ],
+        },
+        advisoryEmail: "beneficiary@example.com",
+        paymentDetail: "TT Payment Details",
+        clientReference: "ClientRef123",
+        invoice: "Invoice Details 01"
+    };
+
+    const handleTTPaymentDetails = async () => {
+        setIsLoading(true); // Set loading state to true
+
+        try {
+            const response = await dispatchApi(submitPayment(paymentData)).unwrap();
+            const orderData: CreateOrderRequest = {
+                orderId: customerReference, 
+                msgId: response?.data?.header?.msgId,
+                orgId: response?.data?.header?.orgId,
+                timeStamp: response?.data?.header?.timeStamp,
+                paymentMode: 'TT',
+                responseType: response?.data?.txnResponses[0]?.responseType,
+                txnStatus:  response?.data?.txnResponses[0]?.txnStatus,
+                txnStatusDescription:  response?.data?.txnResponses[0]?.txnStatusDescription,
+            }
+            await handleOrderCreation(orderData);
+            toast.success(response?.message, {
+                onClose: () => {
+                    handleNextStep();
+                },
+            });
+        }
+        catch (error) {
+            const errorMessage =
+                typeof error === "string"
+                    ? error
+                    : error instanceof Error
+                        ? error.message
+                        : "An unknown error occurred";
+            toast.dismiss();
+            toast.error(errorMessage)
+            //   setErrorMsg(errorMessage)
+        }
+        finally {
+            setIsLoading(false); // Reset loading state
+        }
+    }
+
+    const handleOrderCreation = async(orderData: CreateOrderRequest) => {
+
+        try {
+            const response = await dispatchApi(createOrder(orderData)).unwrap();
+
+        }
+        catch (error) {
+            const errorMessage =
+                typeof error === "string"
+                    ? error
+                    : error instanceof Error
+                        ? error.message
+                        : "An unknown error occurred";
+            toast.dismiss();
+            toast.error(errorMessage)
+            //   setErrorMsg(errorMessage)
+        }
+    }
+
+    const steps = [
+        {
+            label: "Payment Details",
+            description: "Enter the amount and account details for the payment",
+        },
+        {
+            label: "Upload Documents",
+            description: "Upload all the documents required for this payment",
+        },
+        {
+            label: "Accept Rate and Pay",
+            description: "Once the documents are verified, accept the best rate and initiate payment",
+        },
+        {
+            label: "Track Payment",
+            description: "Easily track your payment and download the SWIFT Receipt",
+        },
+    ];
+
+    const handleBankDetails = () => {
         setOpenModal(true);
-        const bankDetails = {
+        const paymentDetails = {
             remittanceAmount,
             currency,
             dateOfTransfer,
             invoiceNumber,
             purposeCode,
-          };
-      
-          // Dispatch the action to save details in Redux
-          dispatch(saveBankDetails(bankDetails));
-      
-          // Optionally, clear the form after submission
-          setRemittanceAmount('');
-          setCurrency('USD');
-          setDateOfTransfer('2025-01-01');
-          setInvoiceNumber('');
-          setPurposeCode('');
+        };
+
+        // Dispatch the action to save details in Redux
+        dispatch(savePaymentDetails(paymentDetails));
+
+        // Optionally, clear the form after submission
+        setRemittanceAmount('');
+        setCurrency('INR');
+        setDateOfTransfer('2025-01-01');
+        setInvoiceNumber('');
+        setPurposeCode('');
     }
     const handleCloseModal = () => setOpenModal(false);
 
-    // State variables for form fields
-    const [remittanceAmount, setRemittanceAmount] = useState('');
-    const [currency, setCurrency] = useState('USD');
-    const [dateOfTransfer, setDateOfTransfer] = useState('2025-01-01');
-    const [invoiceNumber, setInvoiceNumber] = useState('');
-    const [purposeCode, setPurposeCode] = useState('');
-
-
     return (
-        <div className='currency-management-parent'>
-
-            {/* <Container
+        <>
+            <ToastContainer />
+            <div className='payment-details-parent'>
+                {/* <Container
                 maxWidth="md"
                 sx={{
                     display: "flex",
@@ -81,268 +208,305 @@ const PaymentDetails: React.FC = () => {
                     boxShadow: 2,
                 }}
             > */}
-            {
-                step === "bankDetails" ?
-                    <Box
-                        display="flex"
-                        flexDirection={isSmallScreen ? "column" : "row"}
-                        borderRadius="8px"
-                        overflow="hidden"
-                        boxShadow={2}
-                        bgcolor='var(--bg-clr-1)'
-                        width="100%"
-                        maxWidth="900px"
-                    >
-                        {/* Sidebar */}
+                {
+                    step === "bankDetails" ?
                         <Box
-                            width={isSmallScreen ? "100%" : "30%"}
-                            bgcolor="var(--bg-clr-2)"
-                            p={3}
                             display="flex"
-                            flexDirection="column"
-                            alignItems={isSmallScreen ? "center" : "flex-start"}
+                            flexDirection={isSmallScreen ? "column" : "row"}
+                            borderRadius="8px"
+                            overflow="hidden"
+                            boxShadow={2}
+                            bgcolor='var(--bg-clr-1)'
+                            width="100%"
+                        // maxWidth="900px"
                         >
-                            <Typography
-                                variant="h6"
-                                align="center"
-                                gutterBottom
-                                sx={{ fontSize: "16px", fontWeight: "bold" }}
+                            {/* Sidebar */}
+                            <Box
+                                width={isSmallScreen ? "100%" : "30%"}
+                                bgcolor="var(--bg-clr-1)"
+                                p={3}
+                                display="flex"
+                                flexDirection="column"
+                                alignItems={isSmallScreen ? "center" : "center"}
                             >
-                                Payment Progress
-                            </Typography>
-                            <Stepper
-                                orientation={isSmallScreen ? "horizontal" : "vertical"}
-                                activeStep={0}
-                                sx={{
-                                    width: isSmallScreen ? "100%" : "auto",
-                                    marginLeft: isSmallScreen ? 0 : "-16px",
-                                }}
-                            >
-                                {["Payment Details", "Upload Documents", "Accept Rate and Pay", "Track Payment"].map(
-                                    (label, index) => (
+                                <Typography
+                                    variant="h6"
+                                    align="center"
+                                    gutterBottom
+                                    sx={{ fontSize: "16px", fontWeight: "bold" }}
+                                >
+                                    Payment Progress
+                                </Typography>
+                                <Stepper
+                                    orientation={isSmallScreen ? "horizontal" : "vertical"}
+                                    activeStep={0}
+                                    sx={{
+                                        ".MuiStepConnector-root": {
+                                            marginLeft: "auto", // Adjusts position to center
+                                            marginRight: "auto",
+                                            width: isSmallScreen ? "50%" : "auto", // For horizontal/vertical stepper
+                                        },
+                                        width: isSmallScreen ? "100%" : "auto",
+                                        // marginLeft: isSmallScreen ? 0 : "-16px",
+                                    }}
+                                >
+                                    {steps.map((step, index) => (
                                         <Step key={index}>
                                             <StepLabel
                                                 sx={{
-                                                    flexDirection: "column-reverse", // Keep text below the numbers
+                                                    display: "flex",
+                                                    flexDirection: isSmallScreen ? "column" : "row",
                                                     alignItems: "center",
-                                                    ".MuiStepLabel-label": {
-                                                        fontSize: "12px", // Reduced text size
-                                                        textAlign: "center",
-                                                        marginTop: "8px",
-                                                        color: 'var(--text-color)'
-                                                    },
-                                                    ".MuiStepIcon-root": {
-                                                        fontSize: "24px", // Adjust icon size if needed
-                                                        // color: 'var(--body-text-clr)'
-                                                    },
+                                                    justifyContent: isSmallScreen ? "center" : "space-between",
+                                                    width: "100%",
+                                                    textAlign: isSmallScreen ? "center" : "left",
                                                 }}
+                                                icon={
+                                                    <div
+                                                        style={{
+                                                            backgroundColor: index === 0 ? "#1976d2" : "#e0e0e0",
+                                                            borderRadius: "50%",
+                                                            width: "32px",
+                                                            height: "32px",
+                                                            display: "flex",
+                                                            alignItems: "center",
+                                                            justifyContent: "center",
+                                                            color: "#fff",
+                                                            fontSize: "14px",
+                                                        }}
+                                                    >
+                                                        {index + 1}
+                                                    </div>
+                                                }
                                             >
-                                                {label}
+                                                <Box sx={{
+                                                    border: '2px solid black', // Adds a solid black border
+                                                    borderRadius: '8px',
+                                                    padding: "10px"
+                                                }}>
+                                                    <Typography
+                                                        variant="body1"
+                                                        sx={{
+                                                            fontWeight: "bold",
+                                                            color: "#000",
+                                                            fontSize: "14px",
+                                                        }}
+                                                    >
+                                                        {step.label}
+                                                    </Typography>
+                                                    {!isSmallScreen && (
+                                                        <Typography
+                                                            variant="body2"
+                                                            sx={{
+                                                                color: "rgba(0, 0, 0, 0.6)",
+                                                                marginTop: "4px",
+                                                                fontSize: "10px"
+
+                                                            }}
+                                                        >
+                                                            {step.description}
+                                                        </Typography>
+                                                    )}
+                                                </Box>
                                             </StepLabel>
                                         </Step>
+                                    ))}
+                                </Stepper>
+                            </Box>
+
+                            {/* Payment Details Section */}
+                            <Box flexGrow={1} p={3}>
+                                <Typography variant="h6" gutterBottom>
+                                    Payment Details
+                                </Typography>
+                                <Grid container spacing={3}>
+                                    {/* Remittance Amount */}
+                                    <Grid item xs={12} sm={6}>
+                                        <TextField
+                                            fullWidth
+                                            label="Remittance Amount"
+                                            defaultValue="1,000"
+                                            variant="outlined"
+                                            type="number"
+                                            value={remittanceAmount}
+                                            onChange={(e) => setRemittanceAmount(e.target.value)}
+                                            sx={{
+                                                background: "var(--bg-clr-1)",
+                                                "& .MuiInputBase-input": {
+                                                    color: "var(--text-color)", // Text color inside
+                                                },
+                                                "& .MuiInputLabel-root": {
+                                                    color: "var(--body-text-clr)", // Label color
+                                                },
+                                            }}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} sm={6}>
+                                        <FormControl fullWidth sx={{
+                                            background: "var(--bg-clr-1)",
+                                            "& .MuiInputBase-input": {
+                                                color: "var(--text-color)", // Text color inside
+                                            },
+                                            "& .MuiInputLabel-root": {
+                                                color: "var(--body-text-clr)", // Label color
+                                            },
+                                        }}>
+                                            <InputLabel>Currency</InputLabel>
+                                            <Select
+                                                defaultValue="INR"
+                                                label="Currency" value={currency}
+                                                onChange={(e) => setCurrency(e.target.value)}>
+                                                <MenuItem value="INR">INR</MenuItem>
+                                            </Select>
+                                        </FormControl>
+                                    </Grid>
+
+                                    {/* Expected Date of Transfer */}
+                                    <Grid item xs={12}>
+                                        <TextField
+                                            fullWidth
+                                            type="date"
+                                            value={dateOfTransfer}
+                                            onChange={(e) => setDateOfTransfer(e.target.value)}
+                                            label="Expected Date of Transfer"
+                                            sx={{
+                                                background: "var(--bg-clr-1)",
+                                                "& .MuiInputBase-input": {
+                                                    color: "var(--text-color)", // Text color inside
+                                                },
+                                                "& .MuiInputLabel-root": {
+                                                    color: "var(--body-text-clr)", // Label color
+                                                },
+                                            }}
+                                            InputLabelProps={{ shrink: true }}
+                                        />
+                                    </Grid>
+
+                                    {/* Invoice Number */}
+                                    <Grid item xs={12}>
+                                        <TextField
+                                            fullWidth
+                                            label="Invoice Number(s)"
+                                            value={invoiceNumber}
+                                            onChange={(e) => setInvoiceNumber(e.target.value)}
+                                            variant="outlined"
+                                            sx={{
+                                                background: "var(--bg-clr-1)",
+                                                "& .MuiInputBase-input": {
+                                                    color: "var(--text-color)", // Text color inside
+                                                },
+                                                "& .MuiInputLabel-root": {
+                                                    color: "var(--body-text-clr)", // Label color
+                                                },
+                                            }}
+                                        />
+                                    </Grid>
+
+                                    {/* Purpose Code */}
+                                    <Grid item xs={12}>
+                                        <FormControl fullWidth sx={{
+                                            background: "var(--bg-clr-1)",
+                                            "& .MuiInputBase-input": {
+                                                color: "var(--text-color)", // Text color inside
+                                            },
+                                            "& .MuiInputLabel-root": {
+                                                color: "var(--body-text-clr)", // Label color
+                                            },
+                                        }}>
+                                            <InputLabel>Purpose Code</InputLabel>
+                                            <Select
+                                                defaultValue="S0101"
+                                                label="Purpose Code"
+                                                value={purposeCode}
+                                                onChange={(e) => setPurposeCode(e.target.value)}>
+                                                <MenuItem value="S0101">
+                                                    S0101 Advance payment against imports
+                                                </MenuItem>
+                                                <MenuItem value="S0102">
+                                                    S0102 Payment towards imports - settlement of invoice
+                                                </MenuItem>
+                                            </Select>
+                                        </FormControl>
+                                    </Grid>
+                                </Grid>
+
+                                {Object.values(bankDetails).some((value) => value) ? (
+                                    <Box
+                                        mt={4}
+                                        p={2}
+                                        sx={{
+                                            border: "1px solid black",
+                                            borderRadius: "8px",
+                                            backgroundColor: "#f9f9f9",
+                                        }}
+                                    >
+                                        <Typography variant="h6" gutterBottom>
+                                            Bank Details
+                                        </Typography>
+                                        <Typography variant="body1">
+                                            SWIFT Code: {bankDetails.swiftCode}
+                                        </Typography>
+                                        <Typography variant="body1">
+                                            Beneficiary Name: {bankDetails.beneficiaryName}
+                                        </Typography>
+                                        <Typography variant="body1">
+                                            Account Number: {bankDetails.beneficiaryAccountNumber}
+                                        </Typography>
+                                        <Typography variant="body1">
+                                            Routing/Sort Code: {bankDetails.routingNumber}
+                                        </Typography>
+                                        <Typography variant="body1">
+                                            Bank Details:  {bankDetails.beneficiaryBank}, {bankDetails.branch}<br />
+                                            {bankDetails.bankAddress}, {bankDetails.city}, {bankDetails.state}, {bankDetails.country}<br />
+
+                                        </Typography>
+                                        <Box mt={2} textAlign="center">
+                                            <Button
+                                                variant="outlined"
+                                                color="primary"
+                                                onClick={() => setOpenModal(true)}
+                                            >
+                                                Edit Bank Details
+                                            </Button>
+                                        </Box>
+                                    </Box>
+                                )
+                                    :
+                                    (
+                                        <Box mt={4} textAlign="center">
+                                            <Button
+                                                variant="contained"
+                                                color="primary"
+                                                onClick={handleBankDetails}
+                                            >
+                                                Add Bank Details
+                                            </Button>
+                                        </Box>
                                     )
-                                )}
-                            </Stepper>
-                        </Box>
 
-                        {/* Payment Details Section */}
-                        <Box flexGrow={1} p={3}>
-                            <Typography variant="h6" gutterBottom>
-                                Payment Details
-                            </Typography>
-                            <Grid container spacing={3}>
-                                {/* Remittance Amount */}
-                                <Grid item xs={12} sm={6}>
-                                    <TextField
-                                        fullWidth
-                                        label="Remittance Amount"
-                                        defaultValue="1,000"
-                                        variant="outlined"
-                                        type="number"
-                                        value={remittanceAmount}
-                                        onChange={(e) => setRemittanceAmount(e.target.value)}
-                                        sx={{
-                                            background: "var(--bg-clr-2)",
-                                            "& .MuiInputBase-input": {
-                                                color: "var(--text-color)", // Text color inside
-                                            },
-                                            "& .MuiInputLabel-root": {
-                                                color: "var(--body-text-clr)", // Label color
-                                            },
-                                        }}
-                                    />
-                                </Grid>
-                                <Grid item xs={12} sm={6}>
-                                    <FormControl fullWidth sx={{
-                                        background: "var(--bg-clr-2)",
-                                        "& .MuiInputBase-input": {
-                                            color: "var(--text-color)", // Text color inside
-                                        },
-                                        "& .MuiInputLabel-root": {
-                                            color: "var(--body-text-clr)", // Label color
-                                        },
-                                    }}>
-                                        <InputLabel>Currency</InputLabel>
-                                        <Select
-                                            defaultValue="USD"
-                                            label="Currency" value={currency}
-                                            onChange={(e) => setCurrency(e.target.value)}>
-                                            <MenuItem value="USD">USD</MenuItem>
-                                        </Select>
-                                    </FormControl>
-                                </Grid>
+                                }
 
-                                {/* Expected Date of Transfer */}
-                                <Grid item xs={12}>
-                                    <TextField
-                                        fullWidth
-                                        type="date"
-                                        value={dateOfTransfer}
-                                        onChange={(e) => setDateOfTransfer(e.target.value)}
-                                        label="Expected Date of Transfer"
-                                        sx={{
-                                            background: "var(--bg-clr-2)",
-                                            "& .MuiInputBase-input": {
-                                                color: "var(--text-color)", // Text color inside
-                                            },
-                                            "& .MuiInputLabel-root": {
-                                                color: "var(--body-text-clr)", // Label color
-                                            },
-                                        }}
-                                        InputLabelProps={{ shrink: true }}
-                                    />
-                                </Grid>
+                                <Box mt={4} textAlign="center">
+                                    <Button
+                                        variant="contained"
+                                        color="primary"
+                                        onClick={handleTTPaymentDetails}
+                                        disabled={isLoading || !Object.values(bankDetails).some((value) => value)} // Disable the button while loading
+                                        startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : null}
 
-                                {/* Invoice Number */}
-                                <Grid item xs={12}>
-                                    <TextField
-                                        fullWidth
-                                        label="Invoice Number(s)"
-                                        value={invoiceNumber}
-                                        onChange={(e) => setInvoiceNumber(e.target.value)}
-                                        variant="outlined"
-                                        sx={{
-                                            background: "var(--bg-clr-2)",
-                                            "& .MuiInputBase-input": {
-                                                color: "var(--text-color)", // Text color inside
-                                            },
-                                            "& .MuiInputLabel-root": {
-                                                color: "var(--body-text-clr)", // Label color
-                                            },
-                                        }}
-                                    />
-                                </Grid>
-
-                                {/* Purpose Code */}
-                                <Grid item xs={12}>
-                                    <FormControl fullWidth sx={{
-                                        background: "var(--bg-clr-2)",
-                                        "& .MuiInputBase-input": {
-                                            color: "var(--text-color)", // Text color inside
-                                        },
-                                        "& .MuiInputLabel-root": {
-                                            color: "var(--body-text-clr)", // Label color
-                                        },
-                                    }}>
-                                        <InputLabel>Purpose Code</InputLabel>
-                                        <Select
-                                            defaultValue="S0101"
-                                            label="Purpose Code"
-                                            value={purposeCode}
-                                            onChange={(e) => setPurposeCode(e.target.value)}>
-                                            <MenuItem value="S0101">
-                                                S0101 Advance payment against imports
-                                            </MenuItem>
-                                            <MenuItem value="S0102">
-                                                S0102 Payment towards imports - settlement of invoice
-                                            </MenuItem>
-                                        </Select>
-                                    </FormControl>
-                                </Grid>
-                            </Grid>
-
-
-                            <Box mt={4} textAlign="center">
-                                <Button
-                                    variant="contained"
-                                    color="primary"
-                                    onClick={handleSubmit}                               
-                                     >
-                                    Add Bank Details
-                                </Button>
+                                    >
+                                        Save and Proceed
+                                    </Button>
+                                </Box>
                             </Box>
                         </Box>
-                    </Box>
-                    :
-                    <DocumentUploads />
-            }
+                        :
+                        <DocumentUploads />
+                }
 
-
-            {/* Modal for adding bank details */}
-            <Modal open={openModal} onClose={handleCloseModal}>
-                <Box
-                    sx={{
-                        position: "absolute",
-                        top: "50%",
-                        left: "50%",
-                        transform: "translate(-50%, -50%)",
-                        width: isSmallScreen ? "90%" : "50%",
-                        bgcolor: "background.paper",
-                        border: "2px solid #000",
-                        boxShadow: 24,
-                        p: 4,
-                        borderRadius: "8px",
-                    }}
-                >
-                    <Typography variant="h6" component="h2" gutterBottom>
-                        Add Bank Account
-                    </Typography>
-                    <Grid container spacing={2}>
-                        <Grid item xs={12}>
-                            <TextField
-                                fullWidth
-                                label="SWIFT/BIC Code"
-                                placeholder="Enter the SWIFT Code to find the Bank"
-                            />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <Button variant="outlined" fullWidth>
-                                Fetch Bank Details
-                            </Button>
-                        </Grid>
-                        <Grid item xs={12}>
-                            <TextField fullWidth label="Beneficiary Bank" placeholder="Enter the Name of the bank" />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <TextField fullWidth label="Branch" placeholder="Enter the Branch of the bank" />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <TextField fullWidth label="Bank Address" placeholder="Enter the Address of the bank" />
-                        </Grid>
-                        <Grid item xs={6}>
-                            <TextField fullWidth label="City" placeholder="Enter the City of the bank" />
-                        </Grid>
-                        <Grid item xs={6}>
-                            <TextField fullWidth label="State" placeholder="Enter the State of the bank" />
-                        </Grid>
-                    </Grid>
-                    <Box mt={3} textAlign="center">
-                        <Button
-                            variant="contained"
-                            color="success"
-                            fullWidth
-                            onClick={() => {
-                                handleNextStep();
-                                handleCloseModal();
-                            }}
-                        >
-                            Save Bank Account
-                        </Button>
-                    </Box>
-                </Box>
-            </Modal>
-            {/* </Container> */}
-        </div>
+                <BankDetails openModal={openModal} handleCloseModal={handleCloseModal}/>
+            </div>
+        </>
     );
 };
 

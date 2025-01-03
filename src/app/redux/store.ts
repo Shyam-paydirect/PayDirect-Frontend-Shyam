@@ -4,6 +4,8 @@ import uiReducer from './slices/uiSlice';
 import fxRateReducer from './slices/api/fxRateSlice';
 import authReducer from './slices/api/authSlice';
 import paymentReducer from './slices/paymentDetailsSlice'
+import ttPaymentReducer from './slices/api/ttpaymentSlice';
+import orderReducer from './slices/api/orderSlice';
 
 export const store = configureStore({
   reducer: {
@@ -11,7 +13,9 @@ export const store = configureStore({
     ui: uiReducer,
     fxRate: fxRateReducer,
     auth: authReducer,
-    payment: paymentReducer
+    paymentDetails: paymentReducer,
+    ttPayment: ttPaymentReducer,
+    orders: orderReducer
   },
 });
 
