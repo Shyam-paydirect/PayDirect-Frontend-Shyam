@@ -24,7 +24,7 @@ import DocumentUploads from "../documents-upload/documents-upload";
 import { savePaymentDetails } from '@/app/redux/slices/paymentDetailsSlice'; // Action to save data in Redux
 import BankDetails from "./bank-details";
 import { RootState } from "@/app/redux/store"; // Adjust based on your store setup
-import { submitPayment } from "@/app/redux/slices/api/ttpaymentSlice";
+import { submitPayment } from "@/app/redux/slices/api/ttPaymentSlice";
 import { AppDispatch } from '@/app/redux/store';
 import { toast, ToastContainer } from "react-toastify";
 import { createOrder, fetchAllOrders, CreateOrderRequest, selectOrderState } from '@/app/redux/slices/api/orderSlice'; 

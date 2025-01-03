@@ -4,7 +4,7 @@ import uiReducer from './slices/uiSlice';
 import fxRateReducer from './slices/api/fxRateSlice';
 import authReducer from './slices/api/authSlice';
 import paymentReducer from './slices/paymentDetailsSlice'
-import ttPaymentReducer from './slices/api/ttpaymentSlice';
+import ttPaymentReducer from './slices/api/ttPaymentSlice';
 import orderReducer from './slices/api/orderSlice';
 
 export const store = configureStore({
