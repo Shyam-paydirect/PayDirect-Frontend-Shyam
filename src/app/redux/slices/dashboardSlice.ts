@@ -6,8 +6,8 @@ interface DashboardState {
 }
 
 const initialState: DashboardState = {
-  currentDashboard: 'general-ledger',
-  dashboardTitle: 'General Ledger',
+  currentDashboard: 'currency-management',
+  dashboardTitle: 'Currency Management',
 };
 
 const dashboardSlice = createSlice({
@@ -15,7 +15,6 @@ const dashboardSlice = createSlice({
   initialState,
   reducers: {
     setCurrentDashboard(state, action: PayloadAction<string>) {
-      console.log("Dashboard");
       state.currentDashboard = action.payload;
       state.dashboardTitle = getTitleByDashboard(action.payload);
     },
@@ -30,12 +29,14 @@ function getTitleByDashboard(dashboard: string): string {
       return 'General Ledger';
     case 'financial-reporting':
       return 'Financial Reporting';
+    case 'order-book':
+      return 'Order Book';
     case 'payment-details':
       return 'Payment Details';
     case 'admin-portal':
       return 'Admin Portal';
     default:
-      return 'General Ledger';
+      return 'Currency Management';
   }
 }
 

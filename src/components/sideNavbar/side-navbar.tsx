@@ -23,7 +23,7 @@ const SideNavbar: React.FC = () => {
 
   const handleMenuClick = (id: string) => {
     dispatch(setCurrentDashboard(id));
-    setClose(true); // Ensure the sidebar is marked as closed
+    isSmallScreen && setClose(true); // Ensure the sidebar is marked as closed
     document.body.classList.remove('sidebar-open'); // Remove any overlay effect
   };
 
@@ -31,9 +31,8 @@ const SideNavbar: React.FC = () => {
     { id: 'currency-management', icon: 'ri-copper-diamond-line', text: 'Currency Management' },
     { id: 'general-ledger', icon: 'ri-database-2-line', text: 'General Ledger' },
     { id: 'financial-reporting', icon: 'ri-bank-card-2-line', text: 'Financial Reporting' },
-    { id: 'payment-details', icon: 'ri-store-2-line', text: 'Payment Details' },
-    { id: 'access-security', icon: 'ri-projector-line', text: 'Access and Security' },
-    { id: 'third-party-integration', icon: 'ri-service-line', text: 'Third-Party Integration' },
+    // { id: 'payment-details', icon: 'ri-store-2-line', text: 'Payment Details' },
+    { id: 'order-book', icon: 'ri-book-line', text: 'Order Book' }, // Updated icon
     { id: 'accounts', icon: 'ri-user-settings-line', text: 'Accounts' },
   ];
 

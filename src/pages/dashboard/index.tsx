@@ -15,20 +15,26 @@ import FinancialReporting from '@/components/financial-reporting/financial-repor
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/router';
 import PaymentDetails from '@/components/paymentDetails/payment-details';
+import OrderPaymentComponent from '@/components/orderbook/orderbook';
 
 const Main: React.FC = () => {
   const router = useRouter();
+  const [isClient, setIsClient] = useState(false)
 
   useEffect(() => {
+    setIsClient(true);
     if(!Cookies.get("token")){
       router.push("/")
     }
-  }, [])
+  }, [router])
 
   const dashboardTitle = useSelector((state: RootState) => state.dashboard.currentDashboard)
   // const [currentDashboard, setCurrentDashboard] = useState<string>('general-ledger');
   
   const renderDashboard = () => {
+    if (!isClient) {
+      return <div></div>; // Prevent SSR rendering mismatch
+  }
     switch (dashboardTitle) {
       case 'currency-management':
         return <CurrencyManagement />;
@@ -36,12 +42,12 @@ const Main: React.FC = () => {
         return <GeneralLedger />;
       case 'financial-reporting':
         return <FinancialReporting />;
+      case 'order-book':
+        return <OrderPaymentComponent />
       case 'payment-details':
         return <PaymentDetails />;
-      case 'admin-portal':
-        // return <AdminPortal />;
       default:
-        // return <GeneralLedger />;
+        return <CurrencyManagement />;
     }
   };
 

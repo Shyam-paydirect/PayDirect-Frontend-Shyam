@@ -1,6 +1,6 @@
 // CurrencyExchanger.tsx (Currency Exchanger Component)
 import React, { useEffect, useState } from 'react';
-import { Card, CardContent, Typography, Button, Input, Divider, CircularProgress, IconButton, Paper, Box, TextField } from '@mui/material';
+import { Card, CardContent, Typography, Button, Input, Divider, CircularProgress, IconButton, Paper, Box, TextField, Tooltip, Avatar, Dialog, DialogTitle, DialogContent, List, ListItem, ListItemText } from '@mui/material';
 import SwapVertIcon from '@mui/icons-material/SwapVert';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import './currency-exchanger.css';
@@ -22,10 +22,30 @@ const CurrencyExchanger: React.FC = () => {
   const [target, setTarget] = useState<string>('INR');
   const [baseValue, setBaseValue] = useState<string>("1");
   const [targetValue, setTargetValue] = useState<string>("0");
-  const [uId, setUId] = useState<string>("")
+  const [uId, setUId] = useState<string>("");
+  const [rate, setRate] = useState<number>(0);
+  const [searchKeyword, setSearchKeyword] = useState('');
+  const [open, setOpen] = useState(false);
 
   const [timer, setTimer] = useState<number>(0); // Timer state added
   const [errorMsg, setErrorMsg] = useState<string>("");
+  const [isBaseSelection, setIsBaseSelection] = useState<boolean>(true);
+
+
+  const currencies = [
+    { code: 'USD', name: 'United States Dollar' },
+    { code: 'INR', name: 'Indian Rupee' },
+    { code: 'EUR', name: 'Euro' },
+    { code: 'GBP', name: 'British Pound' },
+  ];
+
+  const filteredCurrencies = currencies.filter(
+    (currency) =>
+      currency.code.toLowerCase().includes(searchKeyword.toLowerCase()) ||
+      currency.name.toLowerCase().includes(searchKeyword.toLowerCase())
+  );
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const dispatch = useDispatch<AppDispatch>();
 
@@ -36,8 +56,36 @@ const CurrencyExchanger: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+
+  }, [base, target])
+
+  const handleOpen = (isBase: boolean) => {
+    setOpen(true);
+    setIsBaseSelection(isBase);
+    setSearchKeyword("");
+  }
+
+
+  const handleClose = () => {
+    setOpen(false);
+    setSearchKeyword('');
+  };
+
+
+  const handleCurrencySelect = (code: string) => {
+    if (isBaseSelection) {
+      setBase(code);
+    } else {
+      setTarget(code);
+    }
+    handleClose();
+  };
+
+  const getFlagUrl = (code: string): string =>
+    `https://wise.com/public-resources/assets/flags/rectangle/${code.toLowerCase()}.png`;
+
   const handleGetFxRateClick = async () => {
-    
     setErrorMsg("");
     const bodyData = {
       ccyPair: 'USDINR',
@@ -50,8 +98,10 @@ const CurrencyExchanger: React.FC = () => {
       clientTxnsId: 'CLIENT-00000001',
     };
     try {
+
       const response = await dispatch(fetchFxRate(bodyData)).unwrap();
-      setTargetValue(response?.data?.rate);
+      setTargetValue(response?.data?.contraAmount);
+      setRate(response?.data?.rate);
       setUId(response?.data?.uid);
       setTimer(30); // Reset timer to 30 seconds
     }
@@ -65,6 +115,9 @@ const CurrencyExchanger: React.FC = () => {
             : "An unknown error occurred";
 
       setErrorMsg(errorMessage)
+    }
+    finally {
+      setIsLoading(false); // Reset loading state
     }
 
 
@@ -124,7 +177,15 @@ const CurrencyExchanger: React.FC = () => {
               <Typography className="control-label">Sending Amount</Typography>
               <div className="control">
 
-                <Button variant="contained" onClick={() => { }}>{base}</Button>
+                <Button
+                  variant="contained"
+                  onClick={() => {
+                    handleOpen(true);
+                  }}
+                  startIcon={<Avatar src={getFlagUrl(base)} />}
+                >
+                  {base}
+                </Button>
                 <Input
                   type="number"
                   value={baseValue}
@@ -143,60 +204,21 @@ const CurrencyExchanger: React.FC = () => {
               }}
             >{errorMsg}</Typography>
 
-            <Box className="timer-button-wrapper" sx={{ display: 'flex', alignItems: 'center', gap: 2, justifyContent: 'flex-end', marginTop: (errorMsg ? '4px' : '22px') }}>
 
-              <Box className="timer" sx={{ marginLeft: 'auto', position: 'relative', display: 'flex', justifyContent: 'center', alignItems: 'center' }}> {/* Timer Circle */}
-                <CircularProgress
-                  variant="determinate"
-                  value={(timer / 30) * 100}
-                  size={35}
-                  thickness={6}
-                  sx={{
-                    color: getColor(timer), // Color transition from green to red (Edited)
-                    transition: 'color 1s linear, stroke-dashoffset 0.1s linear', // Smooth color transition (Edited)
-                    strokeLinecap: 'round' // Rounded edges for loader (Edited)
-                  }}
-                />
-                {timer != 0 &&
-                  <Typography
-                    variant="caption"
-                    component="div"
-                    color="textSecondary"
-                    sx={{ position: 'absolute', fontSize: '13px' }}
-                  >
-                    {timer}
-                  </Typography>
-                }
-              </Box>  
-              <Button
-                onClick={handleGetFxRateClick}
-                sx={{
-                  // marginLeft: 'auto', // Align to the right
-                  borderRadius: '8px', // Less rounded corners
-                  backgroundColor: '#004080', // Darker blue color
-                  color: '#ffffff', // White text color
-                  textTransform: 'none', // Prevent uppercase text
-                  paddingX: '16px', // Horizontal padding for rectangular look
-                  animation: timer === 0 ? 'blink 2s ' : 'none', // Blink animation when timer is 0 (Edited)
-                  '&:hover': {
-                    backgroundColor: '#00264d', // Even darker blue on hover
-                  },
-                  '@keyframes blink': {
-                    '0%': { opacity: 1 },
-                    '50%': { background: '#00264d', opacity: 0.8 },
-                    '100%': { opacity: 1 },
-                  }
-                }}>  <AutorenewIcon sx={{ fontSize: 16 }} />
-
-                Get FX Rate
-              </Button>
-            </Box>
             <div className="control-parent">
 
               <Typography className="control-label">Receiving Amount</Typography>
 
               <div className="control">
-                <Button variant="contained" onClick={() => { }}>{target}</Button>
+                <Button
+                  variant="contained"
+                  onClick={() => {
+                    handleOpen(false);
+                  }}
+                  startIcon={<Avatar src={getFlagUrl(target)} />}
+                >
+                  {target}
+                </Button>
                 <Input type="number" value={targetValue} readOnly />
               </div>
               {/* <IconButton className="swap-btn" onClick={swapCurrencies}>
@@ -213,14 +235,18 @@ const CurrencyExchanger: React.FC = () => {
               <li className="rate-detail">
                 <span className="rate">
                   <i className="ri-close-line sign"></i>
-                  ₹ 84.96
-                  <i
-                    className="ri-information-line"
-                    style={{ cursor: 'pointer', color: '#17a2b8' }}
-                    data-bs-toggle="popover"
-                    data-bs-trigger="hover focus"
-                    data-bs-content="And here's some amazing content. It's very engaging. Right?"
-                  ></i>
+                  {rate === 0 ? <span className='skeleton'>000000</span> : rate}
+                  {/* ₹ 84.96 */}
+                  <Tooltip
+                    title="And here's some amazing content. It's very engaging. Right?"
+                    placement="top"
+                    arrow
+                  >
+                    <i
+                      className="ri-information-line"
+                      style={{ cursor: 'pointer', color: '#17a2b8' }}
+                    ></i>
+                  </Tooltip>
                 </span>
                 <span className="rate-reason">@ PayDirect rate per USD</span>
               </li>
@@ -267,18 +293,113 @@ const CurrencyExchanger: React.FC = () => {
             </ul>
             <div className="final-charge-parent">
               <Typography className="final-charge-label totalPayment rate">
-                <i className="ri-equal-line sign"></i> ₹ {targetValue + 2084.96}
+                <i className="ri-equal-line sign"></i> ₹ {parseFloat(targetValue) + 2000}
               </Typography>
               <Typography className="final-charge-label">Total Payment</Typography>
             </div>
             <div className="book-parent">
-              <Button type="button" className="btn-1 book-button" variant="contained" disabled={timer == 0} onClick={handleBookFxRate}>
+              {/* <Button type="button" className="btn-1 book-button" variant="contained" disabled={timer == 0} onClick={handleBookFxRate}>
                 <i className="ri-wallet-line"></i> Book Now
-              </Button>
+              </Button> */}
+              <Box className="timer-button-wrapper" sx={{ display: 'flex', alignItems: 'center', gap: 2, justifyContent: 'flex-end', marginTop: (errorMsg ? '4px' : '22px') }}>
+
+                <Box className="timer" sx={{ marginLeft: 'auto', position: 'relative', display: 'flex', justifyContent: 'center', alignItems: 'center' }}> {/* Timer Circle */}
+                  <CircularProgress
+                    variant="determinate"
+                    value={(timer / 30) * 100}
+                    size={35}
+                    thickness={6}
+                    sx={{
+                      color: getColor(timer), // Color transition from green to red (Edited)
+                      transition: 'color 1s linear, stroke-dashoffset 0.1s linear', // Smooth color transition (Edited)
+                      strokeLinecap: 'round' // Rounded edges for loader (Edited)
+                    }}
+                  />
+                  {timer != 0 &&
+                    <Typography
+                      variant="caption"
+                      component="div"
+                      color="textSecondary"
+                      sx={{ position: 'absolute', fontSize: '13px' }}
+                    >
+                      {timer}
+                    </Typography>
+                  }
+                </Box>
+                <Button
+                  className="btn-1 book-button"
+                  onClick={() => {
+                    setIsLoading(true); // Set loading state to true
+
+                    handleGetFxRateClick();
+                    setTimeout(() => {
+
+                    }, 300)
+
+                  }
+                  }
+                  sx={{
+                    // marginLeft: 'auto', // Align to the right
+                    borderRadius: '8px', // Less rounded corners
+                    backgroundColor: '#004080', // Darker blue color
+                    color: '#ffffff', // White text color
+                    textTransform: 'none', // Prevent uppercase text
+                    paddingX: '16px', // Horizontal padding for rectangular look
+                    animation: timer === 0 ? 'blink 2s ' : 'none', // Blink animation when timer is 0 (Edited)
+                    '&:hover': {
+                      backgroundColor: '#00264d', // Even darker blue on hover
+                    },
+                    '@keyframes blink': {
+                      '0%': { opacity: 1 },
+                      '50%': { background: '#00264d', opacity: 0.8 },
+                      '100%': { opacity: 1 },
+                    }
+                  }}
+                  disabled={isLoading}
+                >
+                  <AutorenewIcon
+                    sx={{
+                      fontSize: 16,
+                      animation: isLoading
+                        ? 'spin 1s linear infinite'
+                        : 'none',
+                      '@keyframes spin': {
+                        '0%': { transform: 'rotate(0deg)' },
+                        '100%': { transform: 'rotate(360deg)' },
+                      },
+                    }} />
+
+                  Get FX Rate
+                </Button>
+              </Box>
             </div>
           </section>
         </CardContent>
       </Card>
+
+      <Dialog open={open} onClose={handleClose} fullWidth>
+        <DialogTitle>Select Currency</DialogTitle>
+        <DialogContent>
+          <TextField
+            fullWidth
+            margin="dense"
+            placeholder="Search"
+            value={searchKeyword}
+            onChange={(e) => setSearchKeyword(e.target.value)}
+          />
+          <List>
+            {filteredCurrencies.map((currency) => (
+              <ListItem
+                key={currency.code}
+                onClick={() => handleCurrencySelect(currency.code)}
+              >
+                <Avatar src={getFlagUrl(currency.code)} alt={currency.name} />
+                <ListItemText primary={currency.code} secondary={currency.name} />
+              </ListItem>
+            ))}
+          </List>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

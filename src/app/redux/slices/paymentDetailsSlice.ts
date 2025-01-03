@@ -1,42 +1,83 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface PaymentDetailsState {
-  remittanceAmount: string;
-  currency: string;
-  dateOfTransfer: string;
-  invoiceNumber: string;
-  purposeCode: string;
+  paymentDetails: {
+    remittanceAmount: string;
+    currency: string;
+    dateOfTransfer: string;
+    invoiceNumber: string;
+    purposeCode: string;
+  };
+  bankDetails: {
+    swiftCode: string;
+    beneficiaryBank: string;
+    branch: string;
+    bankAddress: string;
+    city: string;
+    state: string;
+    country: string;
+    beneficiaryName: string;
+    beneficiaryAccountNumber: string;
+    routingNumber: string;
+  };
 }
 
 const initialState: PaymentDetailsState = {
-  remittanceAmount: '',
-  currency: 'USD',
-  dateOfTransfer: '',
-  invoiceNumber: '',
-  purposeCode: '',
+  paymentDetails: {
+    remittanceAmount: '',
+    currency: 'USD',
+    dateOfTransfer: '',
+    invoiceNumber: '',
+    purposeCode: '',
+  },
+  bankDetails: {
+    swiftCode: '',
+    beneficiaryBank: '',
+    branch: '',
+    bankAddress: '',
+    city: '',
+    state: '',
+    country: '',
+    beneficiaryName: '',
+    beneficiaryAccountNumber: '',
+    routingNumber: '',
+  },
 };
 
 const paymentDetailsSlice = createSlice({
   name: 'paymentDetails',
   initialState,
   reducers: {
-    saveBankDetails(state, action: PayloadAction<PaymentDetailsState>) {
-      state.remittanceAmount = action.payload.remittanceAmount;
-      state.currency = action.payload.currency;
-      state.dateOfTransfer = action.payload.dateOfTransfer;
-      state.invoiceNumber = action.payload.invoiceNumber;
-      state.purposeCode = action.payload.purposeCode;
+    savePaymentDetails(state, action: PayloadAction<PaymentDetailsState['paymentDetails']>) {
+      state.paymentDetails = action.payload;
+    },
+    saveBankDetails(state, action: PayloadAction<PaymentDetailsState['bankDetails']>) {
+      state.bankDetails = action.payload;
     },
     clearPaymentDetails(state) {
-      state.remittanceAmount = '';
-      state.currency = 'USD';
-      state.dateOfTransfer = '';
-      state.invoiceNumber = '';
-      state.purposeCode = '';
+      state.paymentDetails = {
+        remittanceAmount: '',
+        currency: 'USD',
+        dateOfTransfer: '',
+        invoiceNumber: '',
+        purposeCode: '',
+      };
+      state.bankDetails = {
+        swiftCode: '',
+        beneficiaryBank: '',
+        branch: '',
+        bankAddress: '',
+        city: '',
+        state: '',
+        country: '',
+        beneficiaryName: '',
+        beneficiaryAccountNumber: '',
+        routingNumber: '',
+      };
     },
   },
 });
 
-export const { saveBankDetails, clearPaymentDetails } = paymentDetailsSlice.actions;
+export const { savePaymentDetails, saveBankDetails, clearPaymentDetails } = paymentDetailsSlice.actions;
 
 export default paymentDetailsSlice.reducer;
