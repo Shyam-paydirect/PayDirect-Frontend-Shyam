@@ -13,6 +13,10 @@ export interface CreateOrderRequest {
   responseType: string;
   txnStatus: string;
   txnStatusDescription: string;
+  sendingPartyName: string;
+  sendingPartyAccountNo: string;
+  receivingPartyName: string;
+  receivingPartyAccountNo: string;
 }
 
 interface Order {
@@ -25,7 +29,12 @@ interface Order {
   responseType: string;
   txnStatus: string;
   txnStatusDescription: string;
+  sendingPartyName: string;
+  sendingPartyAccountNo: string;
+  receivingPartyName: string;
+  receivingPartyAccountNo: string;
 }
+
 
 // Define the response type
 export interface CreateOrderResponse {

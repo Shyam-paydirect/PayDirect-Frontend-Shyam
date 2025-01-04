@@ -8,9 +8,12 @@ import '@/../public/assets/css/table.css';
 import '@/../public/assets/css/master.css';
 import AutorenewIcon from '@mui/icons-material/Autorenew';
 import { useDispatch } from 'react-redux';
-import { fetchFxRate, bookFxRate } from '@/app/redux/slices/api/fxRateSlice';
+import { fetchFxRate, bookFxRate, fetchCcyRate, updateCcyRate } from '@/app/redux/slices/api/fxRateSlice';
 import type { AppDispatch } from '@/app/redux/store';
 import { toast, ToastContainer } from 'react-toastify';
+import moment from 'moment';
+import AccessTimeIcon from '@mui/icons-material/AccessTime'; // Import the clock icon
+
 
 interface Currency {
   code: string;
@@ -30,6 +33,7 @@ const CurrencyExchanger: React.FC = () => {
   const [timer, setTimer] = useState<number>(0); // Timer state added
   const [errorMsg, setErrorMsg] = useState<string>("");
   const [isBaseSelection, setIsBaseSelection] = useState<boolean>(true);
+  const [lastUpdated, setLastUpdated] = useState("")
 
 
   const currencies = [
@@ -84,6 +88,61 @@ const CurrencyExchanger: React.FC = () => {
 
   const getFlagUrl = (code: string): string =>
     `https://wise.com/public-resources/assets/flags/rectangle/${code.toLowerCase()}.png`;
+  
+  const getTimeDifference = (inputTime: Date) => {
+    const now = moment();
+    const pastTime = moment(inputTime);
+    const duration = moment.duration(now.diff(pastTime));
+
+    const hours = Math.floor(duration.asHours());
+    if (hours < 1) {
+      return 'Last Updated: < 1h ago';
+    } else {
+      return `Last Updated: ${hours}h ago`;
+    }
+  }
+
+  const handleFxRateWhenFailed = async () => {
+    try {
+      const result = await dispatch(fetchCcyRate()).unwrap();
+      setRate(result?.data?.rate);
+
+      const target = result?.data?.rate * parseFloat(baseValue);
+      setTargetValue(`${target}`)
+
+      setLastUpdated(getTimeDifference(result?.data?.updateTime))
+    } catch (error) {
+      const errorMessage =
+        typeof error === "string"
+          ? error
+          : error instanceof Error
+            ? error.message
+            : "An unknown error occurred";
+
+      setErrorMsg(errorMessage)
+    }
+  }
+
+  const handleFxRateUpdate = async (rate: number) => {
+    try {
+      const result = await dispatch(updateCcyRate({rate: rate})).unwrap();
+      setRate(result?.data?.rate);
+
+      const target = result?.data?.rate * parseFloat(baseValue);
+      setTargetValue(`${target}`)
+
+      setLastUpdated(getTimeDifference(result?.data?.updateTime))
+    } catch (error) {
+      const errorMessage =
+        typeof error === "string"
+          ? error
+          : error instanceof Error
+            ? error.message
+            : "An unknown error occurred";
+
+      setErrorMsg(errorMessage)
+    }
+  }
 
   const handleGetFxRateClick = async () => {
     setErrorMsg("");
@@ -100,21 +159,25 @@ const CurrencyExchanger: React.FC = () => {
     try {
 
       const response = await dispatch(fetchFxRate(bodyData)).unwrap();
+
+      handleFxRateUpdate(response?.data?.rate)
+
       setTargetValue(response?.data?.contraAmount);
       setRate(response?.data?.rate);
       setUId(response?.data?.uid);
       setTimer(30); // Reset timer to 30 seconds
     }
     catch (error) {
+      handleFxRateWhenFailed()
+      setTimer(30); // Reset timer to 30 seconds
+      // const errorMessage =
+      //   typeof error === "string"
+      //     ? error
+      //     : error instanceof Error
+      //       ? error.message
+      //       : "An unknown error occurred";
 
-      const errorMessage =
-        typeof error === "string"
-          ? error
-          : error instanceof Error
-            ? error.message
-            : "An unknown error occurred";
-
-      setErrorMsg(errorMessage)
+      // setErrorMsg(errorMessage)
     }
     finally {
       setIsLoading(false); // Reset loading state
@@ -204,6 +267,29 @@ const CurrencyExchanger: React.FC = () => {
               }}
             >{errorMsg}</Typography>
 
+            <Typography
+              sx={{
+                color: 'green',
+                fontSize: 12,
+                fontWeight: 600,
+                textAlign: 'right', // Right-align text
+                display: 'inline-flex', // Inline flex ensures it works well with text alignment
+                alignItems: 'center', // Vertically center the icon and text
+                justifyContent: 'flex-end', // Push content to the right
+                gap: '4px', // Add spacing between icon and text
+                width: '100%', // Ensure it spans the container for alignment
+              }}
+            >
+              {lastUpdated &&
+                <AccessTimeIcon
+                  sx={{
+                    fontSize: 16, // Adjust the size of the icon
+                  }}
+                />
+              }
+              {lastUpdated}
+            </Typography>
+
 
             <div className="control-parent">
 
@@ -235,7 +321,7 @@ const CurrencyExchanger: React.FC = () => {
               <li className="rate-detail">
                 <span className="rate">
                   <i className="ri-close-line sign"></i>
-                  {rate === 0 ? <span className='skeleton'>000000</span> : rate}
+                  {isLoading ? <span className='skeleton'>000000</span> : rate}
                   {/* ₹ 84.96 */}
                   <Tooltip
                     title="And here's some amazing content. It's very engaging. Right?"
