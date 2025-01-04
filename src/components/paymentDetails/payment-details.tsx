@@ -27,7 +27,7 @@ import { RootState } from "@/app/redux/store"; // Adjust based on your store set
 import { submitPayment } from "@/app/redux/slices/api/ttPaymentSlice";
 import { AppDispatch } from '@/app/redux/store';
 import { toast, ToastContainer } from "react-toastify";
-import { createOrder, fetchAllOrders, CreateOrderRequest, selectOrderState } from '@/app/redux/slices/api/orderSlice'; 
+import { createOrder, fetchAllOrders, CreateOrderRequest, selectOrderState } from '@/app/redux/slices/api/orderSlice';
 
 const PaymentDetails: React.FC = () => {
     const dispatch = useDispatch();
@@ -99,14 +99,18 @@ const PaymentDetails: React.FC = () => {
         try {
             const response = await dispatchApi(submitPayment(paymentData)).unwrap();
             const orderData: CreateOrderRequest = {
-                orderId: customerReference, 
+                orderId: customerReference,
                 msgId: response?.data?.header?.msgId,
                 orgId: response?.data?.header?.orgId,
                 timeStamp: response?.data?.header?.timeStamp,
                 paymentMode: 'TT',
                 responseType: response?.data?.txnResponses[0]?.responseType,
-                txnStatus:  response?.data?.txnResponses[0]?.txnStatus,
-                txnStatusDescription:  response?.data?.txnResponses[0]?.txnStatusDescription,
+                txnStatus: response?.data?.txnResponses[0]?.txnStatus,
+                txnStatusDescription: response?.data?.txnResponses[0]?.txnStatusDescription,
+                sendingPartyName: "Sender Name",
+                sendingPartyAccountNo: "8827210000027502",
+                receivingPartyName: bankDetails.beneficiaryName,
+                receivingPartyAccountNo: bankDetails.beneficiaryAccountNumber
             }
             await handleOrderCreation(orderData);
             toast.success(response?.message, {
@@ -131,7 +135,7 @@ const PaymentDetails: React.FC = () => {
         }
     }
 
-    const handleOrderCreation = async(orderData: CreateOrderRequest) => {
+    const handleOrderCreation = async (orderData: CreateOrderRequest) => {
 
         try {
             const response = await dispatchApi(createOrder(orderData)).unwrap();
@@ -504,7 +508,7 @@ const PaymentDetails: React.FC = () => {
                         <DocumentUploads />
                 }
 
-                <BankDetails openModal={openModal} handleCloseModal={handleCloseModal}/>
+                <BankDetails openModal={openModal} handleCloseModal={handleCloseModal} />
             </div>
         </>
     );
