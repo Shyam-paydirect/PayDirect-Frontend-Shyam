@@ -251,7 +251,7 @@ const CurrencyExchanger: React.FC = () => {
                 </Button>
                 <Input
                   type="number"
-                  value={baseValue}
+                  value={ baseValue.toLocaleString()}
                   onChange={(e) => setBaseValue(e.target.value)}
                   inputProps={{ min: 0, step: 0.01 }}
                 />
