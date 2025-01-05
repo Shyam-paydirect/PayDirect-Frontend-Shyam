@@ -3,8 +3,10 @@ import React, {useState} from 'react';
 import { Typography, Divider } from '@mui/material';
 import './currency-management.css';
 import SendPaymentModal from '../orderbook/sendPaymentOrder';
+import { useRouter } from 'next/router';
 
 const CurrencyTransactions: React.FC = () => {
+  const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleOpen = () => setIsModalOpen(true);
@@ -24,12 +26,12 @@ const CurrencyTransactions: React.FC = () => {
           <button className="payment" onClick={handleOpen}>
             <img
               src="assets/svg/common/dollar-send.svg"
-              alt="Receive Payment" 
+              alt="Send Payment" 
               className="currency-icon"
             />
             <div className="payment-text"><span>Send</span><span> Payment</span></div>
           </button>
-          <button className="payment">
+          <button className="payment" onClick={() => {}}>
             <img
               src="assets/svg/common/dollar-receive.svg"
               alt="Receive Payment"

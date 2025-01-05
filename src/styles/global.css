@@ -33,6 +33,7 @@
   --body-text-clr: #2d2d2d;
   --shadow-1: 0px 25px 75px rgba(25, 34, 64, 0.15);
   --shadow-2: 0px 25px 75px rgba(25, 34, 64, 0.15);
+  --sidebar-select: rgb(59, 127, 253);
 
   /* Status Colors  */
   --sale-clr: 78 191 37;
@@ -79,6 +80,7 @@ input {
   --body-text-clr: #dbdbdb;
   --shadow-1: 0px 15px 40px rgba(0, 0, 0, 0.2);
   --shadow-2: 0px 25px 75px rgba(0, 0, 0, 0.15);
+  --sidebar-select: rgb(0, 204, 255); 
 }
 
 .mainBody {

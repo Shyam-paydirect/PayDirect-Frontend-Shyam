@@ -107,7 +107,7 @@ const CurrencyExchanger: React.FC = () => {
       const result = await dispatch(fetchCcyRate()).unwrap();
       setRate(result?.data?.rate);
 
-      const target = result?.data?.rate * parseFloat(baseValue);
+      const target = (Math.round(result?.data?.rate * parseFloat(baseValue) * 100) / 100).toFixed(2);
       setTargetValue(`${target}`)
 
       setLastUpdated(getTimeDifference(result?.data?.updateTime))
@@ -321,7 +321,7 @@ const CurrencyExchanger: React.FC = () => {
               <li className="rate-detail">
                 <span className="rate">
                   <i className="ri-close-line sign"></i>
-                  {isLoading ? <span className='skeleton'>000000</span> : rate}
+                  {isLoading ? <span className='skeleton'>000000</span> : (Math.round(rate * 100) / 100).toFixed(2)}
                   {/* ₹ 84.96 */}
                   <Tooltip
                     title="And here's some amazing content. It's very engaging. Right?"

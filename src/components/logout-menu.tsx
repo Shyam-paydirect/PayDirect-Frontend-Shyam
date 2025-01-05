@@ -30,7 +30,7 @@ const UserProfileMenu: React.FC<UserProfileMenuProps> = ({
 
     const handleLogout = () => {
         dispatch(logout());
-        router.push('/');
+        window.location.href = '/';
         handleMenuClose();
     };
 

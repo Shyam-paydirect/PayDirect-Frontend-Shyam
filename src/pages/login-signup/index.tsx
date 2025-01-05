@@ -8,41 +8,31 @@ import {
   Typography,
   TextField,
   Button,
-  Modal,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
 } from '@mui/material';
 import './login-signup.css'; // Assuming the CSS will be in this file
 import '@/../public/assets/css/table.css';
 import '@/../public/assets/css/master.css';
 import { setDarkMode } from '@/app/redux/slices/uiSlice';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { AppDispatch } from '@/app/redux/store';
 import { login, signup, sendEmailOtp, verifyEmailOtp } from '@/app/redux/slices/api/authSlice';
 import { ToastContainer, toast } from 'react-toastify';
 import { useRouter } from 'next/router';
 
 const LoginSignup: React.FC = () => {
-
   const [isSignUpMode, setIsSignUpMode] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
-  const [openModal, setOpenModal] = useState(false);
   const [activeTextIndex, setActiveTextIndex] = useState(0);
   const [otp, setOtp] = useState('');
-  const [isOtpFieldVisible, setIsOtpFieldVisible] = useState(false); // Controls OTP field visibility
+  const [isOtpFieldVisible, setIsOtpFieldVisible] = useState(false);
 
-
-  // const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
 
   useEffect(() => {
-
-    dispatch(setDarkMode(true))
+    dispatch(setDarkMode(true));
 
     const interval = setInterval(() => {
       setActiveTextIndex((prevIndex) => (prevIndex + 1) % 3);
@@ -61,68 +51,47 @@ const LoginSignup: React.FC = () => {
       try {
         const response = await dispatch(signup({ email, username, password })).unwrap();
         toast.success(response?.message);
-      }
-      catch (error) {
+      } catch (error) {
         const errorMessage =
           typeof error === "string"
             ? error
             : error instanceof Error
-              ? error.message
-              : "An unknown error occurred";
-        toast.error(errorMessage)
+            ? error.message
+            : "An unknown error occurred";
+        toast.error(errorMessage);
       }
     } else {
       try {
         const response = await dispatch(login({ username, password })).unwrap();
         toast.success("Login successful, redirecting");
-        dispatch(setDarkMode(false))
-        router.push('/dashboard')
-      }
-      catch (error) {
+        dispatch(setDarkMode(false));
+        router.push('/dashboard');
+      } catch (error) {
         const errorMessage =
           typeof error === "string"
             ? error
             : error instanceof Error
-              ? error.message
-              : "An unknown error occurred";
-        toast.error(errorMessage)
+            ? error.message
+            : "An unknown error occurred";
+        toast.error(errorMessage);
       }
     }
   };
 
-  const handleVerifyEmail = async (event: React.FormEvent) => {
-    event.preventDefault();
-    try {
-
-      const response = await dispatch(sendEmailOtp({ email })).unwrap();
-      toast.success("OTP has been sent successfully !!  ");
-    }
-    catch (error) {
-      const errorMessage =
-        typeof error === "string"
-          ? error
-          : error instanceof Error
-            ? error.message
-            : "An unknown error occurred";
-      toast.error(errorMessage)
-    }
-  }
-
   const handleVerifyOtp = async () => {
     try {
       const response = await dispatch(verifyEmailOtp({ otp })).unwrap();
-      toast.success("OTP has been sent successfully !!  ");
-    }
-    catch (error) {
+      toast.success("OTP verified successfully!");
+    } catch (error) {
       const errorMessage =
         typeof error === "string"
           ? error
           : error instanceof Error
-            ? error.message
-            : "An unknown error occurred";
-      toast.error(errorMessage)
+          ? error.message
+          : "An unknown error occurred";
+      toast.error(errorMessage);
     }
-  }
+  };
 
   return (
     <>
@@ -132,7 +101,11 @@ const LoginSignup: React.FC = () => {
           <Card className="box">
             <Box className="inner-box">
               <Box className="forms-wrap">
-                <form className={isSignUpMode ? 'form sign-up-form' : 'form sign-in-form'} autoComplete="off">
+                <form
+                  className={isSignUpMode ? 'form sign-up-form' : 'form sign-in-form'}
+                  autoComplete="off"
+                  onSubmit={handleSubmit}
+                >
                   <Box className="logo">
                     <img src="/assets/svg/logos/logoName.svg" alt="Logo" />
                   </Box>
@@ -151,50 +124,35 @@ const LoginSignup: React.FC = () => {
                   </Box>
                   {isSignUpMode && (
                     <>
-                      <span>
-                        <TextField
-                          fullWidth
-                          label="Email"
-                          variant="standard"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          required
-                        />
-                      </span>
-                      {/* <span>
-                        <Button
-                          type="button"
-                          variant="contained"
-                          color="primary"
-                          className="small-btn mt-10"
-                          onClick={handleVerifyEmail}
-                        >Verify Email</Button>
-                      </span> */}
+                      <TextField
+                        fullWidth
+                        label="Email"
+                        variant="standard"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                      />
                       {isOtpFieldVisible && (
                         <>
-                          <span>
-                            <TextField
-                              fullWidth
-                              label="Enter OTP"
-                              variant="standard"
-                              value={otp}
-                              type='number'
-                              onChange={(e) => setOtp(e.target.value)}
-                              required
-                            />
-                          </span>
-                          <span>
-                            <Button
-                              type="button" // Prevent form submission
-                              variant="contained"
-                              color="primary"
-                              fullWidth
-                              className="small-btn mt-10"
-                              onClick={handleVerifyOtp} // Trigger OTP verification
-                            >
-                              Verify OTP
-                            </Button>
-                          </span>
+                          <TextField
+                            fullWidth
+                            label="Enter OTP"
+                            variant="standard"
+                            value={otp}
+                            type='number'
+                            onChange={(e) => setOtp(e.target.value)}
+                            required
+                          />
+                          <Button
+                            type="button"
+                            variant="contained"
+                            color="primary"
+                            fullWidth
+                            className="small-btn mt-10"
+                            onClick={handleVerifyOtp}
+                          >
+                            Verify OTP
+                          </Button>
                         </>
                       )}
                     </>
@@ -207,7 +165,6 @@ const LoginSignup: React.FC = () => {
                     onChange={(e) => setUsername(e.target.value)}
                     required
                     margin="normal"
-                    // disabled={isSignUpMode && otp == ""}
                   />
                   <TextField
                     fullWidth
@@ -218,17 +175,13 @@ const LoginSignup: React.FC = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     margin="normal"
-                    // disabled={isSignUpMode && otp == ""}
-
                   />
                   <Button
-                    type="button"
+                    type="submit"
                     variant="contained"
                     color="primary"
                     fullWidth
                     className="small-btn mt-10 mb-30"
-                    // disabled={isSignUpMode && otp == ""}
-                    onClick={handleSubmit}
                   >
                     {isSignUpMode ? 'Sign up' : 'Sign in'}
                   </Button>

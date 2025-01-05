@@ -1,18 +1,16 @@
-
-// SideNavbar.tsx (Side navigation bar)
 import React, { useState } from 'react';
 import "./side-navbar.css";
 import { RootState } from '@/app/redux/store';
 import { useSelector, useDispatch } from 'react-redux';
 import { setCurrentDashboard } from '@/app/redux/slices/dashboardSlice';
-import { useMediaQuery, useTheme } from '@mui/material'
-
+import { useMediaQuery, useTheme } from '@mui/material';
 
 const SideNavbar: React.FC = () => {
   const dispatch = useDispatch();
   const [close, setClose] = useState(false);
 
-  const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode)
+  const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
+  const currentDashboard = useSelector((state: RootState) => state.dashboard.currentDashboard); // Track the active menu item
 
   const toggleSidenav = () => setClose(!close);
   const closeSidenav = () => setClose(true);
@@ -20,10 +18,9 @@ const SideNavbar: React.FC = () => {
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
-
   const handleMenuClick = (id: string) => {
     dispatch(setCurrentDashboard(id));
-    isSmallScreen && setClose(true); // Ensure the sidebar is marked as closed
+    isSmallScreen && setClose(true); // Close the sidebar on small screens
     document.body.classList.remove('sidebar-open'); // Remove any overlay effect
   };
 
@@ -31,29 +28,25 @@ const SideNavbar: React.FC = () => {
     { id: 'currency-management', icon: 'ri-copper-diamond-line', text: 'Currency Management' },
     { id: 'general-ledger', icon: 'ri-database-2-line', text: 'General Ledger' },
     { id: 'financial-reporting', icon: 'ri-bank-card-2-line', text: 'Financial Reporting' },
-    // { id: 'payment-details', icon: 'ri-store-2-line', text: 'Payment Details' },
-    { id: 'order-book', icon: 'ri-book-line', text: 'Order Book' }, // Updated icon
+    { id: 'order-book', icon: 'ri-book-line', text: 'Order Book' },
     { id: 'accounts', icon: 'ri-user-settings-line', text: 'Accounts' },
   ];
 
   return (
-
     <div className="nav-body">
-      {
-        !isSmallScreen &&
+      {!isSmallScreen && (
         <i
           className={`ri-arrow-left-s-line toggle ${close ? 'closeToggle' : ''}`}
           onClick={toggleSidenav}
         ></i>
-      }
+      )}
       <nav className={`sidebar ${close ? 'close' : ''}`}>
         <header className="header">
-          {
-            !isSmallScreen &&
-              <span className="nav-closer">
-                <i className="ri-close-large-line" onClick={closeSidenav}></i>
-              </span>
-          }
+          {!isSmallScreen && (
+            <span className="nav-closer">
+              <i className="ri-close-large-line" onClick={closeSidenav}></i>
+            </span>
+          )}
           <div className="image-text">
             {close ? (
               <span className="image">
@@ -75,10 +68,11 @@ const SideNavbar: React.FC = () => {
               {menuItems.map((item) => (
                 <li
                   key={item.id}
-                  className="navLink"
-                  onClick={() => handleMenuClick(item.id)}>
+                  className={`navLink ${currentDashboard === item.id ? 'active' : ''}  mb-5`} // Add active class for the selected item
+                  onClick={() => handleMenuClick(item.id)}
+                >
                   <i className={`${item.icon} icon`}></i>
-                  <span className="text navText">{item.text}</span>
+                  <span className={`text navText`}>{item.text}</span>
                 </li>
               ))}
             </ul>
@@ -86,7 +80,6 @@ const SideNavbar: React.FC = () => {
         </div>
       </nav>
     </div>
-
   );
 };
 

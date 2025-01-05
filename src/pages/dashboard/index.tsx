@@ -24,7 +24,7 @@ const Main: React.FC = () => {
   useEffect(() => {
     setIsClient(true);
     if(!Cookies.get("token")){
-      router.push("/")
+      window.location.href = '/';
     }
   }, [router])
 
