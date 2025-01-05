@@ -5,6 +5,7 @@ import { stagingApi } from '@/constants';
 
 // Define the request type
 export interface CreateOrderRequest {
+  id?: string; // Optional since it's typically generated on the backend
   orderId: string;
   msgId: string;
   orgId: string;
@@ -13,13 +14,15 @@ export interface CreateOrderRequest {
   responseType: string;
   txnStatus: string;
   txnStatusDescription: string;
-  sendingPartyName: string;
-  sendingPartyAccountNo: string;
-  receivingPartyName: string;
-  receivingPartyAccountNo: string;
+  sendingPartyName: string | null; // Adjusted to handle null values
+  sendingPartyAccountNo: string | null; // Adjusted to handle null values
+  receivingPartyName: string | null; // Adjusted to handle null values
+  receivingPartyAccountNo: string | null; // Adjusted to handle null values
+  createdAt?: string; // Optional if used in responses but not in creation
+  updatedAt?: string; // Optional if used in responses but not in creation
 }
 
-interface Order {
+export interface Order {
   id: string;
   orderId: string;
   msgId: string;
@@ -29,10 +32,12 @@ interface Order {
   responseType: string;
   txnStatus: string;
   txnStatusDescription: string;
-  sendingPartyName: string;
-  sendingPartyAccountNo: string;
-  receivingPartyName: string;
-  receivingPartyAccountNo: string;
+  sendingPartyName: string | null; // Adjusted to handle null values
+  sendingPartyAccountNo: string | null; // Adjusted to handle null values
+  receivingPartyName: string | null; // Adjusted to handle null values
+  receivingPartyAccountNo: string | null; // Adjusted to handle null values
+  createdAt: string;
+  updatedAt: string;
 }
 
 

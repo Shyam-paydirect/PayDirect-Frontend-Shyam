@@ -9,7 +9,7 @@
     min-height: 100vh;
     width: 250px;
     min-width: 250px;
-    max-width: 250px;
+    max-width: 350px;
     padding: 0 10px;
     background-color: var(--sidebar-color);
     border-right: 1px solid #ccc;
@@ -321,5 +321,44 @@
     .overlay {
       display: block;
     }
+  }
+  
+  .navLink {
+    display: flex;
+    align-items: center;
+    /* padding: 10px 15px; */
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+  
+  .navLink:hover {
+    background-color: rgba(0, 128, 255, 0.3); /* Slight blue background on hover */
+  }
+  
+  .navLink.active {
+    color: var(--sidebar-select); /* Blue font color for active item */
+    background-color: rgba(0, 128, 255, 0.2); /* Blue background with reduced opacity */
+    border: 2px solid var(--sidebar-select); /* Blue border for active item */
+    border-radius: 8px;
+  }
+  
+  .navLink.active .icon {
+    color: var(--sidebar-select); /* Blue color for the icon */
+  }
+
+  .navLink.active .text {
+    color: var(--sidebar-select); /* Blue color for the icon */
+  }
+  
+  .navLink .icon {
+    margin-right: 5px;
+    font-size: 1.5rem;
+    transition: color 0.3s ease;
+  }
+
+  .navText {
+    font-size: 1rem;
+    transition: color 0.3s ease; /* Smooth transition for text color */
   }
   
