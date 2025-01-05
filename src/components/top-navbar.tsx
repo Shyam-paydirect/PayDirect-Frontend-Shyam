@@ -31,7 +31,7 @@ const TopNavbar: React.FC = () => {
       case 'general-ledger':
         return 'General Ledger';
       case 'financial-reporting':
-        return 'Financial Reporting';
+        return 'Financial Analytics';
       case 'admin-portal':
         return 'Admin Portal';
       default:

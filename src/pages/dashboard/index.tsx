@@ -16,6 +16,7 @@ import Cookies from 'js-cookie';
 import { useRouter } from 'next/router';
 import PaymentDetails from '@/components/paymentDetails/payment-details';
 import OrderPaymentComponent from '@/components/orderbook/orderbook';
+import Accounts from '@/components/account-details/account-details';
 
 const Main: React.FC = () => {
   const router = useRouter();
@@ -38,14 +39,16 @@ const Main: React.FC = () => {
     switch (dashboardTitle) {
       case 'currency-management':
         return <CurrencyManagement />;
-      case 'general-ledger':
-        return <GeneralLedger />;
+      // case 'general-ledger':
+      //   return <GeneralLedger />;
       case 'financial-reporting':
         return <FinancialReporting />;
       case 'order-book':
         return <OrderPaymentComponent />
       case 'payment-details':
         return <PaymentDetails />;
+      case 'accounts':
+        return <Accounts />
       default:
         return <CurrencyManagement />;
     }

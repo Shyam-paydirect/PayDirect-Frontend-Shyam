@@ -42,7 +42,12 @@ const PaymentDetails: React.FC = () => {
     const [invoiceNumber, setInvoiceNumber] = useState('');
     const [purposeCode, setPurposeCode] = useState('');
     const [customerReference, setCustomerReference] = useState("");
-
+    const [errors, setErrors] = useState({
+        remittanceAmount: false,
+        dateOfTransfer: false,
+        invoiceNumber: false,
+        purposeCode: false,
+    });
 
     const theme = useTheme();
     const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
@@ -64,9 +69,22 @@ const PaymentDetails: React.FC = () => {
         return Math.floor(1e10 + Math.random() * 9e10).toString();
     };
 
+    const validateFields = () => {
+        const newErrors = {
+            remittanceAmount: remittanceAmount === '',
+            dateOfTransfer: dateOfTransfer === '',
+            invoiceNumber: invoiceNumber === '',
+            purposeCode: purposeCode === '',
+        };
+
+        setErrors(newErrors);
+
+        return !Object.values(newErrors).some((error) => error);
+    };
+
     const paymentData = {
         txnAmount: remittanceAmount,
-        customerReference: customerReference,
+        customerReference: "TT" + generateRandom11DigitNumber(),
         txnCcy: currency,
         debitAccountAmount: remittanceAmount,
         purposeOfPayment: "OTHR",
@@ -94,7 +112,12 @@ const PaymentDetails: React.FC = () => {
     };
 
     const handleTTPaymentDetails = async () => {
-        setIsLoading(true); // Set loading state to true
+        if (!validateFields()) {
+            toast.error("Please fill out all required fields.");
+            return;
+        }
+
+        setIsLoading(true);
 
         try {
             const response = await dispatchApi(submitPayment(paymentData)).unwrap();
@@ -329,7 +352,7 @@ const PaymentDetails: React.FC = () => {
                                         <TextField
                                             fullWidth
                                             label="Remittance Amount"
-                                            defaultValue="1,000"
+                                            // defaultValue="1,000"
                                             variant="outlined"
                                             type="number"
                                             value={remittanceAmount}

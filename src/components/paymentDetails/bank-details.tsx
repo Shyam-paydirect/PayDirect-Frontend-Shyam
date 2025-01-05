@@ -39,16 +39,53 @@ const BankDetails: React.FC<BankDetailsProps> = ({
         routingNumber: "",
     });
 
+    const [errors, setErrors] = useState({
+        beneficiaryBank: false,
+        branch: false,
+        bankAddress: false,
+        city: false,
+        state: false,
+        country: false,
+        beneficiaryName: false,
+        beneficiaryAccountNumber: false,
+        routingNumber: false,
+    });
+
     const handleInputChange = (field: string, value: string) => {
         setBankDetails((prev) => ({ ...prev, [field]: value }));
     };
 
+    const validateFields = () => {
+        const newErrors = {
+            beneficiaryBank: bankDetails.beneficiaryBank.trim() === "",
+            branch: bankDetails.branch.trim() === "",
+            bankAddress: bankDetails.bankAddress.trim() === "",
+            city: bankDetails.city.trim() === "",
+            state: bankDetails.state.trim() === "",
+            country: bankDetails.country.trim() === "",
+            beneficiaryName: bankDetails.beneficiaryName.trim() === "",
+            beneficiaryAccountNumber: !/^\d{8,20}$/.test(bankDetails.beneficiaryAccountNumber.trim()),
+            routingNumber: bankDetails.routingNumber.trim() === "",
+        };
+
+        setErrors(newErrors);
+        return !Object.values(newErrors).some((error) => error);
+    };
+
+    const isButtonDisabled = () => {
+        return Object.values(errors).some((error) => error) ||
+            Object.values(bankDetails).some((value) => value.trim() === "") ||
+            !/^\d{8,20}$/.test(bankDetails.beneficiaryAccountNumber.trim());
+    };
+
     const handleSave = () => {
+        if (!validateFields()) {
+            return;
+        }
         // Dispatch bank details to the Redux store
         dispatch(saveBankDetails(bankDetails));
         handleCloseModal();
     };
-
 
     return (
         <Modal open={openModal} onClose={handleCloseModal}>
@@ -78,7 +115,7 @@ const BankDetails: React.FC<BankDetailsProps> = ({
                             label="SWIFT/BIC Code"
                             placeholder="Enter the SWIFT Code to find the Bank"
                             value={bankDetails.swiftCode}
-                            // onChange={(e) => handleInputChange("swiftCode", e.target.value)}
+                            disabled
                         />
                     </Grid>
                     <Grid item xs={12}>
@@ -95,6 +132,10 @@ const BankDetails: React.FC<BankDetailsProps> = ({
                             onChange={(e) =>
                                 handleInputChange("beneficiaryBank", e.target.value)
                             }
+                            error={errors.beneficiaryBank}
+                            helperText={
+                                errors.beneficiaryBank && "This field is required."
+                            }
                         />
                     </Grid>
                     <Grid item xs={12}>
@@ -104,6 +145,8 @@ const BankDetails: React.FC<BankDetailsProps> = ({
                             placeholder="Enter the Branch of the bank"
                             value={bankDetails.branch}
                             onChange={(e) => handleInputChange("branch", e.target.value)}
+                            error={errors.branch}
+                            helperText={errors.branch && "This field is required."}
                         />
                     </Grid>
                     <Grid item xs={12}>
@@ -113,6 +156,8 @@ const BankDetails: React.FC<BankDetailsProps> = ({
                             placeholder="Enter the Address of the bank"
                             value={bankDetails.bankAddress}
                             onChange={(e) => handleInputChange("bankAddress", e.target.value)}
+                            error={errors.bankAddress}
+                            helperText={errors.bankAddress && "This field is required."}
                         />
                     </Grid>
                     <Grid item xs={6}>
@@ -122,6 +167,8 @@ const BankDetails: React.FC<BankDetailsProps> = ({
                             placeholder="Enter the City of the bank"
                             value={bankDetails.city}
                             onChange={(e) => handleInputChange("city", e.target.value)}
+                            error={errors.city}
+                            helperText={errors.city && "This field is required."}
                         />
                     </Grid>
                     <Grid item xs={6}>
@@ -131,6 +178,8 @@ const BankDetails: React.FC<BankDetailsProps> = ({
                             placeholder="Enter the State of the bank"
                             value={bankDetails.state}
                             onChange={(e) => handleInputChange("state", e.target.value)}
+                            error={errors.state}
+                            helperText={errors.state && "This field is required."}
                         />
                     </Grid>
                     <Grid item xs={12}>
@@ -140,6 +189,8 @@ const BankDetails: React.FC<BankDetailsProps> = ({
                             placeholder="Enter the Country of the bank"
                             value={bankDetails.country}
                             onChange={(e) => handleInputChange("country", e.target.value)}
+                            error={errors.country}
+                            helperText={errors.country && "This field is required."}
                         />
                     </Grid>
                     <Grid item xs={12}>
@@ -150,6 +201,10 @@ const BankDetails: React.FC<BankDetailsProps> = ({
                             value={bankDetails.beneficiaryName}
                             onChange={(e) =>
                                 handleInputChange("beneficiaryName", e.target.value)
+                            }
+                            error={errors.beneficiaryName}
+                            helperText={
+                                errors.beneficiaryName && "This field is required."
                             }
                         />
                     </Grid>
@@ -162,6 +217,12 @@ const BankDetails: React.FC<BankDetailsProps> = ({
                             onChange={(e) =>
                                 handleInputChange("beneficiaryAccountNumber", e.target.value)
                             }
+                            error={errors.beneficiaryAccountNumber}
+                            helperText={
+                                errors.beneficiaryAccountNumber
+                                    ? "Account number must be between 8 and 20 digits."
+                                    : ""
+                            }
                         />
                     </Grid>
                     <Grid item xs={12}>
@@ -173,6 +234,10 @@ const BankDetails: React.FC<BankDetailsProps> = ({
                             onChange={(e) =>
                                 handleInputChange("routingNumber", e.target.value)
                             }
+                            error={errors.routingNumber}
+                            helperText={
+                                errors.routingNumber && "This field is required."
+                            }
                         />
                     </Grid>
                 </Grid>
@@ -182,6 +247,7 @@ const BankDetails: React.FC<BankDetailsProps> = ({
                         color="success"
                         fullWidth
                         onClick={handleSave}
+                        disabled={isButtonDisabled()}
                     >
                         Save Bank Account
                     </Button>

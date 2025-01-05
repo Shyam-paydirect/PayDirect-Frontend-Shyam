@@ -28,13 +28,13 @@ function getTitleByDashboard(dashboard: string): string {
     case 'general-ledger':
       return 'General Ledger';
     case 'financial-reporting':
-      return 'Financial Reporting';
+      return 'Financial Analytics';
     case 'order-book':
       return 'Order Book';
     case 'payment-details':
       return 'Payment Details';
-    case 'admin-portal':
-      return 'Admin Portal';
+    case 'accounts':
+      return 'Accounts';
     default:
       return 'Currency Management';
   }
