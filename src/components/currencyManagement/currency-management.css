@@ -1,360 +1,375 @@
+/* To address overriding styles */
+
+.currency-management-parent {
+  position: relative;
+  display: grid;
+  grid-template-columns: 2fr 1fr; /* Two columns: left column wider, right column narrower */
+  gap: 20px;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 100% !important; /* Ensure it doesn't exceed screen width */
+}
+
+.left-section {
+  display: grid;
+  flex-direction: column;
+  gap: 20px; /* Space between components */
+  width: 100% !important; /* Prevent override for child sections */
+}
+
+.right-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px; /* Space between components */
+  width: 100% !important; /* Prevent override for child sections */
+}
+
+@media only screen and (max-width: 1190px) {
   .currency-management-parent {
-      position: relative;
-      display: grid;
-      grid-template-columns: 2fr 1fr; /* Two columns: left column wider, right column narrower */
-      gap: 20px;
-      padding: 20px;
-      border-radius: 8px;
-    }
-
-    .left-section {
-      display: grid;
-      flex-direction: column;
-      gap: 20px; /* Space between components */
+    grid-template-columns: 1fr; /* Single column layout */
   }
+}
 
-  /* Right Section: Contains Account Details and Currency Exchanger */
+@media only screen and (max-width: 768px) {
+  .currency-management-parent {
+    padding: 10px;
+    gap: 15px;
+  }
+  .left-section {
+    gap: 15px;
+  }
   .right-section {
-      display: flex;
-      flex-direction: column;
-      gap: 20px; /* Space between components */
+    gap: 15px;
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  .currency-management-parent {
+    padding: 5px;
+    gap: 10px;
+  }
+}
+
+/* Account Details*/
+.center {
+  display: flex;
+  justify-content: center;
+}
+
+.card {
+  width: 100% !important; /* Ensure responsiveness */
+  max-width: 400px !important; /* Maintain maximum width */
+  height: 250px;
+  perspective: 1000px;
+  border: none;
+  background-color: var(--bg-clr-2);
+  border-radius: 15px;
+}
+
+@keyframes flip {
+  0%,
+  100% {
+    transform: rotateY(0deg);
+  }
+  50% {
+    transform: rotateY(180deg);
+  }
+}
+
+.flip {
+  width: inherit;
+  height: inherit;
+  transition: 0.7s;
+  transform-style: preserve-3d;
+}
+
+.front,
+.back {
+  position: absolute;
+  width: inherit;
+  height: inherit;
+  border-radius: 15px;
+  color: #fff;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 1px 10px 1px rgba(0, 0, 0, 0.3);
+  backface-visibility: hidden;
+  background-image: linear-gradient(to right, #111, #555);
+  overflow: hidden;
+}
+
+.front {
+  transform: translateZ(0);
+}
+
+.strip-bottom,
+.strip-top {
+  position: absolute;
+  right: 0;
+  height: inherit;
+  background-image: linear-gradient(to bottom, #ff6767, #ff4545);
+  box-shadow: 0 0 10px 0px rgba(0, 0, 0, 0.5);
+}
+
+.strip-bottom {
+  width: 200px;
+  transform: skewX(-15deg) translateX(50px);
+}
+
+.strip-top {
+  width: 180px;
+  transform: skewX(20deg) translateX(50px);
+}
+
+.logo {
+  position: absolute;
+  top: 30px;
+  right: 25px;
+}
+
+.investor {
+  position: relative;
+  top: 30px;
+  left: 25px;
+  text-transform: uppercase;
+}
+
+.chip {
+  position: relative;
+  top: 60px;
+  left: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 40px;
+  border-radius: 5px;
+  background-image: linear-gradient(to bottom left, #ffecc7, #d0b978);
+  overflow: hidden;
+}
+
+.chip-line {
+  position: absolute;
+  width: 100%;
+  height: 1px;
+  background-color: #333;
+}
+
+.chip-line:nth-child(1) {
+  top: 13px;
+}
+
+.chip-line:nth-child(2) {
+  top: 20px;
+}
+
+.chip-line:nth-child(3) {
+  top: 28px;
+}
+
+.chip-line:nth-child(4) {
+  left: 25px;
+  width: 1px;
+  height: 50px;
+}
+
+.chip-main {
+  width: 20px;
+  height: 25px;
+  border: 1px solid #333;
+  border-radius: 3px;
+  background-image: linear-gradient(to bottom left, #efdbab, #e1cb94);
+  z-index: 1;
+}
+
+.wave {
+  position: relative;
+  top: 20px;
+  left: 100px;
+}
+
+.card-number {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 40px 25px 25px;
+  font-size: 23px;
+  font-family: "cc font", monospace;
+}
+
+.end {
+  margin-left: 25px;
+  text-transform: uppercase;
+  font-family: "cc font", monospace;
+}
+
+.end-text {
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.card-holder {
+  margin: 10px 25px;
+  text-transform: uppercase;
+  font-family: "cc font", monospace;
+}
+
+.master {
+  position: absolute;
+  right: 20px;
+  bottom: 20px;
+  display: flex;
+}
+
+.circle {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+}
+
+.master-red {
+  background-color: #eb001b;
+}
+
+.master-yellow {
+  margin-left: -10px;
+  background-color: rgba(255, 209, 0, 0.7);
+}
+
+/* currency-transaction */
+.trade-payments-parent {
+  width: 100% !important;
+  height: 100%;
+  background-color: var(--bg-clr-1);
+  border-radius: 10px;
+  box-shadow: var(--shadow-2);
+}
+
+.trade-payments-parent h2 {
+  padding: 10px 20px 0;
+}
+
+.trade-payments {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* Two equal columns by default */
+  gap: 40px;
+  padding: 35px 30px;
+  width: 100% !important;
+}
+
+.trade-payments button {
+  padding: 25px 15px;
+  background-color: var(--bg-clr-1);
+  color: var(--body-text-clr);
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--tran-04);
+  max-width: 300px !important;
+  width: 100%;
+}
+
+.trade-payments button:hover {
+  box-shadow: var(--shadow-2);
+}
+
+.payment-text {
+  display: flex;
+  flex-direction: column;
+  margin-left: 15px;
+  text-align: start;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 22px;
+}
+
+.currency-icon {
+  height: 60px;
+}
+
+/* Tablet View */
+@media only screen and (max-width: 1024px) {
+  .trade-payments {
+    grid-template-columns: 1fr 1fr; /* Keeps two columns for tablets */
+    gap: 20px;
+    padding: 25px 20px;
   }
 
-    
-    @media only screen and (max-width: 1190px) {
-      .currency-management-parent {
-        grid-template-columns: 1fr; /* Single column layout */
-      }
-    }
-    
-    @media only screen and (max-width: 768px) {
-      .currency-management-parent {
-        padding: 10px;
-        gap: 15px;
-      }
-      .left-section {
-        gap: 15px;
-      }
-      .right-section {
-          gap: 15px;
-      }
-    }
-    
-    @media only screen and (max-width: 480px) {
-      .currency-management-parent {
-        padding: 5px;
-        gap: 10px;
-      }
-    }
-    
-  /* Account Details*/
-  .center {
-      display: flex;
-      justify-content: center;
-    }
-    
-    .card {
-      width: 400px;
-      height: 250px;
-      perspective: 1000px;
-      border: none;
-      background-color: var(--bg-clr-2); 
-      border-radius: 15px;   
-    }
-    
-    @keyframes flip {
-      0%,
-      100% {
-        transform: rotateY(0deg);
-      }
-      50% {
-        transform: rotateY(180deg);
-      }
-    }
-    
-    .flip {
-      width: inherit;
-      height: inherit;
-      transition: 0.7s;
-      transform-style: preserve-3d;
-    }
-    
-    .front,
-    .back {
-      position: absolute;
-      width: inherit;
-      height: inherit;
-      border-radius: 15px;
-      color: #fff;
-      text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
-      box-shadow: 0 1px 10px 1px rgba(0, 0, 0, 0.3);
-      backface-visibility: hidden;
-      background-image: linear-gradient(to right, #111, #555);
-      overflow: hidden;
-    }
-    
-    .front {
-      transform: translateZ(0);
-    }
-    
-    .strip-bottom,
-    .strip-top {
-      position: absolute;
-      right: 0;
-      height: inherit;
-      background-image: linear-gradient(to bottom, #ff6767, #ff4545);
-      box-shadow: 0 0 10px 0px rgba(0, 0, 0, 0.5);
-    }
-    
-    .strip-bottom {
-      width: 200px;
-      transform: skewX(-15deg) translateX(50px);
-    }
-    
-    .strip-top {
-      width: 180px;
-      transform: skewX(20deg) translateX(50px);
-    }
-    
-    .logo {
-      position: absolute;
-      top: 30px;
-      right: 25px;
-    }
-    
-    .investor {
-      position: relative;
-      top: 30px;
-      left: 25px;
-      text-transform: uppercase;
-    }
-    
-    .chip {
-      position: relative;
-      top: 60px;
-      left: 25px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 50px;
-      height: 40px;
-      border-radius: 5px;
-      background-image: linear-gradient(to bottom left, #ffecc7, #d0b978);
-      overflow: hidden;
-    }
-    
-    .chip-line {
-      position: absolute;
-      width: 100%;
-      height: 1px;
-      background-color: #333;
-    }
-    
-    .chip-line:nth-child(1) {
-      top: 13px;
-    }
-    
-    .chip-line:nth-child(2) {
-      top: 20px;
-    }
-    
-    .chip-line:nth-child(3) {
-      top: 28px;
-    }
-    
-    .chip-line:nth-child(4) {
-      left: 25px;
-      width: 1px;
-      height: 50px;
-    }
-    
-    .chip-main {
-      width: 20px;
-      height: 25px;
-      border: 1px solid #333;
-      border-radius: 3px;
-      background-image: linear-gradient(to bottom left, #efdbab, #e1cb94);
-      z-index: 1;
-    }
-    
-    .wave {
-      position: relative;
-      top: 20px;
-      left: 100px;
-    }
-    
-    .card-number {
-      position: relative;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin: 40px 25px 25px;
-      font-size: 23px;
-      font-family: "cc font", monospace;
-    }
-    
-    .end {
-      margin-left: 25px;
-      text-transform: uppercase;
-      font-family: "cc font", monospace;
-    }
-    
-    .end-text {
-      font-size: 9px;
-      color: rgba(255, 255, 255, 0.8);
-    }
-    
-    .card-holder {
-      margin: 10px 25px;
-      text-transform: uppercase;
-      font-family: "cc font", monospace;
-    }
-    
-    .master {
-      position: absolute;
-      right: 20px;
-      bottom: 20px;
-      display: flex;
-    }
-    
-    .circle {
-      width: 25px;
-      height: 25px;
-      border-radius: 50%;
-    }
-    
-    .master-red {
-      background-color: #eb001b;
-    }
-    
-    .master-yellow {
-      margin-left: -10px;
-      background-color: rgba(255, 209, 0, 0.7);
-    }
-    
-    /* currency-transaction */
-    .trade-payments-parent {
-      width: 100%;
-      height: 100%;
-      background-color: var(--bg-clr-1);
-      border-radius: 10px;
-      box-shadow: var(--shadow-2);
-    }
-    
-    .trade-payments-parent h2 {
-      padding: 10px 20px 0;
-    }
-    
-    .trade-payments {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr); /* Two equal columns by default */
-      gap: 40px;
-      padding: 35px 30px;
-      width: 100%;
-    }
-    
-    .trade-payments button {
-      padding: 25px 15px;
-      background-color: var(--bg-clr-1);
-      color: var(--body-text-clr);
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      cursor: pointer;
-      text-align: center;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: var(--tran-04);
-    }
-    
-    .trade-payments button:hover {
-      box-shadow: var(--shadow-2);
-    }
-    
-    .payment-text {
-      display: flex;
-      flex-direction: column;
-      margin-left: 15px;
-      text-align: start;
-      font-size: 18px;
-      font-weight: 500;
-      line-height: 22px;
-    }
-    
-    .currency-icon {
-      height: 60px;
-    }
-    
-    /* Tablet View */
-    @media only screen and (max-width: 1024px) {
-      .trade-payments {
-        grid-template-columns: 1fr 1fr; /* Keeps two columns for tablets */
-        gap: 20px;
-        padding: 25px 20px;
-      }
-    
-      .payment-text {
-        font-size: 16px;
-      }
-    }
-    
-    /* Mobile View */
-    @media only screen and (max-width: 768px) {
-      .trade-payments {
-        gap: 15px;
-        padding: 20px 15px;
-      }
-    
-      .trade-payments button {
-        padding: 20px 10px;
-      }
-    
-      .currency-icon {
-        height: 50px; /* Reduce icon size for mobile */
-      }
-    
-      .payment-text {
-        font-size: 16px;
-        margin-left: 10px;
-      }
-    }
-    
-    /* Very Small Mobile Devices */
-    @media only screen and (max-width: 480px) {
-      .trade-payments {
-        padding: 15px 10px;
-      }
-    
-      .currency-icon {
-        height: 45px; /* Further reduce icon size */
-      }
-    
-      .payment-text {
-        font-size: 14px;
-        margin-left: 5px;
-      }
-    }
-    
+  .payment-text {
+    font-size: 16px;
+  }
+}
 
-    /* Recent Payments*/
+/* Mobile View */
+@media only screen and (max-width: 768px) {
+  .trade-payments {
+    gap: 15px;
+    padding: 20px 15px;
+  }
 
-    .table-container {
-      margin: 0;
-    }
-    .timer-button-wrapper {
-      display: flex; /* Horizontal alignment of timer and button */
-      align-items: center; /* Vertically align the timer and button */
-      justify-content: flex-start; /* Align to the left of the container */
-      gap: 8px; /* Small spacing between the timer and button */
-      /* margin-top: 16px; Add space above the container */
-    }
-    
-    .timer {
-      width: 40px; /* Set explicit width for consistency */
-      height: 40px; /* Set explicit height for consistency */
-      position: relative; /* Position text inside the circular progress */
-      display: flex; /* Center the timer text */
-      justify-content: center;
-      align-items: center;
-    }
-    
+  .trade-payments button {
+    padding: 20px 10px;
+  }
+
+  .currency-icon {
+    height: 50px; /* Reduce icon size for mobile */
+  }
+
+  .payment-text {
+    font-size: 16px;
+    margin-left: 10px;
+  }
+}
+
+/* Very Small Mobile Devices */
+@media only screen and (max-width: 480px) {
+  .trade-payments {
+    padding: 15px 10px;
+  }
+
+  .currency-icon {
+    height: 45px; /* Further reduce icon size */
+  }
+
+  .payment-text {
+    font-size: 14px;
+    margin-left: 5px;
+  }
+}
+
+/* Recent Payments*/
+
+.table-container {
+  margin: 0;
+  width: 100% !important;
+  overflow-x: auto;
+}
+
+.timer-button-wrapper {
+  display: flex; /* Horizontal alignment of timer and button */
+  align-items: center; /* Vertically align the timer and button */
+  justify-content: flex-start; /* Align to the left of the container */
+  gap: 8px; /* Small spacing between the timer and button */
+}
+
+.timer {
+  width: 40px; /* Set explicit width for consistency */
+  height: 40px; /* Set explicit height for consistency */
+  position: relative; /* Position text inside the circular progress */
+  display: flex; /* Center the timer text */
+  justify-content: center;
+  align-items: center;
+}
+
+/* Apply box-sizing globally to avoid padding/border issues */
+* {
+  box-sizing: border-box;
+}
+
+.currency-management-parent * {
+  max-width: 100% !important;
+}
