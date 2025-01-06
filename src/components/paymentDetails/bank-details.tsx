@@ -27,7 +27,7 @@ const BankDetails: React.FC<BankDetailsProps> = ({
 
     // State to handle bank details
     const [bankDetails, setBankDetails] = useState({
-        swiftCode: "DBSSSGSGXXX",
+        swiftCode: "DBSSINBBXXX",
         beneficiaryBank: "",
         branch: "",
         bankAddress: "",
@@ -40,6 +40,7 @@ const BankDetails: React.FC<BankDetailsProps> = ({
     });
 
     const [errors, setErrors] = useState({
+        swiftCode: false,
         beneficiaryBank: false,
         branch: false,
         bankAddress: false,
@@ -57,6 +58,7 @@ const BankDetails: React.FC<BankDetailsProps> = ({
 
     const validateFields = () => {
         const newErrors = {
+            swiftCode: bankDetails.swiftCode.trim() === "",
             beneficiaryBank: bankDetails.beneficiaryBank.trim() === "",
             branch: bankDetails.branch.trim() === "",
             bankAddress: bankDetails.bankAddress.trim() === "",
@@ -115,6 +117,13 @@ const BankDetails: React.FC<BankDetailsProps> = ({
                             label="SWIFT/BIC Code"
                             placeholder="Enter the SWIFT Code to find the Bank"
                             value={bankDetails.swiftCode}
+                            onChange={(e) =>
+                                handleInputChange("swiftCode", e.target.value)
+                            }
+                            error={errors.swiftCode}
+                            helperText={
+                                errors.swiftCode && "This field is required."
+                            }
                             disabled
                         />
                     </Grid>

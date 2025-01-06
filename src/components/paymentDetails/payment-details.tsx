@@ -90,8 +90,9 @@ const PaymentDetails: React.FC = () => {
         purposeOfPayment: "OTHR",
         chargeBearer: "DEBT",
         senderParty: {
-            name: "Sender Name",
-            accountNo: "8827210000027502"
+            name: "ProductStackArrayTechnologies PVT LTD",
+            accountNo: "8827210000027502",
+            swiftBic: "DBSSINBBXXX",
         },
         receivingParty: {
             name: bankDetails.beneficiaryName,
