@@ -5,7 +5,9 @@ import {
   CircularProgress,
   Alert,
   Menu,
+  InputAdornment,
   MenuItem,
+  TextField,
   Button,
   Divider,
 } from '@mui/material';
@@ -17,6 +19,7 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { BallTriangle } from 'react-loader-spinner';
 import moment from 'moment';
+import SearchIcon from '@mui/icons-material/Search';
 
 const OrderPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -24,6 +27,7 @@ const OrderPage: React.FC = () => {
 
   const [statusFilter, setStatusFilter] = useState('');
   const [sortOrder, setSortOrder] = useState('desc');
+  const [searchTerm, setSearchTerm] = useState('');
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
   const [statusAnchorEl, setStatusAnchorEl] = useState<null | HTMLElement>(null);
   const [sortAnchorEl, setSortAnchorEl] = useState<null | HTMLElement>(null);
@@ -39,6 +43,12 @@ const OrderPage: React.FC = () => {
       filteredData = filteredData.filter(order => order.txnStatus === statusFilter);
     }
 
+    if (searchTerm) {
+      filteredData = filteredData.filter(order =>
+        order.receivingPartyName?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
     filteredData = filteredData.sort((a, b) => {
       const dateA = new Date(a.createdAt).getTime();
       const dateB = new Date(b.createdAt).getTime();
@@ -46,24 +56,24 @@ const OrderPage: React.FC = () => {
     });
 
     setFilteredOrders(filteredData);
-  }, [statusFilter, sortOrder, orders]);
+  }, [statusFilter, sortOrder, searchTerm, orders]);
 
   const handleReload = () => {
     dispatch(fetchAllOrders());
   }
 
   const getTimeDifference = (inputTime: string) => {
-      const now = moment();
-      const pastTime = moment(inputTime);
-      const duration = moment.duration(now.diff(pastTime));
-  
-      const hours = Math.floor(duration.asHours());
-      if (hours < 1) {
-        return 'Last Updated: < 1h ago';
-      } else {
-        return `Last Updated: ${hours}h ago`;
-      }
+    const now = moment();
+    const pastTime = moment(inputTime);
+    const duration = moment.duration(now.diff(pastTime));
+
+    const hours = Math.floor(duration.asHours());
+    if (hours < 1) {
+      return 'Last Updated: < 1h ago';
+    } else {
+      return `Last Updated: ${hours}h ago`;
     }
+  }
 
   const handleStatusClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setStatusAnchorEl(event.currentTarget);
@@ -104,6 +114,34 @@ const OrderPage: React.FC = () => {
       >
         Orders
       </Typography>
+      <TextField
+        variant="outlined"
+        placeholder="Search by Receiving Party Name"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        sx={{
+          width: '100%',
+          marginBottom: 3,
+          backgroundColor: 'transparent',
+          borderRadius: 1,
+          '.MuiOutlinedInput-root': {
+            padding: '0 10px',
+            border: '1px solid #ccc',
+            '&:hover': { borderColor: '#888' },
+            '&.Mui-focused': { borderColor: '#1976d2' },
+          },
+          '.MuiInputBase-input': {
+            padding: '12px 12px',
+          },
+        }}
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">
+              <SearchIcon sx={{ color: '#888' }} />
+            </InputAdornment>
+          ),
+        }}
+      />
       <Button
         variant="contained"
         onClick={handleReload}
@@ -129,7 +167,7 @@ const OrderPage: React.FC = () => {
           '&:active': {
             transform: 'scale(0.95)',
           },
-          zIndex:5
+          zIndex: 5
         }}
       >
         <RefreshIcon sx={{ fontSize: { xs: '1.5rem', sm: '1.8rem', md: '2rem' } }} />
@@ -254,7 +292,29 @@ const OrderPage: React.FC = () => {
                     >
                       {order.orderId}
                     </Box>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: { xs: '0.8rem', sm: '0.9rem', md: '1rem' }, marginTop: { xs: '0.8rem', sm: '0.9rem', md: '1rem' } }}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        marginBottom: { xs: '0.8rem', sm: '0.9rem', md: '1rem' },
+                        marginTop: { xs: '0.8rem', sm: '0.9rem', md: '1rem' }
+                      }}
+                    >
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          fontWeight: 600,
+                          color: '#0056b3', // Professional blue color
+                          flex: 1,
+                          fontSize: { xs: '1rem', sm: '1.1rem', md: '1.2rem' },
+                        }}
+                      >
+                        {order?.receivingPartyName || 'N/A'}
+                      </Typography>
+                    </Box>
+
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: { xs: '0.8rem', sm: '0.9rem', md: '1rem' }, }}>
                       <Typography variant="subtitle2" color="textSecondary" sx={{ fontWeight: 500, flex: 1, fontSize: { xs: '0.8rem', sm: '0.9rem', md: '1rem' } }}>
                         Response Type:
                       </Typography>
@@ -262,7 +322,7 @@ const OrderPage: React.FC = () => {
                         {order.responseType}
                       </Typography>
                     </Box>
-                    
+
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: { xs: '0.8rem', sm: '0.9rem', md: '1rem' } }}>
                       <Typography variant="subtitle2" color="textSecondary" sx={{ fontWeight: 500, flex: 1, fontSize: { xs: '0.8rem', sm: '0.9rem', md: '1rem' } }}>
                         Payment Mode:
@@ -285,6 +345,27 @@ const OrderPage: React.FC = () => {
                         {getTimeDifference(order.updatedAt)}
                       </Typography>
 
+                    </Box>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        marginBottom: { xs: '0.8rem', sm: '0.9rem', md: '1rem' },
+                      }}
+                    >
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          fontWeight: 400,
+                          color: '#9e9e9e', // Grey color for a subtle appearance
+                          flex: 1,
+                          textAlign: 'right',
+                          fontSize: { xs: '0.8rem', sm: '0.9rem', md: '1rem' },
+                        }}
+                      >
+                        {moment(order.createdAt).format('DD MMM YYYY, hh:mm A')}
+                      </Typography>
                     </Box>
                   </Box>
                 </motion.div>

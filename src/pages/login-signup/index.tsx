@@ -18,6 +18,7 @@ import { AppDispatch } from '@/app/redux/store';
 import { login, signup, sendEmailOtp, verifyEmailOtp } from '@/app/redux/slices/api/authSlice';
 import { ToastContainer, toast } from 'react-toastify';
 import { useRouter } from 'next/router';
+import Cookies from 'js-cookie';
 
 const LoginSignup: React.FC = () => {
   const [isSignUpMode, setIsSignUpMode] = useState(false);
@@ -30,6 +31,13 @@ const LoginSignup: React.FC = () => {
 
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
+
+  useEffect(() => {
+    // setIsClient(true);
+    if(Cookies.get("token")){
+      window.location.href = '/dashboard';
+    }
+  }, [router])
 
   useEffect(() => {
     dispatch(setDarkMode(true));

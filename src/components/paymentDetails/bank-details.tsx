@@ -27,7 +27,7 @@ const BankDetails: React.FC<BankDetailsProps> = ({
 
     // State to handle bank details
     const [bankDetails, setBankDetails] = useState({
-        swiftCode: "DBSSINBBXXX",
+        swiftCode: "DBSSSGSGXXX",
         beneficiaryBank: "",
         branch: "",
         bankAddress: "",

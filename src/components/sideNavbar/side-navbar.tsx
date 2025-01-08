@@ -4,6 +4,7 @@ import { RootState } from '@/app/redux/store';
 import { useSelector, useDispatch } from 'react-redux';
 import { setCurrentDashboard } from '@/app/redux/slices/dashboardSlice';
 import { useMediaQuery, useTheme } from '@mui/material';
+import { Box } from '@mui/material';
 
 const SideNavbar: React.FC = () => {
   const dispatch = useDispatch();

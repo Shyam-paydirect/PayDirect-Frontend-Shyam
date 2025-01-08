@@ -95,12 +95,13 @@
     color: #eee;
     line-height: 1;
     box-shadow: 0 3px 5px var(--shadow-1);
-    position: absolute;
-    top: 50%;
-    inset-inline-start: 50%;
-    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto; /* Centers horizontally */
     transition: 0.3s;
   }
+  
   
   .swap-btn:hover {
     background: var(--high-clr-1);
