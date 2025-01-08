@@ -12,9 +12,14 @@
 
 .left-section {
   display: grid;
-  flex-direction: column;
-  gap: 20px; /* Space between components */
+  grid-auto-rows: min-content; /* Ensure components take only the space they need */
   width: 100% !important; /* Prevent override for child sections */
+  row-gap: 20px; /* Adds consistent vertical spacing between elements */
+
+}
+
+.left-section > *:not(:last-child) {
+  margin-bottom: 60px; /* Add spacing only between components */
 }
 
 .right-section {
@@ -269,7 +274,7 @@
   align-items: center;
   justify-content: center;
   transition: var(--tran-04);
-  max-width: 300px !important;
+  /* max-width: 300px !important; */
   width: 100%;
 }
 

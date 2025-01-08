@@ -1,6 +1,6 @@
 // CurrencyExchanger.tsx (Currency Exchanger Component)
 import React, { useEffect, useState } from 'react';
-import { Card, CardContent, Typography, Button, Input, Divider, CircularProgress, IconButton, Paper, Box, TextField, Tooltip, Avatar, Dialog, DialogTitle, DialogContent, List, ListItem, ListItemText } from '@mui/material';
+import { Card, CardContent, Typography, Button, Input, Divider, CircularProgress, IconButton, Select, MenuItem, Paper, Box, TextField, Tooltip, Avatar, Dialog, DialogTitle, DialogContent, List, ListItem, ListItemText } from '@mui/material';
 import SwapVertIcon from '@mui/icons-material/SwapVert';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import './currency-exchanger.css';
@@ -24,7 +24,9 @@ const CurrencyExchanger: React.FC = () => {
   const [base, setBase] = useState<string>('USD');
   const [target, setTarget] = useState<string>('INR');
   const [baseValue, setBaseValue] = useState<string>("1");
+  const [formattedBaseValue, setFormattedBaseValue] = useState<string>('1');
   const [targetValue, setTargetValue] = useState<string>("0");
+  const [formattedTargetValue, setFormattedTargetValue] = useState<string>('0');
   const [uId, setUId] = useState<string>("");
   const [rate, setRate] = useState<number>(0);
   const [searchKeyword, setSearchKeyword] = useState('');
@@ -88,7 +90,7 @@ const CurrencyExchanger: React.FC = () => {
 
   const getFlagUrl = (code: string): string =>
     `https://wise.com/public-resources/assets/flags/rectangle/${code.toLowerCase()}.png`;
-  
+
   const getTimeDifference = (inputTime: Date) => {
     const now = moment();
     const pastTime = moment(inputTime);
@@ -102,13 +104,41 @@ const CurrencyExchanger: React.FC = () => {
     }
   }
 
+  const formatWithCommas = (value: string, format: 'IND' | 'INTL'): string => {
+    const numValue = parseFloat(value.replace(/,/g, ''));
+    if (isNaN(numValue)) return value;
+
+    const integerPart = Math.floor(numValue).toString();
+    const decimalPart = value.includes('.') ? value.split('.')[1] : '';
+
+    let formattedInteger = '';
+
+    if (format === 'IND') {
+      const lastThree = integerPart.slice(-3);
+      const otherNumbers = integerPart.slice(0, -3);
+      formattedInteger = otherNumbers
+        ? otherNumbers.replace(/(\d)(?=(\d{2})+$)/g, '$1,') + ',' + lastThree
+        : lastThree;
+    } else {
+      formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    }
+
+    return decimalPart ? `${formattedInteger}.${decimalPart}` : formattedInteger;
+  };
+
+
   const handleFxRateWhenFailed = async () => {
     try {
       const result = await dispatch(fetchCcyRate()).unwrap();
       setRate(result?.data?.rate);
 
-      const target = (Math.round(result?.data?.rate * parseFloat(baseValue) * 100) / 100).toFixed(2);
-      setTargetValue(`${target}`)
+      const targetVal = (Math.round(result?.data?.rate * parseFloat(baseValue) * 100) / 100).toFixed(2);
+      setTargetValue(`${targetVal}`)
+      const formatted = target === 'INR'
+        ? formatWithCommas(targetVal, 'IND')
+        : formatWithCommas(targetVal, 'INTL');
+      console.log("formamamammt", formatted)
+      setFormattedTargetValue(formatted);
 
       setLastUpdated(getTimeDifference(result?.data?.updateTime))
     } catch (error) {
@@ -125,13 +155,13 @@ const CurrencyExchanger: React.FC = () => {
 
   const handleFxRateUpdate = async (rate: number) => {
     try {
-      const result = await dispatch(updateCcyRate({rate: rate})).unwrap();
+      const result = await dispatch(updateCcyRate({ rate: rate })).unwrap();
       setRate(result?.data?.rate);
 
       const target = result?.data?.rate * parseFloat(baseValue);
       setTargetValue(`${target}`)
 
-      setLastUpdated(getTimeDifference(result?.data?.updateTime))
+      // setLastUpdated(getTimeDifference(result?.data?.updateTime))
     } catch (error) {
       const errorMessage =
         typeof error === "string"
@@ -163,6 +193,11 @@ const CurrencyExchanger: React.FC = () => {
       handleFxRateUpdate(response?.data?.rate)
 
       setTargetValue(response?.data?.contraAmount);
+      const formatted = target === 'INR'
+        ? formatWithCommas(response?.data?.contraAmount, 'IND')
+        : formatWithCommas(response?.data?.contraAmount, 'INTL');
+      console.log("formamamammt", formatted)
+      setFormattedTargetValue(formatted);
       setRate(response?.data?.rate);
       setUId(response?.data?.uid);
       setTimer(30); // Reset timer to 30 seconds
@@ -185,6 +220,18 @@ const CurrencyExchanger: React.FC = () => {
 
 
   };
+
+  const handleBaseValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = e.target.value.replace(/,/g, '');
+    if (!isNaN(Number(rawValue)) || rawValue === '') {
+      setBaseValue(rawValue);
+      const formatted = base === 'INR'
+        ? formatWithCommas(rawValue, 'IND')
+        : formatWithCommas(rawValue, 'INTL');
+      setFormattedBaseValue(formatted);
+    }
+  };
+
 
   const handleBookFxRate = async () => {
     const bodyData = {
@@ -225,6 +272,15 @@ const CurrencyExchanger: React.FC = () => {
     }
   };
 
+  const handleSwapCurrency = () => {
+    setBase(target);
+    setTarget(base);
+    setBaseValue(targetValue);
+    setTargetValue(baseValue);
+    setFormattedBaseValue(formattedTargetValue);
+    setFormattedTargetValue(formattedBaseValue)
+  }
+
   return (
     <>
       <ToastContainer />
@@ -239,20 +295,63 @@ const CurrencyExchanger: React.FC = () => {
             <div className="control-parent">
               <Typography className="control-label">Sending Amount</Typography>
               <div className="control">
-
-                <Button
-                  variant="contained"
-                  onClick={() => {
-                    handleOpen(true);
+                <Select
+                  value={base}
+                  onChange={(e) => setBase(e.target.value as string)}
+                  variant="outlined"
+                  IconComponent={() => null} // Removes the dropdown arrow
+                  sx={{
+                    borderRadius: '10px', // Rounded corners
+                    padding: '0 !important', // Exactly as specified
+                    margin: '0 !important', // Exactly as specified
+                    minWidth: 120, // Keep the minimum width
+                    backgroundColor: '#fff', // Default white background
+                    boxShadow: '0px 2px 5px rgba(0, 0, 0, 0.2)', // Subtle shadow for aesthetics
+                    '.MuiSelect-select': {
+                      padding: '8px 18px !important', // As per your original request
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px', // Space between flag and code
+                      fontWeight: 600, // Bold text
+                      fontSize: '14px', // Font size for better readability
+                    },
+                    '.MuiOutlinedInput-notchedOutline': {
+                      border: '1px solid #ddd', // Subtle border for a clean look
+                    },
+                    '&:hover': {
+                      boxShadow: '0px 3px 8px rgba(0, 0, 0, 0.3)', // Slightly enhanced shadow on hover
+                    },
+                    '&.Mui-focused': {
+                      boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.4)', // Slightly more pronounced shadow on focus
+                    },
                   }}
-                  startIcon={<Avatar src={getFlagUrl(base)} />}
                 >
-                  {base}
-                </Button>
+                  {currencies.map((currency) => (
+                    <MenuItem
+                      key={currency.code}
+                      value={currency.code}
+                      sx={{
+                        backgroundColor: '#fff', // Keep white for items
+                        '&:hover': {
+                          backgroundColor: '#f5f5f5', // Slight highlight on hover
+                        },
+                        '&.Mui-selected': {
+                          backgroundColor: '#e0e0e0', // Highlight selected item
+                          fontWeight: 'bold', // Bold for the selected item
+                        },
+                      }}
+                    >
+                      <Box display="flex" alignItems="center" gap={1}>
+                        <Avatar src={getFlagUrl(currency.code)} sx={{ width: 24, height: 24 }} />
+                        <Typography>{currency.code}</Typography>
+                      </Box>
+                    </MenuItem>
+                  ))}
+                </Select>
                 <Input
-                  type="number"
-                  value={ baseValue.toLocaleString()}
-                  onChange={(e) => setBaseValue(e.target.value)}
+                  type="text"
+                  value={formattedBaseValue}
+                  onChange={handleBaseValueChange}
                   inputProps={{ min: 0, step: 0.01 }}
                 />
 
@@ -289,27 +388,71 @@ const CurrencyExchanger: React.FC = () => {
               }
               {lastUpdated}
             </Typography>
-
+            <IconButton className='swap-btn' onClick={handleSwapCurrency}>
+              <SwapVertIcon />
+            </IconButton>
 
             <div className="control-parent">
 
               <Typography className="control-label">Receiving Amount</Typography>
 
               <div className="control">
-                <Button
-                  variant="contained"
-                  onClick={() => {
-                    handleOpen(false);
+              <Select
+                  value={target}
+                  onChange={(e) => setTarget(e.target.value as string)}
+                  variant="outlined"
+                  IconComponent={() => null} // Removes the dropdown arrow
+                  sx={{
+                    borderRadius: '10px', // Rounded corners
+                    padding: '0 !important', // Exactly as specified
+                    margin: '0 !important', // Exactly as specified
+                    minWidth: 120, // Keep the minimum width
+                    backgroundColor: '#fff', // Default white background
+                    boxShadow: '0px 2px 5px rgba(0, 0, 0, 0.2)', // Subtle shadow for aesthetics
+                    '.MuiSelect-select': {
+                      padding: '8px 18px !important', // As per your original request
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px', // Space between flag and code
+                      fontWeight: 600, // Bold text
+                      fontSize: '14px', // Font size for better readability
+                    },
+                    '.MuiOutlinedInput-notchedOutline': {
+                      border: '1px solid #ddd', // Subtle border for a clean look
+                    },
+                    '&:hover': {
+                      boxShadow: '0px 3px 8px rgba(0, 0, 0, 0.3)', // Slightly enhanced shadow on hover
+                    },
+                    '&.Mui-focused': {
+                      boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.4)', // Slightly more pronounced shadow on focus
+                    },
                   }}
-                  startIcon={<Avatar src={getFlagUrl(target)} />}
                 >
-                  {target}
-                </Button>
-                <Input type="number" value={targetValue} readOnly />
+                  {currencies.map((currency) => (
+                    <MenuItem
+                      key={currency.code}
+                      value={currency.code}
+                      sx={{
+                        backgroundColor: '#fff', // Keep white for items
+                        '&:hover': {
+                          backgroundColor: '#f5f5f5', // Slight highlight on hover
+                        },
+                        '&.Mui-selected': {
+                          backgroundColor: '#e0e0e0', // Highlight selected item
+                          fontWeight: 'bold', // Bold for the selected item
+                        },
+                      }}
+                    >
+                      <Box display="flex" alignItems="center" gap={1}>
+                        <Avatar src={getFlagUrl(currency.code)} sx={{ width: 24, height: 24 }} />
+                        <Typography>{currency.code}</Typography>
+                      </Box>
+                    </MenuItem>
+                  ))}
+                </Select>
+
+                <Input type="text" value={formattedTargetValue } readOnly />
               </div>
-              {/* <IconButton className="swap-btn" onClick={swapCurrencies}>
-            <SwapVertIcon />
-          </IconButton> */}
 
             </div>
           </div>
@@ -463,7 +606,7 @@ const CurrencyExchanger: React.FC = () => {
         </CardContent>
       </Card>
 
-      <Dialog open={open} onClose={handleClose} fullWidth>
+      {/* <Dialog open={open} onClose={handleClose} fullWidth>
         <DialogTitle>Select Currency</DialogTitle>
         <DialogContent>
           <TextField
@@ -485,7 +628,7 @@ const CurrencyExchanger: React.FC = () => {
             ))}
           </List>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
     </>
   );
 };

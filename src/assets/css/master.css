@@ -20,7 +20,7 @@
 }
 
 .commonCard {
-  min-height: 150px;
+  min-height: 250px;
   min-width: 275px;
   border-radius: 0.8rem;
   background-color: var(--bg-clr-1);
