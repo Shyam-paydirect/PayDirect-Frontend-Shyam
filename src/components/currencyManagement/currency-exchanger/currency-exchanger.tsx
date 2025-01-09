@@ -133,7 +133,7 @@ const CurrencyExchanger: React.FC = () => {
       setRate(result?.data?.rate);
 
       const targetVal = 
-      (target != 'INR') ? (Math.round(result?.data?.rate * parseFloat(baseValue) * 100) / 100).toFixed(2) : (Math.round( (parseFloat(baseValue) * 100)/(result?.data?.rate)) / 100).toFixed(2);
+      (target == 'INR') ? (Math.round(result?.data?.rate * parseFloat(baseValue) * 100) / 100).toFixed(2) : (Math.round( (parseFloat(baseValue) * 100)/(result?.data?.rate)) / 100).toFixed(2);
       setTargetValue(`${targetVal}`)
       const formatted = target === 'INR'
         ? formatWithCommas(targetVal, 'IND')
