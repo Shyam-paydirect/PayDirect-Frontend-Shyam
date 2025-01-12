@@ -21,13 +21,14 @@ import {
 import './payment-details.css';
 import { useDispatch, useSelector } from "react-redux";
 import DocumentUploads from "../documents-upload/documents-upload";
-import { savePaymentDetails } from '@/app/redux/slices/paymentDetailsSlice'; // Action to save data in Redux
+import { saveBankDetails, savePaymentDetails } from '@/app/redux/slices/paymentDetailsSlice'; // Action to save data in Redux
 import BankDetails from "./bank-details";
 import { RootState } from "@/app/redux/store"; // Adjust based on your store setup
 import { submitPayment } from "@/app/redux/slices/api/ttPaymentSlice";
 import { AppDispatch } from '@/app/redux/store';
 import { toast, ToastContainer } from "react-toastify";
 import { createOrder, fetchAllOrders, CreateOrderRequest, selectOrderState } from '@/app/redux/slices/api/orderSlice';
+import { setCurrentDashboard } from "@/app/redux/slices/dashboardSlice";
 
 const PaymentDetails: React.FC = () => {
     const dispatch = useDispatch();
@@ -64,7 +65,7 @@ const PaymentDetails: React.FC = () => {
 
     const bankDetails = useSelector((state: RootState) => state.paymentDetails.bankDetails);
 
-    const handleNextStep = () => setStep("documentUploads");
+    const handleNextStep = () => dispatch(setCurrentDashboard('order-book'));
     const generateRandom11DigitNumber = () => {
         return Math.floor(1e10 + Math.random() * 9e10).toString();
     };
@@ -84,7 +85,7 @@ const PaymentDetails: React.FC = () => {
 
     const paymentData = {
         txnAmount: remittanceAmount,
-        customerReference: "TT" + generateRandom11DigitNumber(),
+        customerReference: customerReference,
         txnCcy: currency,
         debitAccountAmount: remittanceAmount,
         purposeOfPayment: "OTHR",
@@ -131,7 +132,7 @@ const PaymentDetails: React.FC = () => {
                 responseType: response?.data?.txnResponses[0]?.responseType,
                 txnStatus: response?.data?.txnResponses[0]?.txnStatus,
                 txnStatusDescription: response?.data?.txnResponses[0]?.txnStatusDescription,
-                sendingPartyName: "Sender Name",
+                sendingPartyName: "ProductStackArrayTechnologies PVT LTD",
                 sendingPartyAccountNo: "8827210000027502",
                 receivingPartyName: bankDetails.beneficiaryName,
                 receivingPartyAccountNo: bankDetails.beneficiaryAccountNumber
@@ -156,6 +157,25 @@ const PaymentDetails: React.FC = () => {
         }
         finally {
             setIsLoading(false); // Reset loading state
+            setCustomerReference("");
+            setRemittanceAmount('');
+            setCurrency('INR');
+            setDateOfTransfer('2025-01-01');
+            setInvoiceNumber('');
+            setPurposeCode('');
+            const initialBankData = {
+                swiftCode: '',
+                beneficiaryBank: '',
+                branch: '',
+                bankAddress: '',
+                city: '',
+                state: '',
+                country: '',
+                beneficiaryName: '',
+                beneficiaryAccountNumber: '',
+                routingNumber: '',
+              };
+            dispatch(saveBankDetails(initialBankData));
         }
     }
 
@@ -210,12 +230,6 @@ const PaymentDetails: React.FC = () => {
         // Dispatch the action to save details in Redux
         dispatch(savePaymentDetails(paymentDetails));
 
-        // Optionally, clear the form after submission
-        setRemittanceAmount('');
-        setCurrency('INR');
-        setDateOfTransfer('2025-01-01');
-        setInvoiceNumber('');
-        setPurposeCode('');
     }
     const handleCloseModal = () => setOpenModal(false);
 

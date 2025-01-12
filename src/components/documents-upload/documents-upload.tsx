@@ -1,183 +1,194 @@
-import React from "react";
+import React, { useState } from "react";
 import {
     Box,
-    Container,
     Typography,
     Button,
     Grid,
-    Paper,
     Stepper,
     Step,
     StepLabel,
-    useMediaQuery,
-    useTheme,
+    Card,
+    CardContent,
+    CardActions,
 } from "@mui/material";
+import UploadFileIcon from "@mui/icons-material/UploadFile";
+import { useDispatch } from "react-redux";
+import { uploadFiles } from "@/app/redux/slices/api/fileUploadSlice"; // Import the slice action
+import { AppDispatch } from "@/app/redux/store";
+import { toast, ToastContainer } from "react-toastify";
+import { setCurrentDashboard } from "@/app/redux/slices/dashboardSlice";
 
 const DocumentUploads: React.FC = () => {
-    const theme = useTheme();
-    const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+    const dispatch = useDispatch<AppDispatch>();
+    const dispa = useDispatch();
+    const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files) {
+            const filesArray = Array.from(e.target.files);
+            setUploadedFiles((prevFiles) => [...prevFiles, ...filesArray]);
+        }
+    };
+
+    const handleUploadAll = async () => {
+        if (uploadedFiles.length > 0) {
+            const custRefId = localStorage.getItem("orderID") || ""; // Ensure custRefId is always a string
+            try {
+                await dispatch(uploadFiles({ files: uploadedFiles, custRefId }))
+                toast.success("Documents uploaded successfully", {
+                    onClose: () => {
+                        dispa(setCurrentDashboard('order-book'))
+
+                    }
+                }
+
+                );
+            }
+            catch (error) {
+                const errorMessage =
+                    typeof error === "string"
+                        ? error
+                        : error instanceof Error
+                            ? error.message
+                            : "An unknown error occurred";
+
+                toast.error(errorMessage)
+            }
+        } else {
+            alert("Please select files first.");
+        }
+    };
+
+    const documents = [
+        {
+            title: "Request Letter for Advance Import Payments",
+            description:
+                "Please download and fill the request letter for advance payments.",
+        },
+        {
+            title: "Proforma Invoice",
+            description:
+                "Proforma Invoice of the Supplier/Purchase order duly certified by the applicant.",
+        },
+        {
+            title: "Original Bank Guarantee",
+            description:
+                "Original Bank Guarantee (applicable in case of advance remittance above USD 200,000 or equivalent).",
+        },
+        {
+            title: "Others",
+            description: "Upload any other document if required.",
+        },
+    ];
+
     return (
-        <Box
-            display="flex"
-            flexDirection={ "column" }
-            borderRadius="8px"
-            overflow="hidden"
-            boxShadow={2}
-            bgcolor="#fff"
-            width="100%"
-            maxWidth="900px"
-        >
-            {/* Sidebar */}
+        <>
+            <ToastContainer />
+
             <Box
-                width={"100%"}
-                bgcolor="#f4f4f4"
-                p={3}
-                display="flex"
-                flexDirection="column"
-                alignItems={"center" }
+                sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    padding: 3,
+                    gap: 3,
+                    maxWidth: "900px",
+                    margin: "0 auto",
+                    backgroundColor: "#fff",
+                    borderRadius: "8px",
+                    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+                }}
             >
-                <Typography
-                    variant="h6"
-                    align="center"
-                    gutterBottom
-                    sx={{ fontSize: "16px", fontWeight: "bold" }}
-                >
-                    Payment Progress
+                <Typography variant="h5" sx={{ fontWeight: "bold", marginBottom: 2 }}>
+                    Document Uploads
                 </Typography>
-                <Stepper
-                    orientation={"horizontal"}
-                    activeStep={1}
-                    sx={{
-                        width: isSmallScreen ? "100%" : "auto",
-                        marginLeft: isSmallScreen ? 0 : "-16px",
-                    }}
-                >
+
+                <Stepper activeStep={1} alternativeLabel sx={{ width: "100%" }}>
                     {["Payment Details", "Upload Documents", "Accept Rate and Pay", "Track Payment"].map(
                         (label, index) => (
                             <Step key={index}>
-                                <StepLabel
-                                    sx={{
-                                        flexDirection: "column-reverse", // Keep text below the numbers
-                                        alignItems: "center",
-                                        ".MuiStepLabel-label": {
-                                            fontSize: "12px", // Reduced text size
-                                            textAlign: "center",
-                                            marginTop: "8px",
-                                        },
-                                        ".MuiStepIcon-root": {
-                                            fontSize: "24px", // Adjust icon size if needed
-                                        },
-                                    }}
-                                >
-                                    {label}
-                                </StepLabel>
+                                <StepLabel>{label}</StepLabel>
                             </Step>
                         )
                     )}
                 </Stepper>
-            </Box>
-            {/* Header Section */}
-            <Box sx={{padding: 3}}>
-                <Typography variant="h6" sx={{ fontSize: "18px", fontWeight: "bold" }}>
-                    Upload Documents
-                </Typography>
-                <Typography variant="body2" sx={{ color: "text.secondary", marginTop: "8px" }}>
-                    Please upload the required documents to initiate the transaction.
-                </Typography>
-            </Box>
 
-            {/* Document Uploads Section */}
-            <Box  sx={{padding:3}}>
-                <Typography
-                    variant="body1"
-                    sx={{ fontSize: "16px", fontWeight: "bold", marginBottom: "16px" }}
-                >
-                    Transaction Documents Required
-                </Typography>
+                <Box sx={{ width: "100%", marginTop: 3 }}>
+                    <Typography variant="h6" sx={{ fontWeight: "bold", marginBottom: 2 }}>
+                        Transaction Documents Required
+                    </Typography>
 
-                <Grid container spacing={3}>
-                    {[
-                        {
-                            title: "Request Letter for Advance Import Payments",
-                            description:
-                                "Please download and fill the request letter for advance payments.",
-                            buttonText: "Upload",
-                            link: "Download format",
-                        },
-                        {
-                            title: "Proforma Invoice",
-                            description:
-                                "Proforma Invoice of the Supplier/Purchase order duly certified by the applicant.",
-                            buttonText: "Upload",
-                        },
-                        {
-                            title: "Original Bank Guarantee",
-                            description:
-                                "Original Bank Guarantee (applicable in case of advance remittance above USD 200,000 or equivalent).",
-                            buttonText: "Upload",
-                        },
-                        {
-                            title: "Others",
-                            description: "Upload any other document if required.",
-                            buttonText: "Upload",
-                        },
-                    ].map((doc, index) => (
-                        <Grid item xs={12} sm={6} key={index}>
-                            <Paper
-                                variant="outlined"
-                                sx={{ padding: "16px", borderRadius: "8px", height: "100%" }}
-                            >
-                                <Typography
-                                    variant="subtitle1"
-                                    sx={{ fontSize: "14px", fontWeight: "bold" }}
+                    <Grid container spacing={3}>
+                        {documents.map((doc, index) => (
+                            <Grid item xs={12} sm={6} key={index}>
+                                <Card
+                                    sx={{
+                                        height: "100%",
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        justifyContent: "space-between",
+                                        padding: 2,
+                                    }}
                                 >
-                                    {doc.title}
-                                </Typography>
-                                <Typography
-                                    variant="body2"
-                                    sx={{ color: "text.secondary", marginTop: "8px" }}
-                                >
-                                    {doc.description}
-                                </Typography>
-                                {doc.link && (
-                                    <Typography
-                                        variant="body2"
-                                        sx={{
-                                            color: "primary.main",
-                                            marginTop: "8px",
-                                            cursor: "pointer",
-                                        }}
-                                    >
-                                        {doc.link}
-                                    </Typography>
-                                )}
-                                <Box mt={2} textAlign="right">
-                                    <Button
-                                        variant="contained"
-                                        color="primary"
-                                        sx={{ fontSize: "12px" }}
-                                    >
-                                        {doc.buttonText}
-                                    </Button>
-                                </Box>
-                            </Paper>
-                        </Grid>
-                    ))}
-                </Grid>
-            </Box>
+                                    <CardContent>
+                                        <Typography variant="h6" sx={{ fontWeight: "bold" }} gutterBottom>
+                                            {doc.title}
+                                        </Typography>
+                                        <Typography variant="body2" color="text.secondary">
+                                            {doc.description}
+                                        </Typography>
+                                    </CardContent>
+                                    <CardActions>
+                                        <Box display="flex" flexDirection="column" width="100%">
+                                            <input
+                                                type="file"
+                                                multiple
+                                                onChange={handleFileChange}
+                                                style={{ display: "none" }}
+                                                id={`file-input-${index}`}
+                                            />
+                                            <label htmlFor={`file-input-${index}`}>
+                                                <Button
+                                                    variant="outlined"
+                                                    color="primary"
+                                                    startIcon={<UploadFileIcon />}
+                                                    component="span"
+                                                    sx={{ width: "100%", marginBottom: 1 }}
+                                                >
+                                                    Select File
+                                                </Button>
+                                            </label>
+                                        </Box>
+                                    </CardActions>
+                                </Card>
+                            </Grid>
+                        ))}
+                    </Grid>
 
-            {/* Submit Section */}
-            <Box textAlign="center" mt={4} mb= {6}>
-                <Button
-                    variant="contained"
-                    color="success"
-                    size="large"
-                    sx={{ borderRadius: "8px" }}
-                >
-                    Submit for Verification
-                </Button>
+                    {uploadedFiles.length > 0 && (
+                        <Box sx={{ marginTop: 3, marginBottom: 2 }}>
+                            <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+                                Selected Files:
+                            </Typography>
+                            <ul>
+                                {uploadedFiles.map((file, index) => (
+                                    <li key={index}>{file.name}</li>
+                                ))}
+                            </ul>
+                        </Box>
+                    )}
+
+                    <Button
+                        variant="contained"
+                        color="success"
+                        onClick={handleUploadAll}
+                        sx={{ width: "100%", marginTop: 2 }}
+                    >
+                        Upload All Files
+                    </Button>
+                </Box>
             </Box>
-        </Box>
+        </>
     );
 };
 
