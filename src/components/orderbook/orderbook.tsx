@@ -10,7 +10,9 @@ import {
   TextField,
   Button,
   Divider,
+
 } from '@mui/material';
+import DescriptionIcon from '@mui/icons-material/Description';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchAllOrders, Order, selectOrderState } from '@/app/redux/slices/api/orderSlice';
 import { AppDispatch } from '@/app/redux/store';
@@ -20,6 +22,7 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import { BallTriangle } from 'react-loader-spinner';
 import moment from 'moment';
 import SearchIcon from '@mui/icons-material/Search';
+import { setCurrentDashboard } from '@/app/redux/slices/dashboardSlice';
 
 const OrderPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -60,6 +63,11 @@ const OrderPage: React.FC = () => {
 
   const handleReload = () => {
     dispatch(fetchAllOrders());
+  }
+
+  const handleDocumentClick = (id: any) => {
+    dispatch(setCurrentDashboard('document-uploads'));
+    localStorage.setItem("orderID", id)
   }
 
   const getTimeDifference = (inputTime: string) => {
@@ -323,6 +331,41 @@ const OrderPage: React.FC = () => {
                       </Typography>
                     </Box>
 
+                    {
+                      order.responseType == 'ACK2' && order.txnStatus == 'ACCP' &&
+                      <Box
+                        sx={{
+                          position: 'absolute',
+                          right: 40,
+                          bottom: 155, // Adjust position relative to ACCP
+                          display: 'flex',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                        }}
+                      >
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          // startIcon={<Icon>description</Icon>} // Icon for the document
+                          sx={{
+                            textTransform: 'none',
+                            padding: '8px 16px',
+                            borderRadius: 8,
+                            fontSize: '0.85rem',
+                            fontWeight: 600,
+                            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+                            backgroundColor: '#673ab7',
+                            '&:hover': {
+                              backgroundColor: '#5e35b1',
+                            },
+                          }}
+                          onClick={() => handleDocumentClick(order.orderId)}
+                        >
+                          {/* View Documents */}
+                          <DescriptionIcon />
+                        </Button>
+                      </Box>
+                    }
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: { xs: '0.8rem', sm: '0.9rem', md: '1rem' } }}>
                       <Typography variant="subtitle2" color="textSecondary" sx={{ fontWeight: 500, flex: 1, fontSize: { xs: '0.8rem', sm: '0.9rem', md: '1rem' } }}>
                         Payment Mode:

@@ -35,6 +35,8 @@ function getTitleByDashboard(dashboard: string): string {
       return 'Payment Details';
     case 'accounts':
       return 'Accounts';
+    case 'document-uploads':
+      return 'Document Uploads';
     default:
       return 'Currency Management';
   }

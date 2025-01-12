@@ -380,14 +380,14 @@ const CurrencyExchanger: React.FC = () => {
                 width: '100%', // Ensure it spans the container for alignment
               }}
             >
-              {lastUpdated &&
+              {/* {lastUpdated &&
                 <AccessTimeIcon
                   sx={{
                     fontSize: 16, // Adjust the size of the icon
                   }}
                 />
-              }
-              {lastUpdated}
+              } */}
+              {/* {lastUpdated} */}
             </Typography>
             <IconButton className='swap-btn' onClick={handleSwapCurrency}>
               <SwapVertIcon />

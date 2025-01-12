@@ -6,6 +6,7 @@ import authReducer from './slices/api/authSlice';
 import paymentReducer from './slices/paymentDetailsSlice'
 import ttPaymentReducer from './slices/api/ttPaymentSlice';
 import orderReducer from './slices/api/orderSlice';
+import fileUploadReducer from './slices/api/fileUploadSlice';
 
 export const store = configureStore({
   reducer: {
@@ -15,7 +16,8 @@ export const store = configureStore({
     auth: authReducer,
     paymentDetails: paymentReducer,
     ttPayment: ttPaymentReducer,
-    orders: orderReducer
+    orders: orderReducer,
+    fileUpload: fileUploadReducer,
   },
 });
 
