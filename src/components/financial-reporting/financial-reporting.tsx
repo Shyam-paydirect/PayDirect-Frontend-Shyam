@@ -17,16 +17,16 @@ const FinancialAnalytics = dynamic(() => import('./financial-analytics'), { ssr:
 const FinancialReporting: React.FC = () => {
     return (
       <Container className="financial-reporting-parent" sx={{ padding: 2, borderRadius: 1 }}>
-        <Grid container spacing={3}>
+        {/* <Grid container spacing={3}> */}
           {/* Financial Overview Section */}
-          <Grid item xs={12} lg={6}>
+          {/* <Grid item xs={12} lg={6}>
             <FinancialOverview />
-          </Grid>
+          </Grid> */}
   
           {/* Financial Analytics Section */}
-          <Grid item xs={12} lg={6}>
+          {/* <Grid item xs={12} lg={6}> */}
             <FinancialAnalytics />
-          </Grid>
+          {/* </Grid> */}
   
           {/* Bottom Full-Width Row: Table */}
           {/* <Grid item xs={12}>
@@ -36,7 +36,7 @@ const FinancialReporting: React.FC = () => {
               </CardContent>
             </Card>
           </Grid> */}
-        </Grid>
+        {/* </Grid> */}
       </Container>
     );
   };
