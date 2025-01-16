@@ -42,9 +42,9 @@ const SendPaymentModal: React.FC<SendPaymentModalProps> = ({ isOpen, onClose }) 
         <Typography variant="h6" id="send-payment-modal" gutterBottom>
           Send Payment
         </Typography>
-        <Typography variant="body2" gutterBottom>
+        {/* <Typography variant="body2" gutterBottom>
           Select an order for which you would like to make payment
-        </Typography>
+        </Typography> */}
         <Button
           variant="contained"
           color="primary"
@@ -54,7 +54,7 @@ const SendPaymentModal: React.FC<SendPaymentModalProps> = ({ isOpen, onClose }) 
         >
           Create Order
         </Button>
-        <List>
+        {/* <List>
           <ListItem sx={{ display: "flex", justifyContent: "space-between" }}>
             <Box>
               <ListItemText
@@ -78,7 +78,7 @@ const SendPaymentModal: React.FC<SendPaymentModalProps> = ({ isOpen, onClose }) 
               $1,034.42
             </Typography>
           </ListItem>
-        </List>
+        </List> */}
         {/* <Button
           variant="contained"
           color="success"
