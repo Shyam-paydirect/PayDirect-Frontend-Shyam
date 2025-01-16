@@ -23,6 +23,9 @@ import { BallTriangle } from 'react-loader-spinner';
 import moment from 'moment';
 import SearchIcon from '@mui/icons-material/Search';
 import { setCurrentDashboard } from '@/app/redux/slices/dashboardSlice';
+import { Visibility } from '@mui/icons-material';
+import { fetchDocuments } from '@/app/redux/slices/api/documentSlice';
+import { toast } from 'react-toastify';
 
 const OrderPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -70,6 +73,17 @@ const OrderPage: React.FC = () => {
     localStorage.setItem("orderID", id)
   }
 
+  const handleViewDocuments = async(id: any) => {
+    const emptyOrNot = await dispatch(fetchDocuments(id)).unwrap();
+    if(emptyOrNot?.allDocs?.length == 0){
+      toast.error("Please upload Documents first");
+    }
+    else{
+      dispatch(setCurrentDashboard('document-viewer'));
+      localStorage.setItem("orderID", id)
+    }
+  }
+
   const getTimeDifference = (inputTime: string) => {
     const now = moment();
     const pastTime = moment(inputTime);
@@ -98,6 +112,8 @@ const OrderPage: React.FC = () => {
 
   const getStatusColor = (status: string): string => {
     switch (status) {
+      case 'ACCP':
+        return '#006d04';
       case 'ACTC':
         return '#4caf50';
       case 'RJCT':
@@ -363,6 +379,28 @@ const OrderPage: React.FC = () => {
                         >
                           {/* View Documents */}
                           <DescriptionIcon />
+                        </Button>
+
+                        <Button
+                          variant="outlined"
+                          color="secondary"
+                          sx={{
+                            textTransform: 'none',
+                            marginLeft: '10px',
+                            padding: '10px 16px',
+                            borderRadius: 8,
+                            fontSize: '0.85rem',
+                            fontWeight: 600,
+                            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                            backgroundColor: '#ffffff',
+                            '&:hover': {
+                              backgroundColor: '#f5f5f5',
+                            },
+                          }}
+                          onClick={() => handleViewDocuments(order.orderId)}
+
+                        >
+                          <Visibility sx={{ fontSize: '1.2rem', color: '#673ab7' }} />
                         </Button>
                       </Box>
                     }

@@ -117,7 +117,7 @@ const TopNavbar: React.FC = () => {
         <Box className="controls" sx={{ display: 'flex', alignItems: 'center' }}>
           <ul className="control-list" style={{ display: 'flex', margin: 0, padding: 0 }}>
             {/* Theme Toggle */}
-            <li className="mode">
+            {/* <li className="mode">
               <IconButton
                 onClick={toggleTheme}
                 sx={{
@@ -141,7 +141,7 @@ const TopNavbar: React.FC = () => {
                   <WbSunny sx={{ fontSize: iconSize, color: '#ffcc33' }} />
                 )}
               </IconButton>
-            </li>
+            </li> */}
             {/* Fullscreen Toggle */}
             <li>
               <IconButton

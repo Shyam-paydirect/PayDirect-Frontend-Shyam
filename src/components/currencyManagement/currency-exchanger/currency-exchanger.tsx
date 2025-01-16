@@ -36,6 +36,7 @@ const CurrencyExchanger: React.FC = () => {
   const [errorMsg, setErrorMsg] = useState<string>("");
   const [isBaseSelection, setIsBaseSelection] = useState<boolean>(true);
   const [lastUpdated, setLastUpdated] = useState("")
+  const [isButtonEnabled, setIsButtonEnabled] = useState(false);
 
 
   const currencies = [
@@ -54,6 +55,35 @@ const CurrencyExchanger: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const dispatch = useDispatch<AppDispatch>();
+
+  useEffect(() => {
+    const checkButtonAvailability = () => {
+      const now = new Date();
+
+      // Convert current time to IST (UTC+5:30)
+      const utcOffset = now.getTimezoneOffset() * 60000;
+      const istTime = new Date(now.getTime() + utcOffset + 19800000); // 19800000 ms = 5 hours 30 minutes
+
+      const hours = istTime.getHours();
+      const minutes = istTime.getMinutes();
+      const day = istTime.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+      console.log(hours, minutes, day, "THISHSIHS")
+
+      // Enable button only from Monday to Friday (day 1-5), between 9:00 AM and 3:30 PM IST
+      if (day >= 1 && day <= 5 && (hours > 9 || (hours === 9 && minutes >= 0)) && (hours < 17 || (hours === 15 && minutes <= 30))) {
+        setIsButtonEnabled(true);
+      } else {
+        setIsButtonEnabled(false);
+      }
+    };
+
+    checkButtonAvailability();
+
+    // Recheck every minute
+    const interval = setInterval(checkButtonAvailability, 60000);
+
+    return () => clearInterval(interval); // Cleanup interval on component unmount
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -132,8 +162,8 @@ const CurrencyExchanger: React.FC = () => {
       const result = await dispatch(fetchCcyRate()).unwrap();
       setRate(result?.data?.rate);
 
-      const targetVal = 
-      (target == 'INR') ? (Math.round(result?.data?.rate * parseFloat(baseValue) * 100) / 100).toFixed(2) : (Math.round( (parseFloat(baseValue) * 100)/(result?.data?.rate)) / 100).toFixed(2);
+      const targetVal =
+        (target == 'INR') ? (Math.round(result?.data?.rate * parseFloat(baseValue) * 100) / 100).toFixed(2) : (Math.round((parseFloat(baseValue) * 100) / (result?.data?.rate)) / 100).toFixed(2);
       setTargetValue(`${targetVal}`)
       const formatted = target === 'INR'
         ? formatWithCommas(targetVal, 'IND')
@@ -282,6 +312,24 @@ const CurrencyExchanger: React.FC = () => {
     setFormattedTargetValue(formattedBaseValue)
   }
 
+  const handleBaseChange = (value: string) => {
+    if (value !== 'INR' && target !== 'INR') {
+      setErrorMsg('Either one of the currencies must be INR');
+    } else {
+      setErrorMsg('');
+      setBase(value);
+    }
+  };
+
+  const handleTargetChange = (value: string) => {
+    if (value !== 'INR' && target !== 'INR') {
+      setErrorMsg('Either one of the currencies must be INR');
+    } else {
+      setErrorMsg('');
+      setTarget(value);
+    }
+  };
+
   return (
     <>
       <ToastContainer />
@@ -298,7 +346,7 @@ const CurrencyExchanger: React.FC = () => {
               <div className="control">
                 <Select
                   value={base}
-                  onChange={(e) => setBase(e.target.value as string)}
+                  onChange={(e) => handleBaseChange(e.target.value as string)}
                   variant="outlined"
                   IconComponent={() => null} // Removes the dropdown arrow
                   sx={{
@@ -363,11 +411,16 @@ const CurrencyExchanger: React.FC = () => {
                 color: 'red',
                 fontSize: 12,
                 fontWeight: 600,
-                textAlign: 'right'
+                textAlign: 'right', // Right-align text
+                display: 'inline-flex', // Inline flex ensures it works well with text alignment
+                alignItems: 'center', // Vertically center the icon and text
+                justifyContent: 'flex-end', // Push content to the right
+                gap: '4px', // Add spacing between icon and text
+                width: '100%', // Ensure it spans the container for alignment
               }}
             >{errorMsg}</Typography>
 
-            <Typography
+            {/* <Typography
               sx={{
                 color: 'green',
                 fontSize: 12,
@@ -388,7 +441,7 @@ const CurrencyExchanger: React.FC = () => {
                 />
               } */}
               {/* {lastUpdated} */}
-            </Typography>
+           {/* </Typography> */}
             <IconButton className='swap-btn' onClick={handleSwapCurrency}>
               <SwapVertIcon />
             </IconButton>
@@ -398,9 +451,9 @@ const CurrencyExchanger: React.FC = () => {
               <Typography className="control-label">Receiving Amount</Typography>
 
               <div className="control">
-              <Select
+                <Select
                   value={target}
-                  onChange={(e) => setTarget(e.target.value as string)}
+                  onChange={(e) => handleTargetChange(e.target.value as string)}
                   variant="outlined"
                   IconComponent={() => null} // Removes the dropdown arrow
                   sx={{
@@ -452,7 +505,7 @@ const CurrencyExchanger: React.FC = () => {
                   ))}
                 </Select>
 
-                <Input type="text" value={formattedTargetValue } readOnly />
+                <Input type="text" value={formattedTargetValue} readOnly />
               </div>
 
             </div>
@@ -516,14 +569,19 @@ const CurrencyExchanger: React.FC = () => {
               <span className="rate-reason">GST</span>
             </li> */}
               <li className="rate-detail">
-                <span className="rate"><i className="ri-add-line sign"></i>₹ 2000.00</span
+                <span className="rate"><i className="ri-add-line sign"></i>₹ 2,000.00</span
                 ><span className="rate-reason"
                 >Service Charge <span className="gst">(incl. GST)</span></span>
               </li>
             </ul>
             <div className="final-charge-parent">
               <Typography className="final-charge-label totalPayment rate">
-                <i className="ri-equal-line sign"></i> ₹ {parseFloat(targetValue) + 2000}
+                <i className="ri-equal-line sign"></i> 
+                ₹ {target == 'INR' ? 
+                formatWithCommas(String(parseFloat(targetValue) + 2000), 'IND') 
+                : 
+                formatWithCommas(String(parseFloat(baseValue) + 2000), 'IND')
+              }
               </Typography>
               <Typography className="final-charge-label">Total Payment</Typography>
             </div>
@@ -560,32 +618,28 @@ const CurrencyExchanger: React.FC = () => {
                   className="btn-1 book-button"
                   onClick={() => {
                     setIsLoading(true); // Set loading state to true
-
                     handleGetFxRateClick();
                     setTimeout(() => {
-
-                    }, 300)
-
-                  }
-                  }
+                      setIsLoading(false); // Reset loading state
+                    }, 300);
+                  }}
                   sx={{
-                    // marginLeft: 'auto', // Align to the right
-                    borderRadius: '8px', // Less rounded corners
-                    backgroundColor: '#004080', // Darker blue color
-                    color: '#ffffff', // White text color
-                    textTransform: 'none', // Prevent uppercase text
-                    paddingX: '16px', // Horizontal padding for rectangular look
-                    animation: timer === 0 ? 'blink 2s ' : 'none', // Blink animation when timer is 0 (Edited)
+                    borderRadius: '8px',
+                    backgroundColor: isButtonEnabled ? '#004080' : '#d3d3d3', // Gray if disabled
+                    color: '#ffffff',
+                    textTransform: 'none',
+                    paddingX: '16px',
+                    animation: isButtonEnabled && !isLoading ? 'blink 2s ' : 'none',
                     '&:hover': {
-                      backgroundColor: '#00264d', // Even darker blue on hover
+                      backgroundColor: isButtonEnabled ? '#00264d' : '#d3d3d3', // Prevent hover effect if disabled
                     },
                     '@keyframes blink': {
                       '0%': { opacity: 1 },
                       '50%': { background: '#00264d', opacity: 0.8 },
                       '100%': { opacity: 1 },
-                    }
+                    },
                   }}
-                  disabled={isLoading}
+                  disabled={!isButtonEnabled || isLoading} // Disable if outside time range or loading
                 >
                   <AutorenewIcon
                     sx={{
@@ -597,8 +651,8 @@ const CurrencyExchanger: React.FC = () => {
                         '0%': { transform: 'rotate(0deg)' },
                         '100%': { transform: 'rotate(360deg)' },
                       },
-                    }} />
-
+                    }}
+                  />
                   Get FX Rate
                 </Button>
               </Box>

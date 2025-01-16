@@ -4,12 +4,15 @@ import { Typography, Divider } from '@mui/material';
 import './currency-management.css';
 import SendPaymentModal from '../orderbook/sendPaymentOrder';
 import { useRouter } from 'next/router';
+import { setCurrentDashboard } from '@/app/redux/slices/dashboardSlice';
+import { useSelector, useDispatch } from 'react-redux';
 
 const CurrencyTransactions: React.FC = () => {
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const dispatch = useDispatch();
 
-  const handleOpen = () => setIsModalOpen(true);
+  const handleOpen = () =>     dispatch(setCurrentDashboard('payment-details'));
   const handleClose = () => setIsModalOpen(false);
 
   return (
