@@ -70,7 +70,7 @@ const CurrencyExchanger: React.FC = () => {
       console.log(hours, minutes, day, "THISHSIHS")
 
       // Enable button only from Monday to Friday (day 1-5), between 9:00 AM and 3:30 PM IST
-      if (day >= 1 && day <= 5 && (hours > 9 || (hours === 9 && minutes >= 0)) && (hours < 17 || (hours === 15 && minutes <= 30))) {
+      if (day >= 1 && day <= 5 && (hours > 9 || (hours === 9 && minutes >= 0)) && (hours < 15 || (hours === 15 && minutes <= 30))) {
         setIsButtonEnabled(true);
       } else {
         setIsButtonEnabled(false);

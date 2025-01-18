@@ -32,12 +32,13 @@ import Cookies from 'js-cookie';
 import { jwtDecode } from 'jwt-decode';
 import { submitPayment } from "@/app/redux/slices/api/ttPaymentSlice";
 import { createOrder, fetchAllOrders, CreateOrderRequest, selectOrderState } from '@/app/redux/slices/api/orderSlice';
+import moment from "moment";
 
 interface CustomJwtPayload {
     username: string;
     id?: number;
-  }
-  
+}
+
 
 const PaymentDetails: React.FC = () => {
     const dispatch = useDispatch<AppDispatch>();
@@ -48,7 +49,7 @@ const PaymentDetails: React.FC = () => {
 
     const [remittanceAmount, setRemittanceAmount] = useState('');
     const [currency, setCurrency] = useState('INR');
-    const [dateOfTransfer, setDateOfTransfer] = useState('2025-01-01');
+    const [dateOfTransfer, setDateOfTransfer] = useState(moment().format("YYYY-MM-DD"));
     const [invoiceNumber, setInvoiceNumber] = useState('');
     const [purposeCode, setPurposeCode] = useState('');
     const [customerReference, setCustomerReference] = useState("");
@@ -58,6 +59,15 @@ const PaymentDetails: React.FC = () => {
         invoiceNumber: false,
         purposeCode: false,
     });
+
+    const token = Cookies.get('token') || "";
+
+    let decodedToken: CustomJwtPayload | null = null; // Initialize with null
+
+    if (token !== "") {
+        decodedToken = jwtDecode<CustomJwtPayload>(token); // Assign the decoded token
+    }
+    const userId = decodedToken?.id || 0;
 
     const theme = useTheme();
     const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
@@ -99,14 +109,7 @@ const PaymentDetails: React.FC = () => {
 
         try {
             const phoneNumber = ""; // Placeholder for phone number
-            const token = Cookies.get('token') || "";
 
-            let decodedToken: CustomJwtPayload | null = null; // Initialize with null
-        
-            if (token !== "") {
-                decodedToken = jwtDecode<CustomJwtPayload>(token); // Assign the decoded token
-            }
-            const userId = decodedToken?.id || 0;
             const userData = await dispatch(fetchUserDetails(userId)).unwrap();
             const email = userData?.user_data?.email; // Replace with dynamic data
             await dispatch(sendOtp({
@@ -123,7 +126,7 @@ const PaymentDetails: React.FC = () => {
             toast.error("Failed to send OTP. Please try again.");
         }
     };
-    
+
     const paymentData = {
         txnAmount: remittanceAmount,
         customerReference: customerReference,
@@ -156,15 +159,16 @@ const PaymentDetails: React.FC = () => {
 
     const handleNextStep = () => dispatch(setCurrentDashboard('order-book'));
 
-    const handleConfirmOTP = async() => {
+    const handleConfirmOTP = async () => {
         setIsDialogOpen(false);
         toast.success("Transaction authenticated successfully!");
-        
+
         setIsLoading(true);
 
         try {
             const response = await dispatch(submitPayment(paymentData)).unwrap();
             const orderData: CreateOrderRequest = {
+                userId: userId,
                 orderId: customerReference,
                 msgId: response?.data?.header?.msgId,
                 orgId: response?.data?.header?.orgId,
@@ -215,7 +219,7 @@ const PaymentDetails: React.FC = () => {
                 beneficiaryName: '',
                 beneficiaryAccountNumber: '',
                 routingNumber: '',
-              };
+            };
             dispatch(saveBankDetails(initialBankData));
         }
     };

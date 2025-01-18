@@ -5,6 +5,7 @@ import { stagingApi } from '@/constants';
 
 // Define the request type
 export interface CreateOrderRequest {
+  userId: number;
   id?: string; // Optional since it's typically generated on the backend
   orderId: string;
   msgId: string;
@@ -24,6 +25,7 @@ export interface CreateOrderRequest {
 
 export interface Order {
   id: string;
+  userId: number;
   orderId: string;
   msgId: string;
   orgId: string;
