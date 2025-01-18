@@ -10,49 +10,76 @@ import {
     Card,
     CardContent,
     CardActions,
+    IconButton,
 } from "@mui/material";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
+import CloseIcon from "@mui/icons-material/Close";
 import { useDispatch } from "react-redux";
 import { uploadFiles } from "@/app/redux/slices/api/fileUploadSlice"; // Import the slice action
 import { AppDispatch } from "@/app/redux/store";
 import { toast, ToastContainer } from "react-toastify";
 import { setCurrentDashboard } from "@/app/redux/slices/dashboardSlice";
+import Cookies from 'js-cookie';
+import { jwtDecode } from 'jwt-decode';
+
+interface CustomJwtPayload {
+    username: string;
+    id?: number;
+}
+
 
 const DocumentUploads: React.FC = () => {
     const dispatch = useDispatch<AppDispatch>();
     const dispa = useDispatch();
-    const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+    const [uploadedFiles, setUploadedFiles] = useState<{ [key: number]: File | null }>({});
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files) {
-            const filesArray = Array.from(e.target.files);
-            setUploadedFiles((prevFiles) => [...prevFiles, ...filesArray]);
+    const token = Cookies.get('token') || "";
+
+    let decodedToken: CustomJwtPayload | null = null; // Initialize with null
+
+    if (token !== "") {
+        decodedToken = jwtDecode<CustomJwtPayload>(token); // Assign the decoded token
+    }
+    const userId = decodedToken?.id || 0;
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setUploadedFiles((prevFiles) => ({
+                ...prevFiles,
+                [index]: file,
+            }));
         }
     };
 
+    const handleRemoveFile = (index: number) => {
+        setUploadedFiles((prevFiles) => ({
+            ...prevFiles,
+            [index]: null,
+        }));
+    };
+
     const handleUploadAll = async () => {
-        if (uploadedFiles.length > 0) {
-            const custRefId = localStorage.getItem("orderID") || ""; // Ensure custRefId is always a string
+        const filesToUpload = Object.values(uploadedFiles).filter(Boolean) as File[];
+
+        if (filesToUpload.length > 0) {
+            const custRefId =  `${userId}`; 
             try {
-                await dispatch(uploadFiles({ files: uploadedFiles, custRefId }))
+                await dispatch(uploadFiles({ files: filesToUpload, custRefId })).unwrap();
                 toast.success("Documents uploaded successfully", {
                     onClose: () => {
-                        dispa(setCurrentDashboard('order-book'))
-
-                    }
-                }
-
-                );
-            }
-            catch (error) {
+                        dispa(setCurrentDashboard("order-book"));
+                    },
+                });
+            } catch (error) {
                 const errorMessage =
                     typeof error === "string"
                         ? error
                         : error instanceof Error
-                            ? error.message
-                            : "An unknown error occurred";
+                        ? error.message
+                        : "An unknown error occurred";
 
-                toast.error(errorMessage)
+                toast.error(errorMessage);
             }
         } else {
             alert("Please select files first.");
@@ -131,7 +158,11 @@ const DocumentUploads: React.FC = () => {
                                     }}
                                 >
                                     <CardContent>
-                                        <Typography variant="h6" sx={{ fontWeight: "bold" }} gutterBottom>
+                                        <Typography
+                                            variant="h6"
+                                            sx={{ fontWeight: "bold" }}
+                                            gutterBottom
+                                        >
                                             {doc.title}
                                         </Typography>
                                         <Typography variant="body2" color="text.secondary">
@@ -142,8 +173,7 @@ const DocumentUploads: React.FC = () => {
                                         <Box display="flex" flexDirection="column" width="100%">
                                             <input
                                                 type="file"
-                                                multiple
-                                                onChange={handleFileChange}
+                                                onChange={(e) => handleFileChange(e, index)}
                                                 style={{ display: "none" }}
                                                 id={`file-input-${index}`}
                                             />
@@ -151,32 +181,50 @@ const DocumentUploads: React.FC = () => {
                                                 <Button
                                                     variant="outlined"
                                                     color="primary"
-                                                    startIcon={<UploadFileIcon />}
                                                     component="span"
                                                     sx={{ width: "100%", marginBottom: 1 }}
                                                 >
+                                                    <UploadFileIcon />
                                                     Select File
                                                 </Button>
                                             </label>
+                                            {uploadedFiles[index] && (
+                                                <Box
+                                                    display="flex"
+                                                    alignItems="center"
+                                                    justifyContent="space-between"
+                                                    sx={{
+                                                        border: "1px solid #ddd",
+                                                        borderRadius: "8px",
+                                                        padding: "8px 12px",
+                                                        marginTop: 1,
+                                                    }}
+                                                >
+                                                    <Typography variant="body2">
+                                                        {uploadedFiles[index]?.name}
+                                                    </Typography>
+                                                    <IconButton
+                                                        onClick={() => handleRemoveFile(index)}
+                                                        color="error"
+                                                        size="small"
+                                                        sx={{
+                                                            borderRadius: "50%",
+                                                            backgroundColor: "rgba(255,0,0,0.1)",
+                                                            '&:hover': {
+                                                                backgroundColor: "rgba(255,0,0,0.2)",
+                                                            },
+                                                        }}
+                                                    >
+                                                        <CloseIcon fontSize="small" />
+                                                    </IconButton>
+                                                </Box>
+                                            )}
                                         </Box>
                                     </CardActions>
                                 </Card>
                             </Grid>
                         ))}
                     </Grid>
-
-                    {uploadedFiles.length > 0 && (
-                        <Box sx={{ marginTop: 3, marginBottom: 2 }}>
-                            <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-                                Selected Files:
-                            </Typography>
-                            <ul>
-                                {uploadedFiles.map((file, index) => (
-                                    <li key={index}>{file.name}</li>
-                                ))}
-                            </ul>
-                        </Box>
-                    )}
 
                     <Button
                         variant="contained"
