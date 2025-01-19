@@ -336,7 +336,7 @@ const CurrencyExchanger: React.FC = () => {
       <Card className="main">
         <CardContent>
           <div className="exchange-rate">
-            <Typography variant="h5">Book FX Rate</Typography>
+            <Typography variant="h5">Check FX Rate</Typography>
             {/* <span>{exchangeRateText}</span> */}
 
           </div>

@@ -26,7 +26,7 @@ const SideNavbar: React.FC = () => {
   };
 
   const menuItems = [
-    { id: 'currency-management', icon: 'ri-copper-diamond-line', text: 'Currency Management' },
+    { id: 'currency-management', icon: 'ri-copper-diamond-line', text: 'Payments' },
     // { id: 'general-ledger', icon: 'ri-database-2-line', text: 'General Ledger' },
     { id: 'financial-reporting', icon: 'ri-bank-card-2-line', text: 'Financial Analytics' },
     { id: 'order-book', icon: 'ri-book-line', text: 'Order Book' },

@@ -1,71 +1,95 @@
-// RecentPayments.tsx (Recent Payments Component)
-import React, { useEffect, useState } from 'react';
-import { Card, CardContent, Typography, Divider, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
+import React, { useEffect } from 'react';
+import {
+  Card,
+  CardContent,
+  Typography,
+  Divider,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+} from '@mui/material';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchAllOrders, Order, selectOrderState } from '@/app/redux/slices/api/orderSlice';
+import { RootState } from '@/app/redux/store';
+import { AppDispatch } from '@/app/redux/store';
+import Cookies from 'js-cookie';
+import { jwtDecode } from 'jwt-decode';
 import './currency-management.css';
 import '@/../public/assets/css/table.css';
 import '@/../public/assets/css/master.css';
 
-
-interface Transaction {
-  transaction_time: string;
-  transaction_value: number;
-  transaction_curr_code: string;
-  location: string;
+interface CustomJwtPayload {
+  username: string;
+  id?: number;
 }
 
 const RecentPayments: React.FC = () => {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const dispatch = useDispatch<AppDispatch>();
+  const { orders, loading, error } = useSelector((state: RootState) => state.orders);
+    let filteredData: Order[] = [...(orders?.data || [])];
+
+  const token = Cookies.get('token') || '';
+  let decodedToken: CustomJwtPayload | null = null;
+
+  if (token !== '') {
+    decodedToken = jwtDecode<CustomJwtPayload>(token);
+  }
+  const userId = decodedToken?.id || 0;
 
   useEffect(() => {
-    // Fetch transactions from API
-    const page = 1;
-    const pageSize = 10;
-    const filterOn = 'merchant_id';
-    const filterVal = 'fb786774-411e-4450-876b-7c51f0382c5f';
-    const sortOn = 'merchant_id';
-    const sortBy = 'asc';
-
-    // fetch(
-    //   `/api/transactions?page=${page}&pageSize=${pageSize}&filterOn=${filterOn}&filterVal=${filterVal}&sortOn=${sortOn}&sortBy=${sortBy}`
-    // )
-    //   .then((response) => response.json())
-    //   .then((data) => setTransactions(data.data))
-    //   .catch((error) => console.error('Error fetching transactions:', error));
-  }, []);
+    dispatch(fetchAllOrders(`${userId}`));
+  }, [dispatch, userId]);
 
   return (
     <Card className="table-container">
       <CardContent>
         <section className="table-header mb-40">
           <Typography variant="h4" className="cardHeading">
-            <i className="ri-table-line"></i> Recent Payments
+            <i className="ri-table-line"></i> Active Payments
           </Typography>
         </section>
         <Divider />
         <section className="table-body scroll">
-        <Table className="ledger">
+          <Table className="ledger">
             <TableHead>
-              <TableRow >
-                <TableCell>Transaction Time</TableCell>
-                <TableCell>Amount</TableCell>
-                <TableCell>Currency</TableCell>
-                <TableCell>Location</TableCell>
+              <TableRow>
+                <TableCell>Order ID</TableCell>
+                <TableCell>Status</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {
-                transactions.length > 0 ? 
-              transactions.map((transaction, index) => (
-                <TableRow key={index}>
-                  <TableCell>{new Date(transaction.transaction_time).toLocaleString()}</TableCell>
-                  <TableCell>{transaction.transaction_value}</TableCell>
-                  <TableCell>{transaction.transaction_curr_code}</TableCell>
-                  <TableCell>{transaction.location}</TableCell>
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={2}>
+                    <Typography align="center">Loading...</Typography>
+                  </TableCell>
                 </TableRow>
-              ))
-              :
-              "No Records Found"
-              }
+              ) : error ? (
+                <TableRow>
+                  <TableCell colSpan={2}>
+                    <Typography align="center" color="error">
+                      Error fetching data
+                    </Typography>
+                  </TableCell>
+                </TableRow>
+              ) : filteredData?.length > 0 ? (
+                filteredData?.map((order) => (
+                  <TableRow key={order.id}>
+                    <TableCell>{order.orderId}</TableCell>
+                    <TableCell>{order.txnStatus}</TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={2}>
+                    <Typography align="center">No Records Found</Typography>
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </section>

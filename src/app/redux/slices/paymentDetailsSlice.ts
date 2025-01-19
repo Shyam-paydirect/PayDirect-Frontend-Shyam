@@ -18,7 +18,7 @@ interface PaymentDetailsState {
     country: string;
     beneficiaryName: string;
     beneficiaryAccountNumber: string;
-    routingNumber: string;
+    micrCode: string;
   };
 }
 
@@ -40,7 +40,7 @@ const initialState: PaymentDetailsState = {
     country: '',
     beneficiaryName: '',
     beneficiaryAccountNumber: '',
-    routingNumber: '',
+    micrCode: '',
   },
 };
 
@@ -72,7 +72,7 @@ const paymentDetailsSlice = createSlice({
         country: '',
         beneficiaryName: '',
         beneficiaryAccountNumber: '',
-        routingNumber: '',
+        micrCode: '',
       };
     },
   },

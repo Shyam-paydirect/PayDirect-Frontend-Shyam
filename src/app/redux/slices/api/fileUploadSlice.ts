@@ -17,10 +17,11 @@ const initialState: FileUploadState = {
 // Async Thunk for uploading files
 export const uploadFiles = createAsyncThunk(
   'fileUpload/uploadFiles',
-  async ({ files, custRefId }: { files: File[]; custRefId: string }, { rejectWithValue }) => {
+  async ({ files, custRefId, customerId }: { files: File[]; custRefId: string, customerId: string }, { rejectWithValue }) => {
     try {
       const formData = new FormData();
       formData.append('custRefId', custRefId);
+      formData.append('customerId', customerId);
       files.forEach((file) => formData.append('files', file));
 
       const response = await axios.post(`${testingApi}/documents/upload`, formData, {

@@ -85,15 +85,18 @@ export const createOrder = createAsyncThunk(
 // Async thunk for fetching all orders
 export const fetchAllOrders = createAsyncThunk(
   'orders/fetchAllOrders',
-  async (_, { rejectWithValue }) => {
+  async (userID: string, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${stagingApi}/orders/all`);
+      const response = await axios.get(
+        `${stagingApi}/orders/all?userId=${userID}` // Pass userId in the request body
+      );
       return response.data as { data: Order[] };
     } catch (error: any) {
       return rejectWithValue(error.response?.data || 'Something went wrong');
     }
   }
 );
+
 
 // Create the slice
 const orderSlice = createSlice({

@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import { useDispatch } from "react-redux";
 import { saveBankDetails } from "@/app/redux/slices/paymentDetailsSlice";
+import AccountSelectorModal from "./fetch-bank"; // Import the selector modal
 
 interface BankDetailsProps {
     openModal: boolean;
@@ -25,7 +26,6 @@ const BankDetails: React.FC<BankDetailsProps> = ({
     const theme = useTheme();
     const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
-    // State to handle bank details
     const [bankDetails, setBankDetails] = useState({
         swiftCode: "DBSSSGSGXXX",
         beneficiaryBank: "",
@@ -36,55 +36,38 @@ const BankDetails: React.FC<BankDetailsProps> = ({
         country: "",
         beneficiaryName: "",
         beneficiaryAccountNumber: "",
-        routingNumber: "",
+        micrCode: "",
     });
 
-    const [errors, setErrors] = useState({
-        swiftCode: false,
-        beneficiaryBank: false,
-        branch: false,
-        bankAddress: false,
-        city: false,
-        state: false,
-        country: false,
-        beneficiaryName: false,
-        beneficiaryAccountNumber: false,
-        routingNumber: false,
-    });
+    const [modalOpen, setModalOpen] = useState(false);
+    const [accountType, setAccountType] = useState<"self" | "beneficiary">("self");
 
-    const handleInputChange = (field: string, value: string) => {
-        setBankDetails((prev) => ({ ...prev, [field]: value }));
+    const mapAccountToBankDetails = (account: any) => {
+        setBankDetails({
+            swiftCode: account.swiftBic || "",
+            beneficiaryBank: account.bankName || "",
+            branch: account.branchCode || "",
+            bankAddress: account.bankAddress || "",
+            city: account.beneficiaryAddresses?.[0]?.address || "",
+            state: account.beneficiaryAddresses?.[1]?.address || "",
+            country: account.beneficiaryAddresses?.[2]?.address || "",
+            beneficiaryName: account.name || "",
+            beneficiaryAccountNumber: account.accountNo || "",
+            micrCode: account.micrCode || "",
+        });
     };
 
-    const validateFields = () => {
-        const newErrors = {
-            swiftCode: bankDetails.swiftCode.trim() === "",
-            beneficiaryBank: bankDetails.beneficiaryBank.trim() === "",
-            branch: bankDetails.branch.trim() === "",
-            bankAddress: bankDetails.bankAddress.trim() === "",
-            city: bankDetails.city.trim() === "",
-            state: bankDetails.state.trim() === "",
-            country: bankDetails.country.trim() === "",
-            beneficiaryName: bankDetails.beneficiaryName.trim() === "",
-            beneficiaryAccountNumber: !/^\d{8,20}$/.test(bankDetails.beneficiaryAccountNumber.trim()),
-            routingNumber: bankDetails.routingNumber.trim() === "",
-        };
-
-        setErrors(newErrors);
-        return !Object.values(newErrors).some((error) => error);
+    const handleFetchBankDetails = () => {
+        setModalOpen(true);
+        setAccountType("self");
     };
 
-    const isButtonDisabled = () => {
-        return Object.values(errors).some((error) => error) ||
-            Object.values(bankDetails).some((value) => value.trim() === "") ||
-            !/^\d{8,20}$/.test(bankDetails.beneficiaryAccountNumber.trim());
+    const handleFetchBeneficiaryDetails = () => {
+        setModalOpen(true);
+        setAccountType("beneficiary");
     };
 
     const handleSave = () => {
-        if (!validateFields()) {
-            return;
-        }
-        // Dispatch bank details to the Redux store
         dispatch(saveBankDetails(bankDetails));
         handleCloseModal();
     };
@@ -99,11 +82,10 @@ const BankDetails: React.FC<BankDetailsProps> = ({
                     transform: "translate(-50%, -50%)",
                     width: isSmallScreen ? "90%" : "50%",
                     bgcolor: "background.paper",
-                    maxHeight: "90vh",
-                    border: "2px solid #000",
                     boxShadow: 24,
                     p: 4,
-                    borderRadius: "8px",
+                    borderRadius: 2,
+                    maxHeight: "90vh",
                     overflowY: "auto",
                 }}
             >
@@ -115,35 +97,44 @@ const BankDetails: React.FC<BankDetailsProps> = ({
                         <TextField
                             fullWidth
                             label="SWIFT/BIC Code"
-                            placeholder="Enter the SWIFT Code to find the Bank"
                             value={bankDetails.swiftCode}
                             onChange={(e) =>
-                                handleInputChange("swiftCode", e.target.value)
-                            }
-                            error={errors.swiftCode}
-                            helperText={
-                                errors.swiftCode && "This field is required."
+                                setBankDetails((prev) => ({
+                                    ...prev,
+                                    swiftCode: e.target.value,
+                                }))
                             }
                             disabled
                         />
                     </Grid>
+                    {/* <Grid item xs={12}>
+                        <Button
+                            variant="outlined"
+                            fullWidth
+                            onClick={handleFetchBankDetails}
+                        >
+                            Fetch Own Account Details
+                        </Button>
+                    </Grid> */}
                     <Grid item xs={12}>
-                        <Button variant="outlined" fullWidth>
-                            Fetch Bank Details
+                        <Button
+                            variant="outlined"
+                            fullWidth
+                            onClick={handleFetchBeneficiaryDetails}
+                        >
+                            Fetch Beneficiary Account Details
                         </Button>
                     </Grid>
                     <Grid item xs={12}>
                         <TextField
                             fullWidth
                             label="Beneficiary Bank"
-                            placeholder="Enter the Name of the bank"
                             value={bankDetails.beneficiaryBank}
                             onChange={(e) =>
-                                handleInputChange("beneficiaryBank", e.target.value)
-                            }
-                            error={errors.beneficiaryBank}
-                            helperText={
-                                errors.beneficiaryBank && "This field is required."
+                                setBankDetails((prev) => ({
+                                    ...prev,
+                                    beneficiaryBank: e.target.value,
+                                }))
                             }
                         />
                     </Grid>
@@ -151,69 +142,77 @@ const BankDetails: React.FC<BankDetailsProps> = ({
                         <TextField
                             fullWidth
                             label="Branch"
-                            placeholder="Enter the Branch of the bank"
                             value={bankDetails.branch}
-                            onChange={(e) => handleInputChange("branch", e.target.value)}
-                            error={errors.branch}
-                            helperText={errors.branch && "This field is required."}
+                            onChange={(e) =>
+                                setBankDetails((prev) => ({
+                                    ...prev,
+                                    branch: e.target.value,
+                                }))
+                            }
                         />
                     </Grid>
                     <Grid item xs={12}>
                         <TextField
                             fullWidth
                             label="Bank Address"
-                            placeholder="Enter the Address of the bank"
                             value={bankDetails.bankAddress}
-                            onChange={(e) => handleInputChange("bankAddress", e.target.value)}
-                            error={errors.bankAddress}
-                            helperText={errors.bankAddress && "This field is required."}
+                            onChange={(e) =>
+                                setBankDetails((prev) => ({
+                                    ...prev,
+                                    bankAddress: e.target.value,
+                                }))
+                            }
                         />
                     </Grid>
                     <Grid item xs={6}>
                         <TextField
                             fullWidth
                             label="City"
-                            placeholder="Enter the City of the bank"
                             value={bankDetails.city}
-                            onChange={(e) => handleInputChange("city", e.target.value)}
-                            error={errors.city}
-                            helperText={errors.city && "This field is required."}
+                            onChange={(e) =>
+                                setBankDetails((prev) => ({
+                                    ...prev,
+                                    city: e.target.value,
+                                }))
+                            }
                         />
                     </Grid>
                     <Grid item xs={6}>
                         <TextField
                             fullWidth
                             label="State"
-                            placeholder="Enter the State of the bank"
                             value={bankDetails.state}
-                            onChange={(e) => handleInputChange("state", e.target.value)}
-                            error={errors.state}
-                            helperText={errors.state && "This field is required."}
+                            onChange={(e) =>
+                                setBankDetails((prev) => ({
+                                    ...prev,
+                                    state: e.target.value,
+                                }))
+                            }
                         />
                     </Grid>
                     <Grid item xs={12}>
                         <TextField
                             fullWidth
                             label="Country"
-                            placeholder="Enter the Country of the bank"
                             value={bankDetails.country}
-                            onChange={(e) => handleInputChange("country", e.target.value)}
-                            error={errors.country}
-                            helperText={errors.country && "This field is required."}
+                            onChange={(e) =>
+                                setBankDetails((prev) => ({
+                                    ...prev,
+                                    country: e.target.value,
+                                }))
+                            }
                         />
                     </Grid>
                     <Grid item xs={12}>
                         <TextField
                             fullWidth
                             label="Beneficiary Account Name"
-                            placeholder="Enter the Beneficiary Account Name"
                             value={bankDetails.beneficiaryName}
                             onChange={(e) =>
-                                handleInputChange("beneficiaryName", e.target.value)
-                            }
-                            error={errors.beneficiaryName}
-                            helperText={
-                                errors.beneficiaryName && "This field is required."
+                                setBankDetails((prev) => ({
+                                    ...prev,
+                                    beneficiaryName: e.target.value,
+                                }))
                             }
                         />
                     </Grid>
@@ -221,31 +220,25 @@ const BankDetails: React.FC<BankDetailsProps> = ({
                         <TextField
                             fullWidth
                             label="Beneficiary Account Number"
-                            placeholder="Enter the Beneficiary Account Number"
                             value={bankDetails.beneficiaryAccountNumber}
                             onChange={(e) =>
-                                handleInputChange("beneficiaryAccountNumber", e.target.value)
-                            }
-                            error={errors.beneficiaryAccountNumber}
-                            helperText={
-                                errors.beneficiaryAccountNumber
-                                    ? "Account number must be between 8 and 20 digits."
-                                    : ""
+                                setBankDetails((prev) => ({
+                                    ...prev,
+                                    beneficiaryAccountNumber: e.target.value,
+                                }))
                             }
                         />
                     </Grid>
                     <Grid item xs={12}>
                         <TextField
                             fullWidth
-                            label="Routing Number/Sort Code"
-                            placeholder="Enter the Routing Number or Sort Code"
-                            value={bankDetails.routingNumber}
+                            label="MICR Code"
+                            value={bankDetails.micrCode}
                             onChange={(e) =>
-                                handleInputChange("routingNumber", e.target.value)
-                            }
-                            error={errors.routingNumber}
-                            helperText={
-                                errors.routingNumber && "This field is required."
+                                setBankDetails((prev) => ({
+                                    ...prev,
+                                    micrCode: e.target.value,
+                                }))
                             }
                         />
                     </Grid>
@@ -256,11 +249,16 @@ const BankDetails: React.FC<BankDetailsProps> = ({
                         color="success"
                         fullWidth
                         onClick={handleSave}
-                        disabled={isButtonDisabled()}
                     >
                         Save Bank Account
                     </Button>
                 </Box>
+                <AccountSelectorModal
+                    open={modalOpen}
+                    onClose={() => setModalOpen(false)}
+                    onSelect={mapAccountToBankDetails}
+                    accountType={accountType}
+                />
             </Box>
         </Modal>
     );

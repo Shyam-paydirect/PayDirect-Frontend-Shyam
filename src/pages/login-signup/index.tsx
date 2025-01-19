@@ -15,7 +15,7 @@ import '@/../public/assets/css/master.css';
 import { setDarkMode } from '@/app/redux/slices/uiSlice';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '@/app/redux/store';
-import { login, signup, sendEmailOtp, verifyEmailOtp } from '@/app/redux/slices/api/authSlice';
+import { login, signup, sendEmailOtp, verifyEmailOtp, verifyLoginOtp } from '@/app/redux/slices/api/authSlice';
 import { ToastContainer, toast } from 'react-toastify';
 import { useRouter } from 'next/router';
 import Cookies from 'js-cookie';
@@ -28,13 +28,14 @@ const LoginSignup: React.FC = () => {
   const [activeTextIndex, setActiveTextIndex] = useState(0);
   const [otp, setOtp] = useState('');
   const [isOtpFieldVisible, setIsOtpFieldVisible] = useState(false);
+  const [isLoginOtpSent, setIsLoginOtpSent] = useState(false);
 
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
 
   useEffect(() => {
     // setIsClient(true);
-    if(Cookies.get("token")){
+    if (Cookies.get("token")) {
       window.location.href = '/dashboard';
     }
   }, [router])
@@ -64,27 +65,45 @@ const LoginSignup: React.FC = () => {
           typeof error === "string"
             ? error
             : error instanceof Error
-            ? error.message
-            : "An unknown error occurred";
+              ? error.message
+              : "An unknown error occurred";
         toast.error(errorMessage);
       }
-    } else {
+    }
+    else {
       try {
-        const response = await dispatch(login({ username, password })).unwrap();
-        toast.success("Login successful, redirecting");
-        dispatch(setDarkMode(false));
+        const response = await dispatch(verifyLoginOtp({ username, otp })).unwrap();
+        toast.success(response);
         router.push('/dashboard');
       } catch (error) {
         const errorMessage =
           typeof error === "string"
             ? error
             : error instanceof Error
-            ? error.message
-            : "An unknown error occurred";
+              ? error.message
+              : "An unknown error occurred";
         toast.error(errorMessage);
       }
     }
   };
+
+  const handleSendLoginOtp = async () => {
+    try {
+      const response = await dispatch(login({ username, password })).unwrap();
+      toast.success(response.message);
+    } catch (error) {
+      const errorMessage =
+        typeof error === "string"
+          ? error
+          : error instanceof Error
+            ? error.message
+            : "An unknown error occurred";
+      toast.error(errorMessage);
+    }
+    finally {
+      setIsLoginOtpSent(true)
+    }
+  }
 
   const handleVerifyOtp = async () => {
     try {
@@ -95,8 +114,8 @@ const LoginSignup: React.FC = () => {
         typeof error === "string"
           ? error
           : error instanceof Error
-          ? error.message
-          : "An unknown error occurred";
+            ? error.message
+            : "An unknown error occurred";
       toast.error(errorMessage);
     }
   };
@@ -184,15 +203,42 @@ const LoginSignup: React.FC = () => {
                     required
                     margin="normal"
                   />
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    color="primary"
-                    fullWidth
-                    className="small-btn mt-10 mb-30"
-                  >
-                    {isSignUpMode ? 'Sign up' : 'Sign in'}
-                  </Button>
+                  {
+                    !isSignUpMode && !isLoginOtpSent &&
+                    <Button
+                      type="button"
+                      variant="contained"
+                      color="primary"
+                      fullWidth
+                      className="small-btn mt-10"
+                      onClick={handleSendLoginOtp}
+                    >
+                      Send OTP
+                    </Button>
+                  }
+                  {
+                    !isSignUpMode && isLoginOtpSent &&
+                    <>
+                      <TextField
+                        fullWidth
+                        label="Enter OTP"
+                        variant="standard"
+                        value={otp}
+                        type='number'
+                        onChange={(e) => setOtp(e.target.value)}
+                        required
+                      />
+                      <Button
+                        type="submit"
+                        variant="contained"
+                        color="primary"
+                        fullWidth
+                        className="small-btn mt-10 mb-30"
+                      >
+                        {isSignUpMode ? 'Sign up' : 'Login'}
+                      </Button>
+                    </>
+                  }
                   <Typography variant="body2" align="center" className="text">
                     Forgot Password? <a href="">Get help</a> signing in.
                   </Typography>

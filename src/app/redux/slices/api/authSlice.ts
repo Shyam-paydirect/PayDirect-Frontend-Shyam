@@ -1,8 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
-import {jwtDecode} from 'jwt-decode';
 import Cookies from 'js-cookie';
-import {liveApi} from '@/constants';
+import { liveApi } from '@/constants';
 
 interface AuthState {
   token: string | null;
@@ -18,15 +17,10 @@ const initialState: AuthState = {
   message: null,
 };
 
-// Decode JWT
-// const decodeToken = (token: string) => jwtDecode(token);
-
+// Send Email OTP
 export const sendEmailOtp = createAsyncThunk(
   'auth/sendEmailOtp',
-  async (
-    { email }: { email: string; },
-    { rejectWithValue }
-  ) => {
+  async ({ email }: { email: string }, { rejectWithValue }) => {
     try {
       const response = await axios.post(`${liveApi}/users/sendEmailOtp`, { email });
       return response.data;
@@ -36,12 +30,10 @@ export const sendEmailOtp = createAsyncThunk(
   }
 );
 
+// Verify Email OTP
 export const verifyEmailOtp = createAsyncThunk(
   'auth/verifyEmailOtp',
-  async (
-    { otp }: { otp: string; },
-    { rejectWithValue }
-  ) => {
+  async ({ otp }: { otp: string }, { rejectWithValue }) => {
     try {
       const response = await axios.post(`${liveApi}/users/verifyEmailOtp`, { otp });
       return response.data;
@@ -51,21 +43,35 @@ export const verifyEmailOtp = createAsyncThunk(
   }
 );
 
+// Verify Login OTP (updated to handle token and login verification)
+export const verifyLoginOtp = createAsyncThunk(
+  'auth/verifyLoginOtp',
+  async ({ username, otp }: { username: string; otp: string }, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(`${liveApi}/users/verifyLoginOtp`, { username, otp });
+      const { token, message } = response.data;
+
+      // Store token in Cookies and localStorage
+      Cookies.set('token', token, {
+        expires: 4 / 24, // 4 hours
+        secure: true, // HTTPS only
+        sameSite: 'Strict', // Prevent CSRF
+      });
+      localStorage.setItem('token', token);
+
+      return message;
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.message || 'Login OTP verification failed.');
+    }
+  }
+);
+
 // Signup action
 export const signup = createAsyncThunk(
   'auth/signup',
-  async (
-    { email, username, password }: { email: string; username: string; password: string },
-    { rejectWithValue }
-  ) => {
+  async ({ email, username, password }: { email: string; username: string; password: string }, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${liveApi}/users/signup`, {
-        email,
-        username,
-        password,
-        role: 'admin',
-        status: 'active',
-      });
+      const response = await axios.post(`${liveApi}/users/signup`, { email, username, password, role: 'admin', status: 'active' });
       return response.data;
     } catch (err: any) {
       return rejectWithValue(err.response?.data?.message || 'Signup failed.');
@@ -73,24 +79,13 @@ export const signup = createAsyncThunk(
   }
 );
 
-// Login action
+// Login action (only returns the response data, no token handling here)
 export const login = createAsyncThunk(
   'auth/login',
-  async (
-    { username, password }: { username: string; password: string },
-    { rejectWithValue }
-  ) => {
+  async ({ username, password }: { username: string; password: string }, { rejectWithValue }) => {
     try {
       const response = await axios.post(`${liveApi}/users/login`, { username, password });
-      const token = response.data.token;
-
-      Cookies.set('token', token, {
-        expires: 4 / 24, // 4 hours
-        secure: true, // HTTPS only
-        sameSite: 'Strict', // Prevent CSRF
-      });
-      // Decode and return token
-      return token;
+      return response.data;  // No token handling here anymore
     } catch (err: any) {
       return rejectWithValue(err.response?.data?.message || 'Login failed.');
     }
@@ -106,6 +101,7 @@ const authSlice = createSlice({
       state.token = null;
       state.merchantDetails = null;
       Cookies.remove('token'); // Clear token from storage
+      localStorage.removeItem('token'); // Also clear token from localStorage
       state.status = 'idle';
     },
     clearMessage: (state) => {
@@ -132,8 +128,8 @@ const authSlice = createSlice({
       })
       .addCase(login.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.token = action.payload.token;
-        localStorage.setItem('token', action.payload.token);
+        // No token handling here anymore
+        state.message = action.payload.message || 'Login successful!';
       })
       .addCase(login.rejected, (state, action) => {
         state.status = 'failed';
@@ -145,9 +141,22 @@ const authSlice = createSlice({
       })
       .addCase(sendEmailOtp.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.message = action.payload.message || 'Signup successful!';
+        state.message = action.payload.message || 'OTP sent successfully!';
       })
       .addCase(sendEmailOtp.rejected, (state, action) => {
+        state.status = 'failed';
+        state.message = action.payload as string;
+      })
+      .addCase(verifyLoginOtp.pending, (state) => {
+        state.status = 'loading';
+        state.message = null;
+      })
+      .addCase(verifyLoginOtp.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.token = action.payload.token;  // Now the token is set here
+        state.message = 'Login OTP verified successfully!';
+      })
+      .addCase(verifyLoginOtp.rejected, (state, action) => {
         state.status = 'failed';
         state.message = action.payload as string;
       });

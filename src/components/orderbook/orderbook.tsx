@@ -26,6 +26,22 @@ import { setCurrentDashboard } from '@/app/redux/slices/dashboardSlice';
 import { Visibility } from '@mui/icons-material';
 import { fetchDocuments } from '@/app/redux/slices/api/documentSlice';
 import { toast, ToastContainer } from 'react-toastify';
+import Cookies from 'js-cookie';
+import { jwtDecode } from 'jwt-decode';
+
+interface CustomJwtPayload {
+  username: string;
+  id?: number;
+}
+
+const token = Cookies.get('token') || "";
+
+  let decodedToken: CustomJwtPayload | null = null; // Initialize with null
+
+  if (token !== "") {
+      decodedToken = jwtDecode<CustomJwtPayload>(token); // Assign the decoded token
+  }
+  const userID = decodedToken?.id || 0;
 
 const OrderPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -39,7 +55,7 @@ const OrderPage: React.FC = () => {
   const [sortAnchorEl, setSortAnchorEl] = useState<null | HTMLElement>(null);
 
   useEffect(() => {
-    dispatch(fetchAllOrders());
+    dispatch(fetchAllOrders(`${userID}`));
   }, [dispatch]);
 
   useEffect(() => {
@@ -65,7 +81,7 @@ const OrderPage: React.FC = () => {
   }, [statusFilter, sortOrder, searchTerm, orders]);
 
   const handleReload = () => {
-    dispatch(fetchAllOrders());
+    dispatch(fetchAllOrders(`${userID}`));
   }
 
   const handleDocumentClick = (id: any) => {
