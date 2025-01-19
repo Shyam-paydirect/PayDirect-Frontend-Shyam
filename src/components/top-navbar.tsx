@@ -27,7 +27,7 @@ const TopNavbar: React.FC = () => {
   const getDashboardTitle = (dashboard: string) => {
     switch (dashboard) {
       case 'currency-management':
-        return 'Currency Management';
+        return 'Payments';
       case 'general-ledger':
         return 'General Ledger';
       case 'financial-reporting':

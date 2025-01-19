@@ -4,9 +4,6 @@ import {
     Container,
     Grid,
     Typography,
-    Stepper,
-    Step,
-    StepLabel,
     TextField,
     MenuItem,
     Select,
@@ -33,12 +30,12 @@ import { jwtDecode } from 'jwt-decode';
 import { submitPayment } from "@/app/redux/slices/api/ttPaymentSlice";
 import { createOrder, fetchAllOrders, CreateOrderRequest, selectOrderState } from '@/app/redux/slices/api/orderSlice';
 import moment from "moment";
+import PaymentProgress from "./payment-progress";
 
 interface CustomJwtPayload {
     username: string;
     id?: number;
 }
-
 
 const PaymentDetails: React.FC = () => {
     const dispatch = useDispatch<AppDispatch>();
@@ -157,11 +154,10 @@ const PaymentDetails: React.FC = () => {
         invoice: "Invoice Details 01"
     };
 
-    const handleNextStep = () => dispatch(setCurrentDashboard('order-book'));
+    const handleNextStep = () => dispatch(setCurrentDashboard('document-uploads'));
 
     const handleConfirmOTP = async () => {
         setIsDialogOpen(false);
-        toast.success("Transaction authenticated successfully!");
 
         setIsLoading(true);
 
@@ -198,7 +194,6 @@ const PaymentDetails: React.FC = () => {
                         : "An unknown error occurred";
             toast.dismiss();
             toast.error(errorMessage)
-            //   setErrorMsg(errorMessage)
         }
         finally {
             setIsLoading(false); // Reset loading state
@@ -218,7 +213,7 @@ const PaymentDetails: React.FC = () => {
                 country: '',
                 beneficiaryName: '',
                 beneficiaryAccountNumber: '',
-                routingNumber: '',
+                micrCode: '',
             };
             dispatch(saveBankDetails(initialBankData));
         }
@@ -239,10 +234,8 @@ const PaymentDetails: React.FC = () => {
                         : "An unknown error occurred";
             toast.dismiss();
             toast.error(errorMessage)
-            //   setErrorMsg(errorMessage)
         }
     }
-
 
     const steps = [
         {
@@ -292,54 +285,7 @@ const PaymentDetails: React.FC = () => {
                         bgcolor='var(--bg-clr-1)'
                         width="100%"
                     >
-                        <Box
-                            width={isSmallScreen ? "100%" : "30%"}
-                            bgcolor="var(--bg-clr-1)"
-                            p={3}
-                            display="flex"
-                            flexDirection="column"
-                            alignItems="center"
-                        >
-                            <Typography
-                                variant="h6"
-                                align="center"
-                                gutterBottom
-                                sx={{ fontSize: "16px", fontWeight: "bold" }}
-                            >
-                                Payment Progress
-                            </Typography>
-                            <Stepper
-                                orientation={isSmallScreen ? "horizontal" : "vertical"}
-                                activeStep={0}
-                                sx={{
-                                    ".MuiStepConnector-root": {
-                                        marginLeft: "auto",
-                                        marginRight: "auto",
-                                        width: isSmallScreen ? "50%" : "auto",
-                                    },
-                                    width: isSmallScreen ? "100%" : "auto",
-                                }}
-                            >
-                                {steps.map((step, index) => (
-                                    <Step key={index}>
-                                        <StepLabel>
-                                            <Typography
-                                                variant="body1"
-                                                sx={{ fontWeight: "bold", color: "#000", fontSize: "14px" }}
-                                            >
-                                                {step.label}
-                                            </Typography>
-                                            <Typography
-                                                variant="body2"
-                                                sx={{ color: "rgba(0, 0, 0, 0.6)", fontSize: "12px" }}
-                                            >
-                                                {step.description}
-                                            </Typography>
-                                        </StepLabel>
-                                    </Step>
-                                ))}
-                            </Stepper>
-                        </Box>
+                        <PaymentProgress steps={steps} activeStep={0} />
 
                         <Box flexGrow={1} p={3}>
                             <Typography variant="h6" gutterBottom>
@@ -357,17 +303,26 @@ const PaymentDetails: React.FC = () => {
                                     />
                                 </Grid>
                                 <Grid item xs={12} sm={6}>
-                                    <FormControl fullWidth>
+                                    <FormControl fullWidth variant="outlined" sx={{ marginTop: 0 }}>
                                         <InputLabel>Currency</InputLabel>
                                         <Select
                                             value={currency}
                                             onChange={(e) => setCurrency(e.target.value)}
+                                            label="Currency"
+                                            sx={{
+                                                "& .MuiOutlinedInput-root": {
+                                                    padding: "16.5px 14px", // Matches TextField padding
+                                                },
+                                            }}
                                         >
                                             <MenuItem value="INR">INR</MenuItem>
                                             <MenuItem value="USD">USD</MenuItem>
                                         </Select>
                                     </FormControl>
                                 </Grid>
+
+
+
                                 <Grid item xs={12}>
                                     <TextField
                                         fullWidth
@@ -388,11 +343,17 @@ const PaymentDetails: React.FC = () => {
                                     />
                                 </Grid>
                                 <Grid item xs={12}>
-                                    <FormControl fullWidth>
-                                        <InputLabel>Purpose Code</InputLabel>
+                                <FormControl fullWidth variant="outlined" sx={{ marginTop: 0 }}>
+                                <InputLabel>Purpose Code</InputLabel>
                                         <Select
                                             value={purposeCode}
                                             onChange={(e) => setPurposeCode(e.target.value)}
+                                            label="Purpose Code"
+                                            sx={{
+                                                "& .MuiOutlinedInput-root": {
+                                                    padding: "16.5px 14px", // Matches TextField padding
+                                                },
+                                            }}
                                         >
                                             <MenuItem value="S0101">S0101 Advance payment against imports</MenuItem>
                                             <MenuItem value="S0102">S0102 Payment towards imports - settlement of invoice</MenuItem>

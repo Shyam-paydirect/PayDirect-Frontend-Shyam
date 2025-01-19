@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Box, Typography, TextField, Button, Grid, IconButton, List, ListItem, ListItemText, CircularProgress, Card, CardContent } from '@mui/material';
 import { Add, Delete } from '@mui/icons-material';
-import { createAccount, fetchAccounts } from '@/app/redux/slices/api/accountsSlice';
+import { createAccount, fetchAccounts, searchAccounts } from '@/app/redux/slices/api/accountsSlice';
 import { RootState } from '@/app/redux/store';
 import { AppDispatch } from '@/app/redux/store';
 import Cookies from 'js-cookie';
@@ -14,7 +14,7 @@ interface CustomJwtPayload {
   id?: number;
 }
 
-const AccountDetails: React.FC = () => {
+const ContactDetails: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { accounts, loading, error } = useSelector((state: RootState) => state.accounts);
   const token = Cookies.get('token') || "";
@@ -25,9 +25,9 @@ const AccountDetails: React.FC = () => {
     decodedToken = jwtDecode<CustomJwtPayload>(token); // Assign the decoded token
   }
   const userId = decodedToken?.id || 0;
-  const [newAccount, setNewAccount] = useState({
+  const [newContact, setNewContact] = useState({
     userId: `${userId}`,
-    name: "",
+    beneficiaryName: "",
     accountNo: "",
     swiftBic: "DBSSSGSGXXX",
     IFSC: "",
@@ -41,18 +41,20 @@ const AccountDetails: React.FC = () => {
     ],
     branchCode: "",
     micrCode: "",
-    selfAccount: 1
+    selfAccount: 0,
   });
+
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     dispatch(fetchAccounts(`${userId}`));
   }, [dispatch, userId]);
 
-  const handleAddAccount = async () => {
-    await dispatch(createAccount(newAccount));
-    setNewAccount({
+  const handleAddContact = async () => {
+    await dispatch(createAccount(newContact));
+    setNewContact({
       userId: `${userId}`,
-      name: "",
+      beneficiaryName: "",
       accountNo: "",
       swiftBic: "DBSSSGSGXXX",
       IFSC: "",
@@ -66,93 +68,104 @@ const AccountDetails: React.FC = () => {
       ],
       branchCode: "",
       micrCode: "",
-      selfAccount: 1
-
+      selfAccount: 0,
     });
-    dispatch(fetchAccounts(`${userId}`)); // Refresh the account list
+    dispatch(fetchAccounts(`${userId}`)); // Refresh the contact list
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log("nnnn", query, userId)
+    const query = e.target.value;
+    setSearchQuery(query);
+
+    if (query.trim()) {
+      dispatch(searchAccounts({name: query, userId: `${userId}`}));
+    } else {
+      dispatch(fetchAccounts(`${userId}`));
+    }
   };
 
   return (
     <Box padding={3} sx={{ backgroundColor: "#f5f5f5", minHeight: "100vh" }}>
       <Typography variant="h4" gutterBottom sx={{ textAlign: "center", marginBottom: 3 }}>
-        Manage Your Accounts
+        Manage Your Contacts
       </Typography>
 
-      {/* Add New Account */}
+      {/* Add New Contact */}
       <Card sx={{ marginBottom: 5, boxShadow: "0 2px 10px rgba(0,0,0,0.1)" }}>
         <CardContent>
-          <Typography variant="h5" sx={{ marginBottom: 2 }}>Add New Account</Typography>
+          <Typography variant="h5" sx={{ marginBottom: 2 }}>Add New Contact</Typography>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>
               <TextField
-                label="Name"
+                label="Beneficiary Name"
                 fullWidth
-                value={newAccount.name}
-                onChange={(e) => setNewAccount({ ...newAccount, name: e.target.value })}
+                value={newContact.beneficiaryName}
+                onChange={(e) => setNewContact({ ...newContact, beneficiaryName: e.target.value })}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
               <TextField
                 label="Account Number"
                 fullWidth
-                value={newAccount.accountNo}
-                onChange={(e) => setNewAccount({ ...newAccount, accountNo: e.target.value })}
+                value={newContact.accountNo}
+                onChange={(e) => setNewContact({ ...newContact, accountNo: e.target.value })}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
               <TextField
                 label="SWIFT BIC"
                 fullWidth
-                value={newAccount.swiftBic}
+                value={newContact.swiftBic}
                 disabled
-                onChange={(e) => setNewAccount({ ...newAccount, swiftBic: e.target.value })}
+                onChange={(e) => setNewContact({ ...newContact, swiftBic: e.target.value })}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
               <TextField
                 label="IFSC"
                 fullWidth
-                value={newAccount.IFSC}
-                onChange={(e) => setNewAccount({ ...newAccount, IFSC: e.target.value })}
+                value={newContact.IFSC}
+                onChange={(e) => setNewContact({ ...newContact, IFSC: e.target.value })}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
               <TextField
                 label="UPI ID"
                 fullWidth
-                value={newAccount.UPI_ID}
-                onChange={(e) => setNewAccount({ ...newAccount, UPI_ID: e.target.value })}
+                value={newContact.UPI_ID}
+                onChange={(e) => setNewContact({ ...newContact, UPI_ID: e.target.value })}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
               <TextField
                 label="Bank Name"
                 fullWidth
-                value={newAccount.bankName}
-                onChange={(e) => setNewAccount({ ...newAccount, bankName: e.target.value })}
+                value={newContact.bankName}
+                onChange={(e) => setNewContact({ ...newContact, bankName: e.target.value })}
               />
             </Grid>
             <Grid item xs={12}>
               <TextField
                 label="Bank Address"
                 fullWidth
-                value={newAccount.bankAddress}
-                onChange={(e) => setNewAccount({ ...newAccount, bankAddress: e.target.value })}
+                value={newContact.bankAddress}
+                onChange={(e) => setNewContact({ ...newContact, bankAddress: e.target.value })}
               />
             </Grid>
             <Grid item xs={12}>
               <Typography variant="subtitle1">Beneficiary Addresses</Typography>
               <Grid container spacing={1}>
-                {newAccount.beneficiaryAddresses.map((address, index) => (
+                {newContact.beneficiaryAddresses.map((address, index) => (
                   <Grid item xs={12} sm={4} key={index}>
                     <TextField
                       label={`Address ${index + 1}`}
                       fullWidth
                       value={address.address}
                       onChange={(e) => {
-                        const updatedAddresses = [...newAccount.beneficiaryAddresses];
+                        const updatedAddresses = [...newContact.beneficiaryAddresses];
                         updatedAddresses[index].address = e.target.value;
-                        setNewAccount({ ...newAccount, beneficiaryAddresses: updatedAddresses });
+                        setNewContact({ ...newContact, beneficiaryAddresses: updatedAddresses });
                       }}
                     />
                   </Grid>
@@ -163,42 +176,49 @@ const AccountDetails: React.FC = () => {
               <TextField
                 label="Branch Code"
                 fullWidth
-                value={newAccount.branchCode}
-                onChange={(e) => setNewAccount({ ...newAccount, branchCode: e.target.value })}
+                value={newContact.branchCode}
+                onChange={(e) => setNewContact({ ...newContact, branchCode: e.target.value })}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
               <TextField
                 label="MICR Code"
                 fullWidth
-                value={newAccount.micrCode}
-                onChange={(e) => setNewAccount({ ...newAccount, micrCode: e.target.value })}
+                value={newContact.micrCode}
+                onChange={(e) => setNewContact({ ...newContact, micrCode: e.target.value })}
               />
             </Grid>
           </Grid>
           <Button
             variant="contained"
             startIcon={<Add />}
-            onClick={handleAddAccount}
+            onClick={handleAddContact}
             sx={{ marginTop: 2 }}
           >
-            Add Account
+            Add Contact
           </Button>
         </CardContent>
       </Card>
 
-      {/* List of Accounts */}
+      {/* List of Contacts */}
       <Card sx={{ boxShadow: "0 2px 10px rgba(0,0,0,0.1)" }}>
         <CardContent>
-          <Typography variant="h5" sx={{ marginBottom: 2 }}>Your Accounts</Typography>
+          <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ marginBottom: 2 }}>
+            <Typography variant="h5">Your Contacts</Typography>
+            <TextField
+              label="Search by Beneficiary Name"
+              value={searchQuery}
+              onChange={handleSearchChange}
+              size="small"
+              variant="outlined"
+            />
+          </Box>
           {loading ? (
             <CircularProgress />
-          ) : error ? (
-            <Typography color="error">{error}</Typography>
           ) : (
             <List>
               {accounts
-                ?.filter((account: any) => account.selfAccount == 1) // Filter accounts with selfAccount == 1
+                ?.filter((account: any) => account.selfAccount == 0) // Filter contacts with selfAccount == 0
                 .map((account: any, index: number) => (
                   <ListItem
                     key={index}
@@ -212,12 +232,8 @@ const AccountDetails: React.FC = () => {
                       primary={`${account.name} - ${account.bankName}`}
                       secondary={`Account Number: ${account.accountNo}`}
                     />
-                    {/* <IconButton edge="end" color="error"> */}
-                    {/* <Delete /> */}
-                    {/* </IconButton> */}
                   </ListItem>
                 ))}
-
             </List>
           )}
         </CardContent>
@@ -226,4 +242,4 @@ const AccountDetails: React.FC = () => {
   );
 };
 
-export default AccountDetails;
+export default ContactDetails;

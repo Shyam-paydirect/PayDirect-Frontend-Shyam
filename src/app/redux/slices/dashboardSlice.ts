@@ -7,7 +7,7 @@ interface DashboardState {
 
 const initialState: DashboardState = {
   currentDashboard: 'currency-management',
-  dashboardTitle: 'Currency Management',
+  dashboardTitle: 'Payments',
 };
 
 const dashboardSlice = createSlice({
@@ -24,7 +24,7 @@ const dashboardSlice = createSlice({
 function getTitleByDashboard(dashboard: string): string {
   switch (dashboard) {
     case 'currency-management':
-      return 'Currency Management';
+      return 'Payments';
     case 'general-ledger':
       return 'General Ledger';
     case 'financial-reporting':
@@ -38,7 +38,7 @@ function getTitleByDashboard(dashboard: string): string {
     case 'document-uploads':
       return 'Document Uploads';
     default:
-      return 'Currency Management';
+      return 'Payments';
   }
 }
 

@@ -1,24 +1,9 @@
 // Import necessary modules
 import React, { useState } from 'react';
-import { Box, Typography, Grid, Card, CardActionArea, CardContent, CardMedia } from '@mui/material';
+import { Box, Typography, Grid, Card, CardActionArea, CardContent, CardMedia, Button } from '@mui/material';
 import { AccountBalance, Contacts } from '@mui/icons-material';
 import AccountDetails from './self-accounts';
-
-interface Account {
-  beneficiaryBank: string;
-  branch: string;
-  bankAddress: string;
-  city: string;
-  state: string;
-  country: string;
-  beneficiaryAccountName: string;
-  beneficiaryAccountNumber: string;
-}
-
-interface Contact {
-  name: string;
-  accountDetails: string;
-}
+import ContactDetails from './contact-details';
 
 const Accounts: React.FC = () => {
   const [view, setView] = useState<'accountDetails' | 'contactDetails' | null>(null);
@@ -56,8 +41,6 @@ const Accounts: React.FC = () => {
                       height: 50,
                       padding: 5,
                       margin: '0 auto',
-                    //   border: '2px solid',
-                    //   borderColor: 'primary.main',
                       borderRadius: '50%',
                     }}
                   >
@@ -93,8 +76,6 @@ const Accounts: React.FC = () => {
                       height: 50,
                       padding: 5,
                       margin: '0 auto',
-                    //   border: '2px solid',
-                    //   borderColor: 'secondary.main',
                       borderRadius: '50%',
                     }}
                   >
@@ -121,25 +102,30 @@ const Accounts: React.FC = () => {
 
   if (view === 'accountDetails') {
     return (
-      <AccountDetails />
+      <Box>
+        <Button
+          variant="outlined"
+          sx={{ margin: 2 }}
+          onClick={() => setView(null)}
+        >
+          Back
+        </Button>
+        <AccountDetails />
+      </Box>
     );
   }
 
   if (view === 'contactDetails') {
     return (
       <Box padding={3}>
-        <Typography variant="h4" gutterBottom>
-          Your Contact Details
-        </Typography>
-        {/* Add the existing Contact Details Component here */}
-        <Typography variant="h6">(Contact Details Component goes here)</Typography>
-        <Typography
-          variant="button"
+        <Button
+          variant="outlined"
+          sx={{ margin: 2 }}
           onClick={() => setView(null)}
-          sx={{ cursor: 'pointer', color: 'primary.main', marginTop: 2, display: 'block' }}
         >
           Back
-        </Typography>
+        </Button>
+        <ContactDetails />
       </Box>
     );
   }

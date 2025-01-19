@@ -18,7 +18,7 @@ import PaymentDetails from '@/components/paymentDetails/payment-details';
 import OrderPaymentComponent from '@/components/orderbook/orderbook';
 import Accounts from '@/components/account-details/account-details';
 import DocumentUploads from '@/components/documents-upload/documents-upload';
-import DocumentViewer from '../document-viewer';
+import DocumentViewer from '../../components/documents-upload/document-viewer';
 
 const Main: React.FC = () => {
   const router = useRouter();

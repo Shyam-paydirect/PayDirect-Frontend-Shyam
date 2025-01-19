@@ -8,7 +8,8 @@ import ttPaymentReducer from './slices/api/ttPaymentSlice';
 import orderReducer from './slices/api/orderSlice';
 import fileUploadReducer from './slices/api/fileUploadSlice';
 import txnOtpReducer from './slices/api/txnOtpSlice';
-import documentReducer from './slices/api/documentSlice'
+import documentReducer from './slices/api/documentSlice';
+import accountsReducer from './slices/api/accountsSlice';
 
 export const store = configureStore({
   reducer: {
@@ -22,6 +23,7 @@ export const store = configureStore({
     fileUpload: fileUploadReducer,
     txnOtp: txnOtpReducer,
     documents: documentReducer,
+    accounts: accountsReducer,
   },
 });
 
