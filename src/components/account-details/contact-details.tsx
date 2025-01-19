@@ -74,7 +74,7 @@ const ContactDetails: React.FC = () => {
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log("nnnn", query, userId)
+    // console.log("nnnn", query, userId)
     const query = e.target.value;
     setSearchQuery(query);
 
