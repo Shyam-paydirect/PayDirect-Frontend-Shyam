@@ -235,9 +235,21 @@ const LoginSignup: React.FC = () => {
                         fullWidth
                         className="small-btn mt-10 mb-30"
                       >
-                        {isSignUpMode ? 'Sign up' : 'Login'}
+                        Login
                       </Button>
                     </>
+                  }
+                  {
+                    isSignUpMode && 
+                    <Button
+                        type="submit"
+                        variant="contained"
+                        color="primary"
+                        fullWidth
+                        className="small-btn mt-10 mb-30"
+                      >
+                        Sign Up
+                      </Button>
                   }
                   <Typography variant="body2" align="center" className="text">
                     Forgot Password? <a href="">Get help</a> signing in.
