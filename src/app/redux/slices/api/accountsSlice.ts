@@ -10,7 +10,7 @@ const SEARCH_ACCOUNTS_API = `${stagingApi}/account/search`;
 // Define the initial state
 interface Account {
   userId: string;
-  // name: string;
+  name: string;
   accountNo: string;
   swiftBic: string;
   IFSC: string;
