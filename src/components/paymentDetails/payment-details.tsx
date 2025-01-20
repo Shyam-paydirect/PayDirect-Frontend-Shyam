@@ -31,6 +31,7 @@ import { submitPayment } from "@/app/redux/slices/api/ttPaymentSlice";
 import { createOrder, fetchAllOrders, CreateOrderRequest, selectOrderState } from '@/app/redux/slices/api/orderSlice';
 import moment from "moment";
 import PaymentProgress from "./payment-progress";
+import { setSelectedOrderId } from '@/app/redux/slices/api/orderSlice';
 
 interface CustomJwtPayload {
     username: string;
@@ -118,6 +119,8 @@ const PaymentDetails: React.FC = () => {
 
             toast.info("OTP sent to your registered email.");
             setOtpTransactionId(customerReference);
+                dispatch(setSelectedOrderId(customerReference));
+            
             setIsDialogOpen(true);
         } catch (error) {
             toast.error("Failed to send OTP. Please try again.");

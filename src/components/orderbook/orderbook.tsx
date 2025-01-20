@@ -28,6 +28,7 @@ import { fetchDocuments } from '@/app/redux/slices/api/documentSlice';
 import { toast, ToastContainer } from 'react-toastify';
 import Cookies from 'js-cookie';
 import { jwtDecode } from 'jwt-decode';
+import { setSelectedOrderId } from '@/app/redux/slices/api/orderSlice';
 
 interface CustomJwtPayload {
   username: string;
@@ -86,7 +87,7 @@ const OrderPage: React.FC = () => {
 
   const handleDocumentClick = (id: any) => {
     dispatch(setCurrentDashboard('document-uploads'));
-    localStorage.setItem("orderID", id)
+    dispatch(setSelectedOrderId(id));
   }
 
   const handleViewDocuments = async (id: any) => {
@@ -96,7 +97,7 @@ const OrderPage: React.FC = () => {
     }
     else {
       dispatch(setCurrentDashboard('document-viewer'));
-      localStorage.setItem("orderID", id)
+      dispatch(setSelectedOrderId(id));
     }
   }
 

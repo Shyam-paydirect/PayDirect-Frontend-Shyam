@@ -21,8 +21,8 @@ interface Currency {
 }
 
 const CurrencyExchanger: React.FC = () => {
-  const [base, setBase] = useState<string>('USD');
-  const [target, setTarget] = useState<string>('INR');
+  const [base, setBase] = useState<string>('INR');
+  const [target, setTarget] = useState<string>('USD');
   const [baseValue, setBaseValue] = useState<string>("1");
   const [formattedBaseValue, setFormattedBaseValue] = useState<string>('1');
   const [targetValue, setTargetValue] = useState<string>("0");
@@ -375,27 +375,30 @@ const CurrencyExchanger: React.FC = () => {
                     },
                   }}
                 >
-                  {currencies.map((currency) => (
-                    <MenuItem
-                      key={currency.code}
-                      value={currency.code}
-                      sx={{
-                        backgroundColor: '#fff', // Keep white for items
-                        '&:hover': {
-                          backgroundColor: '#f5f5f5', // Slight highlight on hover
-                        },
-                        '&.Mui-selected': {
-                          backgroundColor: '#e0e0e0', // Highlight selected item
-                          fontWeight: 'bold', // Bold for the selected item
-                        },
-                      }}
-                    >
-                      <Box display="flex" alignItems="center" gap={1}>
-                        <Avatar src={getFlagUrl(currency.code)} sx={{ width: 24, height: 24 }} />
-                        <Typography>{currency.code}</Typography>
-                      </Box>
-                    </MenuItem>
-                  ))}
+                  {/* {currencies.map((currency) => ( */}
+                  <MenuItem
+                    // key={currency.code}
+                    // value={currency.code}
+                    value='INR'
+                    sx={{
+                      backgroundColor: '#fff', // Keep white for items
+                      '&:hover': {
+                        backgroundColor: '#f5f5f5', // Slight highlight on hover
+                      },
+                      '&.Mui-selected': {
+                        backgroundColor: '#e0e0e0', // Highlight selected item
+                        fontWeight: 'bold', // Bold for the selected item
+                      },
+                    }}
+                  >
+                    <Box display="flex" alignItems="center" gap={1}>
+                      <Avatar src={getFlagUrl('INR')} sx={{ width: 24, height: 24 }} />
+                      <Typography>{'INR'}</Typography>
+                      {/* <Avatar src={getFlagUrl(currency.code)} sx={{ width: 24, height: 24 }} />
+                        <Typography>{currency.code}</Typography> */}
+                    </Box>
+                  </MenuItem>
+                  {/* ))} */}
                 </Select>
                 <Input
                   type="text"
@@ -406,19 +409,21 @@ const CurrencyExchanger: React.FC = () => {
 
               </div>
             </div>
-            <Typography
-              sx={{
-                color: 'red',
-                fontSize: 12,
-                fontWeight: 600,
-                textAlign: 'right', // Right-align text
-                display: 'inline-flex', // Inline flex ensures it works well with text alignment
-                alignItems: 'center', // Vertically center the icon and text
-                justifyContent: 'flex-end', // Push content to the right
-                gap: '4px', // Add spacing between icon and text
-                width: '100%', // Ensure it spans the container for alignment
-              }}
-            >{errorMsg}</Typography>
+            {!isButtonEnabled &&
+              <Typography
+                sx={{
+                  color: 'red',
+                  fontSize: 12,
+                  fontWeight: 600,
+                  textAlign: 'right', // Right-align text
+                  display: 'inline-flex', // Inline flex ensures it works well with text alignment
+                  alignItems: 'center', // Vertically center the icon and text
+                  justifyContent: 'flex-end', // Push content to the right
+                  gap: '4px', // Add spacing between icon and text
+                  width: '100%', // Ensure it spans the container for alignment
+                }}
+              >Outside working hours</Typography>
+            }
 
             {/* <Typography
               sx={{
@@ -440,11 +445,8 @@ const CurrencyExchanger: React.FC = () => {
                   }}
                 />
               } */}
-              {/* {lastUpdated} */}
-           {/* </Typography> */}
-            <IconButton className='swap-btn' onClick={handleSwapCurrency}>
-              <SwapVertIcon />
-            </IconButton>
+            {/* {lastUpdated} */}
+            {/* </Typography> */}
 
             <div className="control-parent">
 
@@ -576,12 +578,12 @@ const CurrencyExchanger: React.FC = () => {
             </ul>
             <div className="final-charge-parent">
               <Typography className="final-charge-label totalPayment rate">
-                <i className="ri-equal-line sign"></i> 
-                ₹ {target == 'INR' ? 
-                formatWithCommas(String(parseFloat(targetValue) + 2000), 'IND') 
-                : 
-                formatWithCommas(String(parseFloat(baseValue) + 2000), 'IND')
-              }
+                <i className="ri-equal-line sign"></i>
+                ₹ {target == 'INR' ?
+                  formatWithCommas(String(parseFloat(targetValue) + 2000), 'IND')
+                  :
+                  formatWithCommas(String(parseFloat(baseValue) + 2000), 'IND')
+                }
               </Typography>
               <Typography className="final-charge-label">Total Payment</Typography>
             </div>
