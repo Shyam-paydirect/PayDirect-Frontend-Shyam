@@ -1,4 +1,4 @@
-import { testingApi } from '@/constants';
+import { docsApi } from '@/constants';
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
@@ -24,7 +24,7 @@ export const uploadFiles = createAsyncThunk(
       formData.append('customerId', customerId);
       files.forEach((file) => formData.append('files', file));
 
-      const response = await axios.post(`${testingApi}/documents/upload`, formData, {
+      const response = await axios.post(`${docsApi}/documents/upload`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
