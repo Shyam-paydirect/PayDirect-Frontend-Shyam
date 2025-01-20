@@ -17,6 +17,8 @@ import { AppDispatch } from '@/app/redux/store';
 import DownloadIcon from '@mui/icons-material/Download';
 import PaymentProgress from "../paymentDetails/payment-progress";
 import crypto from 'crypto';
+import { selectSelectedOrderId } from '@/app/redux/slices/api/orderSlice';
+import { setCurrentDashboard } from '@/app/redux/slices/dashboardSlice';
 
 const DocumentViewer: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -26,7 +28,11 @@ const DocumentViewer: React.FC = () => {
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
-  const orderID = localStorage.getItem("orderID") || '';
+  const orderID = useSelector(selectSelectedOrderId) || "";
+
+  const handleNext = () => {
+    dispatch(setCurrentDashboard('fx-rate-booker'))
+  }
 
   useEffect(() => {
     dispatch(fetchDocuments(orderID));
@@ -140,6 +146,7 @@ const DocumentViewer: React.FC = () => {
                   cursor: allApproved ? "pointer" : "not-allowed",
                 }}
                 disabled={!allApproved}
+                onClick={handleNext}
               >
                 {"Book FX Rate >"}
               </Button>

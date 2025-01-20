@@ -1,13 +1,14 @@
 // Import necessary modules
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Box, Typography, TextField, Button, Grid, IconButton, List, ListItem, ListItemText, CircularProgress, Card, CardContent } from '@mui/material';
+import { Box, Tooltip, Typography, TextField, Button, Grid, IconButton, List, ListItem, ListItemText, CircularProgress, Card, CardContent } from '@mui/material';
 import { Add, Delete } from '@mui/icons-material';
 import { createAccount, fetchAccounts, searchAccounts } from '@/app/redux/slices/api/accountsSlice';
 import { RootState } from '@/app/redux/store';
 import { AppDispatch } from '@/app/redux/store';
 import Cookies from 'js-cookie';
 import { jwtDecode } from 'jwt-decode';
+import InfoIcon from '@mui/icons-material/Info';
 
 interface CustomJwtPayload {
   username: string;
@@ -78,7 +79,7 @@ const ContactDetails: React.FC = () => {
     setSearchQuery(query);
 
     if (query.trim()) {
-      dispatch(searchAccounts({name: query, userId: `${userId}`}));
+      dispatch(searchAccounts({ name: query, userId: `${userId}` }));
     } else {
       dispatch(fetchAccounts(`${userId}`));
     }
@@ -153,7 +154,13 @@ const ContactDetails: React.FC = () => {
               />
             </Grid>
             <Grid item xs={12}>
-              <Typography variant="subtitle1">Beneficiary Addresses</Typography>
+              <Typography variant="subtitle1">Beneficiary Addresses
+                <Tooltip title="Please enter International Bank Account details">
+                  <IconButton size="extra-small" sx={{ marginLeft: 1 }}>
+                    <InfoIcon />
+                  </IconButton>
+                </Tooltip>
+              </Typography>
               <Grid container spacing={1}>
                 {newContact.beneficiaryAddresses.map((address, index) => (
                   <Grid item xs={12} sm={4} key={index}>

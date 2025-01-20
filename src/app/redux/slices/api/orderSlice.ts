@@ -6,7 +6,7 @@ import { stagingApi } from '@/constants';
 // Define the request type
 export interface CreateOrderRequest {
   userId: number;
-  id?: string; // Optional since it's typically generated on the backend
+  id?: string;
   orderId: string;
   msgId: string;
   orgId: string;
@@ -15,12 +15,12 @@ export interface CreateOrderRequest {
   responseType: string;
   txnStatus: string;
   txnStatusDescription: string;
-  sendingPartyName: string | null; // Adjusted to handle null values
-  sendingPartyAccountNo: string | null; // Adjusted to handle null values
-  receivingPartyName: string | null; // Adjusted to handle null values
-  receivingPartyAccountNo: string | null; // Adjusted to handle null values
-  createdAt?: string; // Optional if used in responses but not in creation
-  updatedAt?: string; // Optional if used in responses but not in creation
+  sendingPartyName: string | null;
+  sendingPartyAccountNo: string | null;
+  receivingPartyName: string | null;
+  receivingPartyAccountNo: string | null;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Order {
@@ -34,20 +34,19 @@ export interface Order {
   responseType: string;
   txnStatus: string;
   txnStatusDescription: string;
-  sendingPartyName: string | null; // Adjusted to handle null values
-  sendingPartyAccountNo: string | null; // Adjusted to handle null values
-  receivingPartyName: string | null; // Adjusted to handle null values
-  receivingPartyAccountNo: string | null; // Adjusted to handle null values
+  sendingPartyName: string | null;
+  sendingPartyAccountNo: string | null;
+  receivingPartyName: string | null;
+  receivingPartyAccountNo: string | null;
   createdAt: string;
   updatedAt: string;
 }
-
 
 // Define the response type
 export interface CreateOrderResponse {
   success: boolean;
   message: string;
-  [key: string]: any; // Adjust based on actual API response structure
+  [key: string]: any;
 }
 
 // Define the initial state
@@ -55,7 +54,8 @@ interface OrderState {
   loading: boolean;
   error: string | null;
   response: CreateOrderResponse | null;
-  orders: { data: Order[] } | null; // Explicitly define the structure
+  orders: { data: Order[] } | null;
+  selectedOrderId: string | null; // Added for storing the selected order ID
 }
 
 const initialState: OrderState = {
@@ -63,6 +63,7 @@ const initialState: OrderState = {
   error: null,
   response: null,
   orders: null,
+  selectedOrderId: null, // Initialize with null
 };
 
 // Async thunk for creating an order
@@ -88,7 +89,7 @@ export const fetchAllOrders = createAsyncThunk(
   async (userID: string, { rejectWithValue }) => {
     try {
       const response = await axios.get(
-        `${stagingApi}/orders/all?userId=${userID}` // Pass userId in the request body
+        `${stagingApi}/orders/all?userId=${userID}`
       );
       return response.data as { data: Order[] };
     } catch (error: any) {
@@ -97,12 +98,15 @@ export const fetchAllOrders = createAsyncThunk(
   }
 );
 
-
 // Create the slice
 const orderSlice = createSlice({
   name: 'orders',
   initialState,
-  reducers: {},
+  reducers: {
+    setSelectedOrderId: (state, action: PayloadAction<string>) => {
+      state.selectedOrderId = action.payload;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(createOrder.pending, (state) => {
@@ -133,6 +137,9 @@ const orderSlice = createSlice({
   },
 });
 
+export const { setSelectedOrderId } = orderSlice.actions;
+
 export const selectOrderState = (state: RootState) => state.orders;
+export const selectSelectedOrderId = (state: RootState) => state.orders.selectedOrderId; // Selector for selectedOrderId
 
 export default orderSlice.reducer;

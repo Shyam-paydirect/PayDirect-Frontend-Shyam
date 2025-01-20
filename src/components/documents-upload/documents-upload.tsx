@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import CloseIcon from "@mui/icons-material/Close";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from 'react-redux';
 import { uploadFiles } from "@/app/redux/slices/api/fileUploadSlice"; // Import the slice action
 import { AppDispatch } from "@/app/redux/store";
 import { toast, ToastContainer } from "react-toastify";
@@ -21,6 +21,7 @@ import { setCurrentDashboard } from "@/app/redux/slices/dashboardSlice";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import PaymentProgress from "../paymentDetails/payment-progress"; // Import the PaymentProgress component
+import { selectSelectedOrderId } from '@/app/redux/slices/api/orderSlice';
 
 interface CustomJwtPayload {
     username: string;
@@ -32,6 +33,7 @@ const DocumentUploads: React.FC = () => {
     const dispa = useDispatch();
     const theme = useTheme();
     const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+    const currOrderId = useSelector(selectSelectedOrderId);
 
     const [uploadedFiles, setUploadedFiles] = useState<{ [key: number]: File | null }>({});
 
@@ -90,7 +92,7 @@ const DocumentUploads: React.FC = () => {
         const filesToUpload = Object.values(uploadedFiles).filter(Boolean) as File[];
 
         if (filesToUpload.length > 0) {
-            const custRefId = localStorage.getItem("orderID") || "";
+            const custRefId = currOrderId  || "";
             const customerId = `${userId}`;
             try {
                 await dispatch(uploadFiles({ files: filesToUpload, custRefId, customerId })).unwrap();
