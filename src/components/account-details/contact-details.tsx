@@ -27,7 +27,7 @@ const ContactDetails: React.FC = () => {
   const userId = decodedToken?.id || 0;
   const [newContact, setNewContact] = useState({
     userId: `${userId}`,
-    beneficiaryName: "",
+    name: "",
     accountNo: "",
     swiftBic: "DBSSSGSGXXX",
     IFSC: "",
@@ -54,7 +54,7 @@ const ContactDetails: React.FC = () => {
     await dispatch(createAccount(newContact));
     setNewContact({
       userId: `${userId}`,
-      beneficiaryName: "",
+      name: "",
       accountNo: "",
       swiftBic: "DBSSSGSGXXX",
       IFSC: "",
@@ -74,7 +74,6 @@ const ContactDetails: React.FC = () => {
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // console.log("nnnn", query, userId)
     const query = e.target.value;
     setSearchQuery(query);
 
@@ -100,8 +99,8 @@ const ContactDetails: React.FC = () => {
               <TextField
                 label="Beneficiary Name"
                 fullWidth
-                value={newContact.beneficiaryName}
-                onChange={(e) => setNewContact({ ...newContact, beneficiaryName: e.target.value })}
+                value={newContact.name}
+                onChange={(e) => setNewContact({ ...newContact, name: e.target.value })}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
