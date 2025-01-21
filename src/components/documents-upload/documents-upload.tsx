@@ -63,22 +63,10 @@ const DocumentUploads: React.FC = () => {
     };
 
     const steps = [
-        {
-            label: "Payment Details",
-            description: "Enter the amount and account details for the payment",
-        },
-        {
-            label: "Upload Documents",
-            description: "Upload all the documents required for this payment",
-        },
-        {
-            label: "Accept Rate and Pay",
-            description: "Once the documents are verified, accept the best rate and initiate payment",
-        },
-        {
-            label: "Track Payment",
-            description: "Easily track your payment and download the SWIFT Receipt",
-        },
+        { label: "Payment Details", description: "Provide remittance details." },
+        { label: "Upload Documents", description: "Upload necessary documents." },
+        { label: "Get and Book FX Rate", description: "Fetch and confirm rates." },
+        { label: "Track Payment", description: "Monitor the payment process." },
     ];
 
     const handleRemoveFile = (index: number) => {

@@ -15,7 +15,7 @@ const CurrencyManagement: React.FC = () => {
             </div>
             <div className="right-section">
                 <AccountDetails />
-                <CurrencyExchanger />
+                <CurrencyExchanger book={false}/>
             </div>
      </div>
     )
