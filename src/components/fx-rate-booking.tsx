@@ -47,7 +47,6 @@ const FxRateBooker: React.FC = () => {
                 minHeight: "100%",
                 padding: 4,
                 gap: 4,
-                justifyContent: 'space-between'
             }}
         >
             <PaymentProgress steps={steps} activeStep={2} />
