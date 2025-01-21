@@ -20,6 +20,7 @@ import Accounts from '@/components/account-details/account-details';
 import DocumentUploads from '@/components/documents-upload/documents-upload';
 import DocumentViewer from '../../components/documents-upload/document-viewer';
 import FxRateBooker from '@/components/fx-rate-booking';
+import TrackPayments from '@/components/track-payment';
 
 const Main: React.FC = () => {
   const router = useRouter();
@@ -54,6 +55,8 @@ const Main: React.FC = () => {
         return <Accounts />
       case 'fx-rate-booker':
         return <FxRateBooker />
+      case 'track-payments':
+        return <TrackPayments />
       case 'document-uploads':
         return <DocumentUploads />
       case 'document-viewer':

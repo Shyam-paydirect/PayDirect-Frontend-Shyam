@@ -7,20 +7,25 @@ import './currency-exchanger.css';
 import '@/../public/assets/css/table.css';
 import '@/../public/assets/css/master.css';
 import AutorenewIcon from '@mui/icons-material/Autorenew';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { fetchFxRate, bookFxRate, fetchCcyRate, updateCcyRate } from '@/app/redux/slices/api/fxRateSlice';
 import type { AppDispatch } from '@/app/redux/store';
 import { toast, ToastContainer } from 'react-toastify';
 import moment from 'moment';
 import AccessTimeIcon from '@mui/icons-material/AccessTime'; // Import the clock icon
-
+import { selectSelectedOrderId } from '@/app/redux/slices/api/orderSlice';
+import { setCurrentDashboard } from '@/app/redux/slices/dashboardSlice';
 
 interface Currency {
   code: string;
   name: string;
 }
 
-const CurrencyExchanger: React.FC = () => {
+interface CurrencyExchangerProps {
+  book: boolean;
+}
+
+const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
   const [base, setBase] = useState<string>('INR');
   const [target, setTarget] = useState<string>('USD');
   const [baseValue, setBaseValue] = useState<string>("1");
@@ -45,6 +50,8 @@ const CurrencyExchanger: React.FC = () => {
     { code: 'EUR', name: 'Euro' },
     { code: 'GBP', name: 'British Pound' },
   ];
+
+  const orderID = useSelector(selectSelectedOrderId) || "";
 
   const filteredCurrencies = currencies.filter(
     (currency) =>
@@ -215,7 +222,7 @@ const CurrencyExchanger: React.FC = () => {
       tenor: 'TODAY',
       executable: 'Y',
       dealType: 'SPOT/OUTRIGHT',
-      clientTxnsId: 'CLIENT-00000001',
+      clientTxnsId: orderID,
     };
     try {
 
@@ -267,12 +274,14 @@ const CurrencyExchanger: React.FC = () => {
   const handleBookFxRate = async () => {
     const bodyData = {
       uid: uId,
-      clientTxnsId: "CLIENT-00000001"
+      clientTxnsId: orderID
     }
 
     try {
       const response = await dispatch(bookFxRate(bodyData)).unwrap();
       toast.success(response)
+          dispatch(setCurrentDashboard('track-payments'))
+      
     }
     catch (error) {
       const errorMessage =
@@ -340,7 +349,7 @@ const CurrencyExchanger: React.FC = () => {
             {/* <span>{exchangeRateText}</span> */}
 
           </div>
-          <div className="  ">
+          <div className="">
             <div className="control-parent">
               <Typography className="control-label">Sending Amount</Typography>
               <div className="control">
@@ -447,6 +456,59 @@ const CurrencyExchanger: React.FC = () => {
               } */}
             {/* {lastUpdated} */}
             {/* </Typography> */}
+            {
+              book &&
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'flex-end', // Aligns content to the right
+                  width: '100%', // Ensures it spans the container
+                }}
+              ><Button
+                className="btn-1 btn-small"
+                onClick={() => {
+                  setIsLoading(true); // Set loading state to true
+                  handleGetFxRateClick();
+                  setTimeout(() => {
+                    setIsLoading(false); // Reset loading state
+                  }, 300);
+                }}
+                sx={{
+                  display: 'flex',
+                  right: '10',
+                  borderRadius: '8px',
+                  backgroundColor: isButtonEnabled ? '#004080' : '#d3d3d3', // Gray if disabled
+                  color: '#ffffff',
+                  textTransform: 'none',
+                  paddingX: '16px',
+                  animation: isButtonEnabled && !isLoading ? 'blink 2s ' : 'none',
+                  '&:hover': {
+                    backgroundColor: isButtonEnabled ? '#00264d' : '#d3d3d3', // Prevent hover effect if disabled
+                  },
+                  '@keyframes blink': {
+                    '0%': { opacity: 1 },
+                    '50%': { background: '#00264d', opacity: 0.8 },
+                    '100%': { opacity: 1 },
+                  },
+                }}
+                disabled={!isButtonEnabled || isLoading} // Disable if outside time range or loading
+              >
+                  <AutorenewIcon
+                    sx={{
+                      fontSize: 16,
+                      animation: isLoading
+                        ? 'spin 1s linear infinite'
+                        : 'none',
+                      '@keyframes spin': {
+                        '0%': { transform: 'rotate(0deg)' },
+                        '100%': { transform: 'rotate(360deg)' },
+                      },
+                    }}
+                  />
+                  Get FX Rate
+                </Button>
+              </Box>
+            }
 
             <div className="control-parent">
 
@@ -588,9 +650,7 @@ const CurrencyExchanger: React.FC = () => {
               <Typography className="final-charge-label">Total Payment</Typography>
             </div>
             <div className="book-parent">
-              {/* <Button type="button" className="btn-1 book-button" variant="contained" disabled={timer == 0} onClick={handleBookFxRate}>
-                <i className="ri-wallet-line"></i> Book Now
-              </Button> */}
+
               <Box className="timer-button-wrapper" sx={{ display: 'flex', alignItems: 'center', gap: 2, justifyContent: 'flex-end', marginTop: (errorMsg ? '4px' : '22px') }}>
 
                 <Box className="timer" sx={{ marginLeft: 'auto', position: 'relative', display: 'flex', justifyContent: 'center', alignItems: 'center' }}> {/* Timer Circle */}
@@ -616,47 +676,62 @@ const CurrencyExchanger: React.FC = () => {
                     </Typography>
                   }
                 </Box>
-                <Button
-                  className="btn-1 book-button"
-                  onClick={() => {
-                    setIsLoading(true); // Set loading state to true
-                    handleGetFxRateClick();
-                    setTimeout(() => {
-                      setIsLoading(false); // Reset loading state
-                    }, 300);
-                  }}
-                  sx={{
-                    borderRadius: '8px',
-                    backgroundColor: isButtonEnabled ? '#004080' : '#d3d3d3', // Gray if disabled
-                    color: '#ffffff',
-                    textTransform: 'none',
-                    paddingX: '16px',
-                    animation: isButtonEnabled && !isLoading ? 'blink 2s ' : 'none',
-                    '&:hover': {
-                      backgroundColor: isButtonEnabled ? '#00264d' : '#d3d3d3', // Prevent hover effect if disabled
-                    },
-                    '@keyframes blink': {
-                      '0%': { opacity: 1 },
-                      '50%': { background: '#00264d', opacity: 0.8 },
-                      '100%': { opacity: 1 },
-                    },
-                  }}
-                  disabled={!isButtonEnabled || isLoading} // Disable if outside time range or loading
-                >
-                  <AutorenewIcon
+                {
+                  book &&
+                  <Button
+                    type="button"
+                    className="btn-1 book-button"
+                    variant="contained"
+                    disabled={timer == 0}
+                    onClick={handleBookFxRate}>
+                    <i className="ri-wallet-line"></i> Book Now
+                  </Button>
+                }
+                {
+                  !book &&
+                  <Button
+                    className="btn-1 book-button"
+                    onClick={() => {
+                      setIsLoading(true); // Set loading state to true
+                      handleGetFxRateClick();
+                      setTimeout(() => {
+                        setIsLoading(false); // Reset loading state
+                      }, 300);
+                    }}
                     sx={{
-                      fontSize: 16,
-                      animation: isLoading
-                        ? 'spin 1s linear infinite'
-                        : 'none',
-                      '@keyframes spin': {
-                        '0%': { transform: 'rotate(0deg)' },
-                        '100%': { transform: 'rotate(360deg)' },
+                      borderRadius: '8px',
+                      backgroundColor: isButtonEnabled ? '#004080' : '#d3d3d3', // Gray if disabled
+                      color: '#ffffff',
+                      textTransform: 'none',
+                      paddingX: '16px',
+                      animation: isButtonEnabled && !isLoading ? 'blink 2s ' : 'none',
+                      '&:hover': {
+                        backgroundColor: isButtonEnabled ? '#00264d' : '#d3d3d3', // Prevent hover effect if disabled
+                      },
+                      '@keyframes blink': {
+                        '0%': { opacity: 1 },
+                        '50%': { background: '#00264d', opacity: 0.8 },
+                        '100%': { opacity: 1 },
                       },
                     }}
-                  />
-                  Get FX Rate
-                </Button>
+                    disabled={!isButtonEnabled || isLoading} // Disable if outside time range or loading
+                  >
+                    <AutorenewIcon
+                      sx={{
+                        fontSize: 16,
+                        animation: isLoading
+                          ? 'spin 1s linear infinite'
+                          : 'none',
+                        '@keyframes spin': {
+                          '0%': { transform: 'rotate(0deg)' },
+                          '100%': { transform: 'rotate(360deg)' },
+                        },
+                      }}
+                    />
+                    Get FX Rate
+                  </Button>
+                }
+
               </Box>
             </div>
           </section>

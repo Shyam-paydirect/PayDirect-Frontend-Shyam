@@ -156,7 +156,7 @@ const ContactDetails: React.FC = () => {
             <Grid item xs={12}>
               <Typography variant="subtitle1">Beneficiary Addresses
                 <Tooltip title="Please enter International Bank Account details">
-                  <IconButton size="extra-small" sx={{ marginLeft: 1 }}>
+                  <IconButton size="small" sx={{ marginLeft: 1 }}>
                     <InfoIcon />
                   </IconButton>
                 </Tooltip>

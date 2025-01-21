@@ -35,6 +35,8 @@ function getTitleByDashboard(dashboard: string): string {
       return 'Payment Details';
     case 'fx-rate-booker':
       return 'Book FX Rate'
+    case 'track-payments':
+      return 'Track Payments'
     case 'accounts':
       return 'Accounts';
     case 'document-uploads':
