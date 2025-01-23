@@ -15,6 +15,7 @@ const dashboardSlice = createSlice({
   initialState,
   reducers: {
     setCurrentDashboard(state, action: PayloadAction<string>) {
+      localStorage.setItem("component", action.payload);
       state.currentDashboard = action.payload;
       state.dashboardTitle = getTitleByDashboard(action.payload);
     },

@@ -26,7 +26,7 @@ const FxRateBooker: React.FC = () => {
     const [isBooking, setIsBooking] = useState<boolean>(false);
     const theme = useTheme();
     const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
-
+    
     const dispatch = useDispatch<AppDispatch>();
     const selectedOrderId = useSelector(
         (state: RootState) => state.orders.selectedOrderId

@@ -157,7 +157,10 @@ const PaymentDetails: React.FC = () => {
         invoice: "Invoice Details 01"
     };
 
-    const handleNextStep = () => dispatch(setCurrentDashboard('document-uploads'));
+    const handleNextStep = () => {
+        localStorage.setItem("prev_component", 'payment-details')
+        dispatch(setCurrentDashboard('document-uploads'));
+    }
 
     const handleConfirmOTP = async () => {
         setIsDialogOpen(false);
@@ -168,6 +171,8 @@ const PaymentDetails: React.FC = () => {
             const response = await dispatch(submitPayment(paymentData)).unwrap();
             const orderData: CreateOrderRequest = {
                 userId: userId,
+                txnAmount: remittanceAmount,
+                statusPayment: '1',
                 orderId: customerReference,
                 msgId: response?.data?.header?.msgId,
                 orgId: response?.data?.header?.orgId,
@@ -182,11 +187,15 @@ const PaymentDetails: React.FC = () => {
                 receivingPartyAccountNo: bankDetails.beneficiaryAccountNumber
             }
             await handleOrderCreation(orderData);
-            toast.success(response?.message, {
-                onClose: () => {
-                    handleNextStep();
-                },
-            });
+            localStorage.setItem('txnAmount', remittanceAmount);
+            toast.success("TT Payment Initiated")
+
+            setTimeout(() => {
+                handleNextStep();
+
+            }, 2000)
+
+        
         }
         catch (error) {
             const errorMessage =

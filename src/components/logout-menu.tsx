@@ -67,7 +67,7 @@ const UserProfileMenu: React.FC<UserProfileMenuProps> = ({
                 className='mt-60'
             >
                 <Box sx={{ padding: '10px 180px 10px 20px', display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <Avatar alt="User Avatar" src="/path-to-avatar.jpg" />
+                    <Avatar alt={decodedToken?.username} src="/path-to-avatar.jpg" />
                     <Box>
                         <Typography variant="body1" fontWeight="bold">
                             {decodedToken?.username}

@@ -31,6 +31,7 @@ const DocumentViewer: React.FC = () => {
   const orderID = useSelector(selectSelectedOrderId) || "";
 
   const handleNext = () => {
+    localStorage.setItem("prev_component", 'document-viewer')
     dispatch(setCurrentDashboard('fx-rate-booker'))
   }
 
