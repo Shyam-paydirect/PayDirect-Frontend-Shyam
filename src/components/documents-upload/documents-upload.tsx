@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
     Box,
     Typography,
@@ -13,15 +13,16 @@ import {
 } from "@mui/material";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import CloseIcon from "@mui/icons-material/Close";
-import { useDispatch, useSelector } from 'react-redux';
-import { uploadFiles } from "@/app/redux/slices/api/fileUploadSlice"; // Import the slice action
+import { useDispatch, useSelector } from "react-redux";
+import { uploadFiles } from "@/app/redux/slices/api/fileUploadSlice";
+import { fetchDocuments } from "@/app/redux/slices/api/documentSlice";
 import { AppDispatch } from "@/app/redux/store";
 import { toast, ToastContainer } from "react-toastify";
 import { setCurrentDashboard } from "@/app/redux/slices/dashboardSlice";
 import Cookies from "js-cookie";
-import { jwtDecode } from "jwt-decode";
-import PaymentProgress from "../paymentDetails/payment-progress"; // Import the PaymentProgress component
-import { selectSelectedOrderId } from '@/app/redux/slices/api/orderSlice';
+import {jwtDecode} from "jwt-decode";
+import PaymentProgress from "../paymentDetails/payment-progress";
+import { selectSelectedOrderId, updateOrderPaymentStatus } from "@/app/redux/slices/api/orderSlice";
 
 interface CustomJwtPayload {
     username: string;
@@ -30,13 +31,12 @@ interface CustomJwtPayload {
 
 const DocumentUploads: React.FC = () => {
     const dispatch = useDispatch<AppDispatch>();
-    const dispa = useDispatch();
     const theme = useTheme();
     const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
     const currOrderId = useSelector(selectSelectedOrderId);
 
-    const [uploadedFiles, setUploadedFiles] = useState<{ [key: number]: File | null }>({});
-
+    const [uploadedFiles, setUploadedFiles] = useState<{ [key: number]: File[] }>({});
+    const [preUploadedDocs, setPreUploadedDocs] = useState<{ [key: number]: any[] }>({});
     const token = Cookies.get("token") || "";
 
     let decodedToken: CustomJwtPayload | null = null;
@@ -45,6 +45,29 @@ const DocumentUploads: React.FC = () => {
         decodedToken = jwtDecode<CustomJwtPayload>(token);
     }
     const userId = decodedToken?.id || 0;
+
+    useEffect(() => {
+        const fetchUploadedDocs = async () => {
+            if (!currOrderId) return;
+            try {
+                const response = await dispatch(fetchDocuments(currOrderId)).unwrap();
+                const fetchedDocs = response.allDocs || [];
+
+                const mappedDocs: { [key: number]: any[] } = {};
+                fetchedDocs.forEach((doc: any, index: number) => {
+                    const mapIndex = index < 3 ? index : 3;
+                    if (!mappedDocs[mapIndex]) mappedDocs[mapIndex] = [];
+                    mappedDocs[mapIndex].push(doc);
+                });
+
+                setPreUploadedDocs(mappedDocs);
+            } catch (error) {
+                console.error("Error fetching documents:", error);
+            }
+        };
+
+        fetchUploadedDocs();
+    }, [dispatch, currOrderId]);
 
     const handleFileChange = (index: number) => {
         const input = document.createElement("input");
@@ -55,40 +78,39 @@ const DocumentUploads: React.FC = () => {
             if (file) {
                 setUploadedFiles((prevFiles) => ({
                     ...prevFiles,
-                    [index]: file,
+                    [index]: [...(prevFiles[index] || []), file],
                 }));
             }
         };
         input.click();
     };
 
-    const steps = [
-        { label: "Payment Details", description: "Provide remittance details." },
-        { label: "Upload Documents", description: "Upload necessary documents." },
-        { label: "Get and Book FX Rate", description: "Fetch and confirm rates." },
-        { label: "Track Payment", description: "Monitor the payment process." },
-    ];
-
-    const handleRemoveFile = (index: number) => {
+    const handleRemoveFile = (index: number, fileIndex: number) => {
         setUploadedFiles((prevFiles) => ({
             ...prevFiles,
-            [index]: null,
+            [index]: prevFiles[index].filter((_, i) => i !== fileIndex),
         }));
     };
 
     const handleUploadAll = async () => {
-        const filesToUpload = Object.values(uploadedFiles).filter(Boolean) as File[];
+        const filesToUpload = Object.entries(uploadedFiles)
+            .flatMap(([index, files]) => files)
+            .filter(Boolean);
 
         if (filesToUpload.length > 0) {
-            const custRefId = currOrderId  || "";
+            const custRefId = currOrderId || "";
             const customerId = `${userId}`;
             try {
                 await dispatch(uploadFiles({ files: filesToUpload, custRefId, customerId })).unwrap();
-                toast.success("Documents uploaded successfully", {
-                    onClose: () => {
-                        dispa(setCurrentDashboard("order-book"));
-                    },
-                });
+                toast.success("Documents uploaded successfully");
+                setTimeout(() => {
+                    localStorage.setItem("prev_component", "document-uploads");
+                    dispatch(setCurrentDashboard("document-viewer"));
+                    dispatch(updateOrderPaymentStatus({
+                        orderId: custRefId,
+                        statusPayment: '2'
+                    }))
+                }, 2000);
             } catch (error) {
                 const errorMessage =
                     typeof error === "string"
@@ -103,6 +125,13 @@ const DocumentUploads: React.FC = () => {
             alert("Please select files first.");
         }
     };
+
+    const steps = [
+        { label: "Payment Details", description: "Provide remittance details." },
+        { label: "Upload Documents", description: "Upload necessary documents." },
+        { label: "Get and Book FX Rate", description: "Fetch and confirm rates." },
+        { label: "Track Payment", description: "Monitor the payment process." },
+    ];
 
     const documents = [
         {
@@ -126,31 +155,18 @@ const DocumentUploads: React.FC = () => {
     return (
         <>
             <ToastContainer />
-            {/* Adjust the layout based on screen size */}
             <Box
                 sx={{
                     display: "flex",
-                    flexDirection: isSmallScreen ? "column" : "row", // Change direction for small screens
+                    flexDirection: isSmallScreen ? "column" : "row",
                     gap: 3,
-                    alignItems: isSmallScreen ? "center" : "flex-start", // Align items for vertical layout
+                    alignItems: isSmallScreen ? "center" : "flex-start",
                     width: "100%",
                     padding: 3,
                     backgroundColor: "#f0f4ff",
                 }}
             >
-                {/* <Box
-                    sx={{
-                        width: isSmallScreen ? "100%" : "30%", // Adjust width for small screens
-                        minWidth: "250px",
-                        backgroundColor: "white",
-                        padding: 2,
-                        borderRadius: "8px",
-                        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-                    }}
-                > */}
-                    <PaymentProgress steps={steps} activeStep={1} />
-                {/* </Box> */}
-
+                <PaymentProgress steps={steps} activeStep={1} />
                 <Box
                     sx={{
                         flex: 1,
@@ -164,93 +180,105 @@ const DocumentUploads: React.FC = () => {
                         Document Uploads
                     </Typography>
 
-                    <Box sx={{ width: "100%", marginTop: 3 }}>
-                        <Typography variant="h6" sx={{ fontWeight: "bold", marginBottom: 2 }}>
-                            Transaction Documents Required
-                        </Typography>
-
-                        <Grid container spacing={3}>
-                            {documents.map((doc, index) => (
-                                <Grid item xs={12} sm={6} key={index}>
-                                    <Card
-                                        sx={{
-                                            height: "100%",
-                                            display: "flex",
-                                            flexDirection: "column",
-                                            justifyContent: "space-between",
-                                            padding: 2,
-                                        }}
-                                    >
-                                        <CardContent>
-                                            <Typography
-                                                variant="h6"
-                                                sx={{ fontWeight: "bold" }}
-                                                gutterBottom
-                                            >
-                                                {doc.title}
-                                            </Typography>
-                                            <Typography variant="body2" color="text.secondary">
-                                                {doc.description}
-                                            </Typography>
-                                        </CardContent>
-                                        <CardActions>
-                                            <Box display="flex" flexDirection="column" width="100%">
+                    <Grid container spacing={3}>
+                        {documents.map((doc, index) => (
+                            <Grid item xs={12} sm={6} key={index}>
+                                <Card
+                                    sx={{
+                                        height: "100%",
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        justifyContent: "space-between",
+                                        padding: 2,
+                                    }}
+                                >
+                                    <CardContent>
+                                        <Typography variant="h6" sx={{ fontWeight: "bold" }} gutterBottom>
+                                            {doc.title}
+                                        </Typography>
+                                        <Typography variant="body2" color="text.secondary">
+                                            {doc.description}
+                                        </Typography>
+                                    </CardContent>
+                                    <CardActions>
+                                        <Box width="100%">
+                                            {preUploadedDocs[index]?.map((file, idx) => (
+                                                <Box
+                                                    key={idx}
+                                                    sx={{
+                                                        border: "1px solid #ddd",
+                                                        borderRadius: "8px",
+                                                        padding: "8px 12px",
+                                                        marginBottom: 1,
+                                                        backgroundColor: "#f9f9f9",
+                                                    }}
+                                                >
+                                                    <Typography variant="body2">{file.doc_name}</Typography>
+                                                </Box>
+                                            ))}
+                                            {uploadedFiles[index]?.map((file, idx) => (
+                                                <Box
+                                                    key={idx}
+                                                    sx={{
+                                                        border: "1px solid #ddd",
+                                                        borderRadius: "8px",
+                                                        padding: "8px 12px",
+                                                        marginBottom: 1,
+                                                        display: "flex",
+                                                        alignItems: "center",
+                                                        justifyContent: "space-between",
+                                                        backgroundColor: "#f9f9f9",
+                                                    }}
+                                                >
+                                                    <Typography variant="body2">{file.name}</Typography>
+                                                    <IconButton
+                                                        onClick={() => handleRemoveFile(index, idx)}
+                                                        color="error"
+                                                        size="small"
+                                                    >
+                                                        <CloseIcon />
+                                                    </IconButton>
+                                                </Box>
+                                            ))}
+                                            {index === 3 && ((preUploadedDocs[index]?.length || 0) + (uploadedFiles[index]?.length || 0)) < 2 && (
                                                 <Button
                                                     variant="outlined"
                                                     color="primary"
                                                     onClick={() => handleFileChange(index)}
-                                                    sx={{ width: "100%", marginBottom: 1 }}
+                                                    fullWidth
+                                                    sx={{ marginBottom: 1 }}
                                                 >
                                                     <UploadFileIcon />
                                                     Select File
                                                 </Button>
-                                                {uploadedFiles[index] && (
-                                                    <Box
-                                                        display="flex"
-                                                        alignItems="center"
-                                                        justifyContent="space-between"
-                                                        sx={{
-                                                            border: "1px solid #ddd",
-                                                            borderRadius: "8px",
-                                                            padding: "8px 12px",
-                                                            marginTop: 1,
-                                                        }}
+                                            )}
+                                            {index < 3 &&
+                                                !preUploadedDocs[index]?.length &&
+                                                uploadedFiles[index]?.length !== 1 && (
+                                                    <Button
+                                                        variant="outlined"
+                                                        color="primary"
+                                                        onClick={() => handleFileChange(index)}
+                                                        fullWidth
                                                     >
-                                                        <Typography variant="body2">
-                                                            {uploadedFiles[index]?.name}
-                                                        </Typography>
-                                                        <IconButton
-                                                            onClick={() => handleRemoveFile(index)}
-                                                            color="error"
-                                                            size="small"
-                                                            sx={{
-                                                                borderRadius: "50%",
-                                                                backgroundColor: "rgba(255,0,0,0.1)",
-                                                                "&:hover": {
-                                                                    backgroundColor: "rgba(255,0,0,0.2)",
-                                                                },
-                                                            }}
-                                                        >
-                                                            <CloseIcon fontSize="small" />
-                                                        </IconButton>
-                                                    </Box>
+                                                        <UploadFileIcon />
+                                                        Select File
+                                                    </Button>
                                                 )}
-                                            </Box>
-                                        </CardActions>
-                                    </Card>
-                                </Grid>
-                            ))}
-                        </Grid>
-
-                        <Button
-                            variant="contained"
-                            color="success"
-                            onClick={handleUploadAll}
-                            sx={{ width: "100%", marginTop: 2 }}
-                        >
-                            Upload All Files
-                        </Button>
-                    </Box>
+                                        </Box>
+                                    </CardActions>
+                                </Card>
+                            </Grid>
+                        ))}
+                    </Grid>
+                    <Button
+                        variant="contained"
+                        color="success"
+                        onClick={handleUploadAll}
+                        sx={{ width: "100%", marginTop: 2 }}
+                    >
+                        Upload All Files
+                    </Button>
                 </Box>
             </Box>
         </>

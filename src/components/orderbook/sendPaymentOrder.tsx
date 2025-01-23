@@ -21,6 +21,7 @@ const SendPaymentModal: React.FC<SendPaymentModalProps> = ({ isOpen, onClose }) 
     const dispatch = useDispatch();
   
  const handlePaymentDetails = () => {
+    localStorage.setItem("prev_component", 'currency-management')
     dispatch(setCurrentDashboard('payment-details'));
   }
 

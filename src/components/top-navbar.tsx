@@ -9,8 +9,23 @@ import { Menu, WbSunny, NightlightRound, Notifications, Fullscreen, FullscreenEx
 import { toggleDarkMode } from '@/app/redux/slices/uiSlice';
 import UserProfileMenu from './logout-menu';
 import SideNavbar from './sideNavbar/side-navbar'; // Import SideNavbar for the drawer
+import Cookies from "js-cookie";
+import { jwtDecode } from "jwt-decode";
+
+interface CustomJwtPayload {
+  username: string;
+  id?: number;
+}
 
 const TopNavbar: React.FC = () => {
+  const token = Cookies.get("token") || "";
+
+  let decodedToken: CustomJwtPayload | null = null;
+  if (token !== "") {
+    decodedToken = jwtDecode<CustomJwtPayload>(token);
+  }
+  const userName = decodedToken?.username || "";
+
   const theme = useTheme();
   const dispatch = useDispatch();
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
@@ -203,8 +218,8 @@ const TopNavbar: React.FC = () => {
               }}>
               <Avatar
                 onClick={handleMenuOpen}
-                alt="Merchant Photo"
-                src="/assets/fallback-photo.png "
+                alt={userName}
+                src="/assets/fallback-photo.png"
                 sx={{ width: isSmallScreen ? 30 : 35, height: isSmallScreen ? 30 : 35, margin: isSmallScreen ? '6px' : '5px', alignItems: 'center' }}
               />
               <UserProfileMenu

@@ -1,76 +1,115 @@
-"use client"
+"use client";
 
-// Main.tsx (Main layout including SideNavbar and TopNavbar)
+import dynamic from 'next/dynamic';
 import React, { useEffect, useState } from 'react';
-import SideNavbar from '@/components/sideNavbar/side-navbar';
-import TopNavbar from '@/components/top-navbar';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '@/app/redux/store';
-import "./main.css";
-import "@/styles/global.css";
-import GeneralLedger from '@/components/general-ledger';
-import CurrencyManagement from '@/components/currencyManagement/currency-management';
-import FinancialReporting from '@/components/financial-reporting/financial-reporting';
-
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/router';
-import PaymentDetails from '@/components/paymentDetails/payment-details';
-import OrderPaymentComponent from '@/components/orderbook/orderbook';
-import Accounts from '@/components/account-details/account-details';
-import DocumentUploads from '@/components/documents-upload/documents-upload';
-import DocumentViewer from '../../components/documents-upload/document-viewer';
-import FxRateBooker from '@/components/fx-rate-booking';
-import TrackPayments from '@/components/track-payment';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '@/app/redux/store';
+import { setCurrentDashboard } from '@/app/redux/slices/dashboardSlice';
+import "./main.css";
+import "@/styles/global.css";
+
+// Dynamically import all components with ssr: false
+const SideNavbar = dynamic(() => import('@/components/sideNavbar/side-navbar'), { ssr: false });
+const TopNavbar = dynamic(() => import('@/components/top-navbar'), { ssr: false });
+const CurrencyManagement = dynamic(() => import('@/components/currencyManagement/currency-management'), { ssr: false });
+const FinancialReporting = dynamic(() => import('@/components/financial-reporting/financial-reporting'), { ssr: false });
+const PaymentDetails = dynamic(() => import('@/components/paymentDetails/payment-details'), { ssr: false });
+const OrderPaymentComponent = dynamic(() => import('@/components/orderbook/orderbook'), { ssr: false });
+const Accounts = dynamic(() => import('@/components/account-details/account-details'), { ssr: false });
+const DocumentUploads = dynamic(() => import('@/components/documents-upload/documents-upload'), { ssr: false });
+const DocumentViewer = dynamic(() => import('@/components/documents-upload/document-viewer'), { ssr: false });
+const FxRateBooker = dynamic(() => import('@/components/fx-rate-booking'), { ssr: false });
+const TrackPayments = dynamic(() => import('@/components/track-payment'), { ssr: false });
 
 const Main: React.FC = () => {
   const router = useRouter();
-  const [isClient, setIsClient] = useState(false)
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
-    if(!Cookies.get("token")){
+    if (!Cookies.get("token")) {
       window.location.href = '/';
     }
-  }, [router])
+  }, [router]);
 
-  const dashboardTitle = useSelector((state: RootState) => state.dashboard.currentDashboard)
-  // const [currentDashboard, setCurrentDashboard] = useState<string>('general-ledger');
-  
+  const dispatch = useDispatch();
+  const dashboardTitle = useSelector((state: RootState) => state.dashboard.currentDashboard);
+  const previousDashboard = localStorage.getItem('prev_component') || 'currency-management';
+  const currentDashboard = localStorage.getItem('component') || '';
+  const mainDashboards = ['currency-management', 'financial-reporting', 'order-book', 'accounts'];
+
   const renderDashboard = () => {
     if (!isClient) {
       return <div></div>; // Prevent SSR rendering mismatch
-  }
+    }
     switch (dashboardTitle) {
       case 'currency-management':
         return <CurrencyManagement />;
-      // case 'general-ledger':
-      //   return <GeneralLedger />;
       case 'financial-reporting':
         return <FinancialReporting />;
       case 'order-book':
-        return <OrderPaymentComponent />
+        return <OrderPaymentComponent />;
       case 'payment-details':
         return <PaymentDetails />;
       case 'accounts':
-        return <Accounts />
+        return <Accounts />;
       case 'fx-rate-booker':
-        return <FxRateBooker />
+        return <FxRateBooker />;
       case 'track-payments':
-        return <TrackPayments />
+        return <TrackPayments />;
       case 'document-uploads':
-        return <DocumentUploads />
+        return <DocumentUploads />;
       case 'document-viewer':
-        return <DocumentViewer />
+        return <DocumentViewer />;
       default:
+        localStorage.setItem("prev_component", 'currency-management');
         return <CurrencyManagement />;
     }
   };
 
-  return (  
+  return (
     <div className="app-container">
-      <SideNavbar/>
+      <SideNavbar />
       <div className="content">
-        <TopNavbar/>
+        <TopNavbar />
+        <div className="back-button-container" style={{ margin: "20px 0" }}>
+          {!mainDashboards.includes(currentDashboard) && (
+            <button
+              className="back-button"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                backgroundColor: "#f5f5f5",
+                border: "1px solid #ccc",
+                borderRadius: "5px",
+                padding: "8px 12px",
+                fontSize: "14px",
+                cursor: "pointer",
+                marginLeft: '8px',
+                boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+              }}
+              onClick={() => dispatch(setCurrentDashboard(previousDashboard))}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                style={{ width: "16px", height: "16px", marginRight: "8px" }}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+              Back
+            </button>
+          )}
+        </div>
         <div className="dashboard-content">
           {renderDashboard()}
         </div>
@@ -79,4 +118,4 @@ const Main: React.FC = () => {
   );
 };
 
-export default Main;
+export default dynamic(() => Promise.resolve(Main), { ssr: false }); // Disable SSR for Main

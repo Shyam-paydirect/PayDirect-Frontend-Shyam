@@ -61,9 +61,9 @@ const TrackPayments: React.FC = () => {
             >
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 300 350"
+                    viewBox="0 0 300 400"
                     width="300"
-                    height="350"
+                    height="400"
                     aria-label="Payment Successfully Generated"
                 >
                     {/* Gradient Definitions */}
@@ -169,7 +169,7 @@ const TrackPayments: React.FC = () => {
                         fontWeight="bold"
                         fill="#388e3c"
                     >
-                        Payment Successfully Generated
+                        Payment Successfully Initiated
                     </text>
                     <text
                         x="50%"
@@ -181,10 +181,51 @@ const TrackPayments: React.FC = () => {
                     >
                         You will be notified about the payment progress.
                     </text>
+
+                    {/* Progress Bar */}
+                    <rect
+                        x="20%"
+                        y="360"
+                        width="60%"
+                        height="10"
+                        fill="#e0e0e0"
+                        rx="5"
+                    />
+                    <rect
+                        x="20%"
+                        y="360"
+                        width="30%"
+                        height="10"
+                        fill="#FFFF00"
+                        rx="5"
+                    />
+
+                    {/* Step Labels */}
+                    <text
+                        x="20%"
+                        y="380"
+                        textAnchor="start"
+                        fontSize="10"
+                        fontWeight="bold"
+                        fill="#555555"
+                    >
+                        In Progress
+                    </text>
+                    <text
+                        x="80%"
+                        y="380"
+                        textAnchor="end"
+                        fontSize="10"
+                        fontWeight="bold"
+                        fill="#555555"
+                    >
+                        Done
+                    </text>
                 </svg>
+
             </div>
             <div>
-                
+
             </div>
             {/* <CurrencyExchanger book={true} /> */}
         </Box>

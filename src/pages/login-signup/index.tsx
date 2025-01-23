@@ -91,6 +91,7 @@ const LoginSignup: React.FC = () => {
     try {
       const response = await dispatch(login({ username, password })).unwrap();
       toast.success(response.message);
+      setIsLoginOtpSent(true);
     } catch (error) {
       const errorMessage =
         typeof error === "string"
@@ -99,9 +100,6 @@ const LoginSignup: React.FC = () => {
             ? error.message
             : "An unknown error occurred";
       toast.error(errorMessage);
-    }
-    finally {
-      setIsLoginOtpSent(true)
     }
   }
 
