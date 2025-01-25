@@ -292,6 +292,10 @@ ul {
   pointer-events: auto;
 }
 
+.sidebar.close .navLink .icon {
+  margin-right: 0px;
+}
+
 @media only screen and (max-width: 768px) {
   .sidebar {
     position: fixed;

@@ -1,47 +1,20 @@
 // CurrencyExchanger.tsx (Currency Exchanger Component)
-import React, { useEffect, useState } from "react";
-import {
-  Card,
-  CardContent,
-  Typography,
-  Button,
-  Input,
-  Divider,
-  CircularProgress,
-  IconButton,
-  Select,
-  MenuItem,
-  Paper,
-  Box,
-  TextField,
-  Tooltip,
-  Avatar,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  List,
-  ListItem,
-  ListItemText,
-} from "@mui/material";
-import SwapVertIcon from "@mui/icons-material/SwapVert";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import "./currency-exchanger.css";
-import "@/../public/assets/css/table.css";
-import "@/../public/assets/css/master.css";
-import AutorenewIcon from "@mui/icons-material/Autorenew";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  fetchFxRate,
-  bookFxRate,
-  fetchCcyRate,
-  updateCcyRate,
-} from "@/app/redux/slices/api/fxRateSlice";
-import type { AppDispatch } from "@/app/redux/store";
-import { toast, ToastContainer } from "react-toastify";
-import moment from "moment";
-import AccessTimeIcon from "@mui/icons-material/AccessTime"; // Import the clock icon
-import { selectSelectedOrderId } from "@/app/redux/slices/api/orderSlice";
-import { setCurrentDashboard } from "@/app/redux/slices/dashboardSlice";
+import React, { useEffect, useState } from 'react';
+import { Card, CardContent, Typography, Button, Input, Divider, CircularProgress, IconButton, Select, MenuItem, Paper, Box, TextField, Tooltip, Avatar, Dialog, DialogTitle, DialogContent, List, ListItem, ListItemText } from '@mui/material';
+import SwapVertIcon from '@mui/icons-material/SwapVert';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import './currency-exchanger.css';
+import '@/../public/assets/css/table.css';
+import '@/../public/assets/css/master.css';
+import AutorenewIcon from '@mui/icons-material/Autorenew';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchFxRate, bookFxRate, fetchCcyRate, updateCcyRate } from '@/app/redux/slices/api/fxRateSlice';
+import type { AppDispatch } from '@/app/redux/store';
+import { toast, ToastContainer } from 'react-toastify';
+import moment from 'moment';
+import AccessTimeIcon from '@mui/icons-material/AccessTime'; // Import the clock icon
+import { selectSelectedOrderId, updateOrderPaymentStatus } from '@/app/redux/slices/api/orderSlice';
+import { setCurrentDashboard } from '@/app/redux/slices/dashboardSlice';
 
 interface Currency {
   code: string;
@@ -53,10 +26,40 @@ interface CurrencyExchangerProps {
 }
 
 const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
-  const [base, setBase] = useState<string>("INR");
-  const [target, setTarget] = useState<string>("USD");
-  const [baseValue, setBaseValue] = useState<string>("1");
-  const [formattedBaseValue, setFormattedBaseValue] = useState<string>("1");
+
+  const formatWithCommas = (value: string, format: 'IND' | 'INTL'): string => {
+    const numValue = parseFloat(value.replace(/,/g, ''));
+    if (isNaN(numValue)) return value;
+
+    const integerPart = Math.floor(numValue).toString();
+    const decimalPart = value.includes('.') ? value.split('.')[1] : '';
+
+    let formattedInteger = '';
+
+    if (format === 'IND') {
+      const lastThree = integerPart.slice(-3);
+      const otherNumbers = integerPart.slice(0, -3);
+      formattedInteger = otherNumbers
+        ? otherNumbers.replace(/(\d)(?=(\d{2})+$)/g, '$1,') + ',' + lastThree
+        : lastThree;
+    } else {
+      formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    }
+
+    return decimalPart ? `${formattedInteger}.${decimalPart}` : formattedInteger;
+  };
+
+  const txnAmount = localStorage.getItem('txnAmount') || "1";
+
+  const [base, setBase] = useState<string>('INR');
+  const [target, setTarget] = useState<string>('USD');
+  const [baseValue, setBaseValue] = useState<string>(book? txnAmount : "1");
+  
+  const formatted = base === 'INR'
+        ? formatWithCommas(txnAmount.replace(/,/g, ''), 'IND')
+        : formatWithCommas(txnAmount.replace(/,/g, ''), 'INTL');
+        
+  const [formattedBaseValue, setFormattedBaseValue] = useState<string>(book ? formatted : '1');
   const [targetValue, setTargetValue] = useState<string>("0");
   const [formattedTargetValue, setFormattedTargetValue] = useState<string>("0");
   const [uId, setUId] = useState<string>("");
@@ -166,30 +169,6 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
     } else {
       return `Last Updated: ${hours}h ago`;
     }
-  };
-
-  const formatWithCommas = (value: string, format: "IND" | "INTL"): string => {
-    const numValue = parseFloat(value.replace(/,/g, ""));
-    if (isNaN(numValue)) return value;
-
-    const integerPart = Math.floor(numValue).toString();
-    const decimalPart = value.includes(".") ? value.split(".")[1] : "";
-
-    let formattedInteger = "";
-
-    if (format === "IND") {
-      const lastThree = integerPart.slice(-3);
-      const otherNumbers = integerPart.slice(0, -3);
-      formattedInteger = otherNumbers
-        ? otherNumbers.replace(/(\d)(?=(\d{2})+$)/g, "$1,") + "," + lastThree
-        : lastThree;
-    } else {
-      formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-    }
-
-    return decimalPart
-      ? `${formattedInteger}.${decimalPart}`
-      : formattedInteger;
   };
 
   const handleFxRateWhenFailed = async () => {
@@ -311,9 +290,16 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
 
     try {
       const response = await dispatch(bookFxRate(bodyData)).unwrap();
-      toast.success(response);
-      dispatch(setCurrentDashboard("track-payments"));
-    } catch (error) {
+      toast.success(response)
+      localStorage.setItem("prev_component", 'fx-rate-booker')
+       dispatch(updateOrderPaymentStatus({
+                              orderId: orderID,
+                              statusPayment: '3'
+                          }))
+      dispatch(setCurrentDashboard('track-payments'))
+      
+    }
+    catch (error) {
       const errorMessage =
         typeof error === "string"
           ? error
@@ -445,6 +431,7 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
                   value={formattedBaseValue}
                   onChange={handleBaseValueChange}
                   inputProps={{ min: 0, step: 0.01 }}
+                  disabled={book}
                 />
               </div>
             </div>
@@ -491,9 +478,10 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
             {book && (
               <Box
                 sx={{
-                  display: "flex",
-                  justifyContent: "flex-end", // Aligns content to the right
-                  width: "100%", // Ensures it spans the container
+                  display: 'flex',
+                  justifyContent: 'flex-end', // Aligns content to the right
+                  width: '100%', // Ensures it spans the container
+                  paddingTop: '20px'
                 }}
               >
                 <Button
@@ -748,8 +736,8 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
                     className="btn-1 book-button"
                     variant="contained"
                     disabled={timer == 0}
-                    onClick={handleBookFxRate}
-                  >
+
+                    onClick={handleBookFxRate}>
                     <i className="ri-wallet-line"></i> Book Now
                   </Button>
                 )}

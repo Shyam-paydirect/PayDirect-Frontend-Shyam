@@ -86,16 +86,19 @@ const OrderPage: React.FC = () => {
   }
 
   const handleDocumentClick = (id: any) => {
+    localStorage.setItem("prev_component", 'order-book')
     dispatch(setCurrentDashboard('document-uploads'));
     dispatch(setSelectedOrderId(id));
   }
 
-  const handleViewDocuments = async (id: any) => {
+  const handleViewDocuments = async (id: any, txnAmount: any) => {
     const emptyOrNot = await dispatch(fetchDocuments(id)).unwrap();
     if (emptyOrNot?.allDocs?.length == 0) {
       toast.warn("Please upload Documents first");
     }
     else {
+      localStorage.setItem('txnAmount', txnAmount)
+      localStorage.setItem("prev_component", 'order-book')
       dispatch(setCurrentDashboard('document-viewer'));
       dispatch(setSelectedOrderId(id));
     }
@@ -417,7 +420,7 @@ const OrderPage: React.FC = () => {
                                 backgroundColor: '#f5f5f5',
                               },
                             }}
-                            onClick={() => handleViewDocuments(order.orderId)}
+                            onClick={() => handleViewDocuments(order.orderId, order.txnAmount)}
 
                           >
                             <Visibility sx={{ fontSize: '1.2rem', color: '#673ab7' }} />

@@ -11,7 +11,6 @@ interface PaymentDetailsState {
   bankDetails: {
     swiftCode: string;
     beneficiaryBank: string;
-    branch: string;
     bankAddress: string;
     city: string;
     state: string;
@@ -33,7 +32,6 @@ const initialState: PaymentDetailsState = {
   bankDetails: {
     swiftCode: '',
     beneficiaryBank: '',
-    branch: '',
     bankAddress: '',
     city: '',
     state: '',
@@ -65,7 +63,6 @@ const paymentDetailsSlice = createSlice({
       state.bankDetails = {
         swiftCode: '',
         beneficiaryBank: '',
-        branch: '',
         bankAddress: '',
         city: '',
         state: '',

@@ -6,6 +6,8 @@ import { stagingApi } from '@/constants';
 // Define the request type
 export interface CreateOrderRequest {
   userId: number;
+  txnAmount: string;
+  statusPayment: string;
   id?: string;
   orderId: string;
   msgId: string;
@@ -26,6 +28,8 @@ export interface CreateOrderRequest {
 export interface Order {
   id: string;
   userId: number;
+  txnAmount: string;
+  statusPayment: string;
   orderId: string;
   msgId: string;
   orgId: string;
@@ -88,10 +92,35 @@ export const fetchAllOrders = createAsyncThunk(
   'orders/fetchAllOrders',
   async (userID: string, { rejectWithValue }) => {
     try {
-      const response = await axios.get(
-        `${stagingApi}/orders/all?userId=${userID}`
-      );
+      const response = await axios.get(`${stagingApi}/orders/all?userId=${userID}`);
       return response.data as { data: Order[] };
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || 'Something went wrong');
+    }
+  }
+);
+
+// Async thunk for updating order payment status
+export const updateOrderPaymentStatus = createAsyncThunk(
+  'orders/updateOrderPaymentStatus',
+  async (
+    { orderId, statusPayment }: { orderId: string; statusPayment: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await axios.put(
+        `${stagingApi}/updateStatusPayment`,
+        {
+          orderId,
+          statusPayment,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      return response.data as { success: boolean; message: string };
     } catch (error: any) {
       return rejectWithValue(error.response?.data || 'Something went wrong');
     }
@@ -131,6 +160,18 @@ const orderSlice = createSlice({
         state.orders = action.payload;
       })
       .addCase(fetchAllOrders.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(updateOrderPaymentStatus.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateOrderPaymentStatus.fulfilled, (state, action: PayloadAction<{ success: boolean; message: string }>) => {
+        state.loading = false;
+        state.response = action.payload;
+      })
+      .addCase(updateOrderPaymentStatus.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });

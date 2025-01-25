@@ -12,7 +12,10 @@ const CurrencyTransactions: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const dispatch = useDispatch();
 
-  const handleOpen = () =>     dispatch(setCurrentDashboard('payment-details'));
+  const handleOpen = () =>     {
+    localStorage.setItem("prev_component", 'currency-management')
+    dispatch(setCurrentDashboard('payment-details'));
+  }
   const handleClose = () => setIsModalOpen(false);
 
   return (

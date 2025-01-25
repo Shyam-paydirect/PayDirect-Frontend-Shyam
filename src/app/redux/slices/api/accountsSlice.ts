@@ -22,6 +22,7 @@ interface Account {
   micrCode: string;
   createdAt?: string;
   updatedAt?: string;
+  selfAccount?:  number;
 }
 
 interface AccountState {
