@@ -61,24 +61,23 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
         
   const [formattedBaseValue, setFormattedBaseValue] = useState<string>(book ? formatted : '1');
   const [targetValue, setTargetValue] = useState<string>("0");
-  const [formattedTargetValue, setFormattedTargetValue] = useState<string>('0');
+  const [formattedTargetValue, setFormattedTargetValue] = useState<string>("0");
   const [uId, setUId] = useState<string>("");
   const [rate, setRate] = useState<number>(0);
-  const [searchKeyword, setSearchKeyword] = useState('');
+  const [searchKeyword, setSearchKeyword] = useState("");
   const [open, setOpen] = useState(false);
 
   const [timer, setTimer] = useState<number>(0); // Timer state added
   const [errorMsg, setErrorMsg] = useState<string>("");
   const [isBaseSelection, setIsBaseSelection] = useState<boolean>(true);
-  const [lastUpdated, setLastUpdated] = useState("")
+  const [lastUpdated, setLastUpdated] = useState("");
   const [isButtonEnabled, setIsButtonEnabled] = useState(false);
 
-
   const currencies = [
-    { code: 'USD', name: 'United States Dollar' },
-    { code: 'INR', name: 'Indian Rupee' },
-    { code: 'EUR', name: 'Euro' },
-    { code: 'GBP', name: 'British Pound' },
+    { code: "USD", name: "United States Dollar" },
+    { code: "INR", name: "Indian Rupee" },
+    { code: "EUR", name: "Euro" },
+    { code: "GBP", name: "British Pound" },
   ];
 
   const orderID = useSelector(selectSelectedOrderId) || "";
@@ -104,10 +103,15 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
       const hours = istTime.getHours();
       const minutes = istTime.getMinutes();
       const day = istTime.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
-      console.log(hours, minutes, day, "THISHSIHS")
+      console.log(hours, minutes, day, "THISHSIHS");
 
       // Enable button only from Monday to Friday (day 1-5), between 9:00 AM and 3:30 PM IST
-      if (day >= 1 && day <= 5 && (hours > 9 || (hours === 9 && minutes >= 0)) && (hours < 15 || (hours === 15 && minutes <= 30))) {
+      if (
+        day >= 1 &&
+        day <= 5 &&
+        (hours > 9 || (hours === 9 && minutes >= 0)) &&
+        (hours < 15 || (hours === 15 && minutes <= 30))
+      ) {
         setIsButtonEnabled(true);
       } else {
         setIsButtonEnabled(false);
@@ -129,22 +133,18 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
     return () => clearInterval(interval);
   }, []);
 
-  useEffect(() => {
-
-  }, [base, target])
+  useEffect(() => {}, [base, target]);
 
   const handleOpen = (isBase: boolean) => {
     setOpen(true);
     setIsBaseSelection(isBase);
     setSearchKeyword("");
-  }
-
+  };
 
   const handleClose = () => {
     setOpen(false);
-    setSearchKeyword('');
+    setSearchKeyword("");
   };
-
 
   const handleCurrencySelect = (code: string) => {
     if (isBaseSelection) {
@@ -165,11 +165,11 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
 
     const hours = Math.floor(duration.asHours());
     if (hours < 1) {
-      return 'Last Updated: < 1h ago';
+      return "Last Updated: < 1h ago";
     } else {
       return `Last Updated: ${hours}h ago`;
     }
-  }
+  };
 
   const handleFxRateWhenFailed = async () => {
     try {
@@ -177,26 +177,34 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
       setRate(result?.data?.rate);
 
       const targetVal =
-        (target == 'INR') ? (Math.round(result?.data?.rate * parseFloat(baseValue) * 100) / 100).toFixed(2) : (Math.round((parseFloat(baseValue) * 100) / (result?.data?.rate)) / 100).toFixed(2);
-      setTargetValue(`${targetVal}`)
-      const formatted = target === 'INR'
-        ? formatWithCommas(targetVal, 'IND')
-        : formatWithCommas(targetVal, 'INTL');
-      console.log("formamamammt", formatted)
+        target == "INR"
+          ? (
+              Math.round(result?.data?.rate * parseFloat(baseValue) * 100) / 100
+            ).toFixed(2)
+          : (
+              Math.round((parseFloat(baseValue) * 100) / result?.data?.rate) /
+              100
+            ).toFixed(2);
+      setTargetValue(`${targetVal}`);
+      const formatted =
+        target === "INR"
+          ? formatWithCommas(targetVal, "IND")
+          : formatWithCommas(targetVal, "INTL");
+      console.log("formamamammt", formatted);
       setFormattedTargetValue(formatted);
 
-      setLastUpdated(getTimeDifference(result?.data?.updateTime))
+      setLastUpdated(getTimeDifference(result?.data?.updateTime));
     } catch (error) {
       const errorMessage =
         typeof error === "string"
           ? error
           : error instanceof Error
-            ? error.message
-            : "An unknown error occurred";
+          ? error.message
+          : "An unknown error occurred";
 
-      setErrorMsg(errorMessage)
+      setErrorMsg(errorMessage);
     }
-  }
+  };
 
   const handleFxRateUpdate = async (rate: number) => {
     try {
@@ -204,7 +212,7 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
       setRate(result?.data?.rate);
 
       const target = result?.data?.rate * parseFloat(baseValue);
-      setTargetValue(`${target}`)
+      setTargetValue(`${target}`);
 
       // setLastUpdated(getTimeDifference(result?.data?.updateTime))
     } catch (error) {
@@ -212,43 +220,42 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
         typeof error === "string"
           ? error
           : error instanceof Error
-            ? error.message
-            : "An unknown error occurred";
+          ? error.message
+          : "An unknown error occurred";
 
-      setErrorMsg(errorMessage)
+      setErrorMsg(errorMessage);
     }
-  }
+  };
 
   const handleGetFxRateClick = async () => {
     setErrorMsg("");
     const bodyData = {
-      ccyPair: 'USDINR',
-      dealtSide: 'BUY',
+      ccyPair: "USDINR",
+      dealtSide: "BUY",
       txnAmount: baseValue,
       txnCcy: base,
-      tenor: 'TODAY',
-      executable: 'Y',
-      dealType: 'SPOT/OUTRIGHT',
+      tenor: "TODAY",
+      executable: "Y",
+      dealType: "SPOT/OUTRIGHT",
       clientTxnsId: orderID,
     };
     try {
-
       const response = await dispatch(fetchFxRate(bodyData)).unwrap();
 
-      handleFxRateUpdate(response?.data?.rate)
+      handleFxRateUpdate(response?.data?.rate);
 
       setTargetValue(response?.data?.contraAmount);
-      const formatted = target === 'INR'
-        ? formatWithCommas(response?.data?.contraAmount, 'IND')
-        : formatWithCommas(response?.data?.contraAmount, 'INTL');
-      console.log("formamamammt", formatted)
+      const formatted =
+        target === "INR"
+          ? formatWithCommas(response?.data?.contraAmount, "IND")
+          : formatWithCommas(response?.data?.contraAmount, "INTL");
+      console.log("formamamammt", formatted);
       setFormattedTargetValue(formatted);
       setRate(response?.data?.rate);
       setUId(response?.data?.uid);
       setTimer(30); // Reset timer to 30 seconds
-    }
-    catch (error) {
-      handleFxRateWhenFailed()
+    } catch (error) {
+      handleFxRateWhenFailed();
       setTimer(30); // Reset timer to 30 seconds
       // const errorMessage =
       //   typeof error === "string"
@@ -258,31 +265,28 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
       //       : "An unknown error occurred";
 
       // setErrorMsg(errorMessage)
-    }
-    finally {
+    } finally {
       setIsLoading(false); // Reset loading state
     }
-
-
   };
 
   const handleBaseValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const rawValue = e.target.value.replace(/,/g, '');
-    if (!isNaN(Number(rawValue)) || rawValue === '') {
+    const rawValue = e.target.value.replace(/,/g, "");
+    if (!isNaN(Number(rawValue)) || rawValue === "") {
       setBaseValue(rawValue);
-      const formatted = base === 'INR'
-        ? formatWithCommas(rawValue, 'IND')
-        : formatWithCommas(rawValue, 'INTL');
+      const formatted =
+        base === "INR"
+          ? formatWithCommas(rawValue, "IND")
+          : formatWithCommas(rawValue, "INTL");
       setFormattedBaseValue(formatted);
     }
   };
 
-
   const handleBookFxRate = async () => {
     const bodyData = {
       uid: uId,
-      clientTxnsId: orderID
-    }
+      clientTxnsId: orderID,
+    };
 
     try {
       const response = await dispatch(bookFxRate(bodyData)).unwrap();
@@ -300,14 +304,13 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
         typeof error === "string"
           ? error
           : error instanceof Error
-            ? error.message
-            : "An unknown error occurred";
+          ? error.message
+          : "An unknown error occurred";
       toast.dismiss();
       // toast.error(errorMessage)
-      setErrorMsg(errorMessage)
-
+      setErrorMsg(errorMessage);
     }
-  }
+  };
 
   const getColor = (timer: number): string => {
     if (timer > 22.5) {
@@ -330,23 +333,23 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
     setBaseValue(targetValue);
     setTargetValue(baseValue);
     setFormattedBaseValue(formattedTargetValue);
-    setFormattedTargetValue(formattedBaseValue)
-  }
+    setFormattedTargetValue(formattedBaseValue);
+  };
 
   const handleBaseChange = (value: string) => {
-    if (value !== 'INR' && target !== 'INR') {
-      setErrorMsg('Either one of the currencies must be INR');
+    if (value !== "INR" && target !== "INR") {
+      setErrorMsg("Either one of the currencies must be INR");
     } else {
-      setErrorMsg('');
+      setErrorMsg("");
       setBase(value);
     }
   };
 
   const handleTargetChange = (value: string) => {
-    if (value !== 'INR' && target !== 'INR') {
-      setErrorMsg('Either one of the currencies must be INR');
+    if (value !== "INR" && target !== "INR") {
+      setErrorMsg("Either one of the currencies must be INR");
     } else {
-      setErrorMsg('');
+      setErrorMsg("");
       setTarget(value);
     }
   };
@@ -359,7 +362,6 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
           <div className="exchange-rate">
             <Typography variant="h5">Check FX Rate</Typography>
             {/* <span>{exchangeRateText}</span> */}
-
           </div>
           <div className="">
             <div className="control-parent">
@@ -371,28 +373,28 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
                   variant="outlined"
                   IconComponent={() => null} // Removes the dropdown arrow
                   sx={{
-                    borderRadius: '10px', // Rounded corners
-                    padding: '0 !important', // Exactly as specified
-                    margin: '0 !important', // Exactly as specified
+                    borderRadius: "10px", // Rounded corners
+                    padding: "0 !important", // Exactly as specified
+                    margin: "0 !important", // Exactly as specified
                     minWidth: 120, // Keep the minimum width
-                    backgroundColor: '#fff', // Default white background
-                    boxShadow: '0px 2px 5px rgba(0, 0, 0, 0.2)', // Subtle shadow for aesthetics
-                    '.MuiSelect-select': {
-                      padding: '8px 18px !important', // As per your original request
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px', // Space between flag and code
+                    backgroundColor: "#fff", // Default white background
+                    boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.2)", // Subtle shadow for aesthetics
+                    ".MuiSelect-select": {
+                      padding: "8px 18px !important", // As per your original request
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px", // Space between flag and code
                       fontWeight: 600, // Bold text
-                      fontSize: '14px', // Font size for better readability
+                      fontSize: "14px", // Font size for better readability
                     },
-                    '.MuiOutlinedInput-notchedOutline': {
-                      border: '1px solid #ddd', // Subtle border for a clean look
+                    ".MuiOutlinedInput-notchedOutline": {
+                      border: "1px solid #ddd", // Subtle border for a clean look
                     },
-                    '&:hover': {
-                      boxShadow: '0px 3px 8px rgba(0, 0, 0, 0.3)', // Slightly enhanced shadow on hover
+                    "&:hover": {
+                      boxShadow: "0px 3px 8px rgba(0, 0, 0, 0.3)", // Slightly enhanced shadow on hover
                     },
-                    '&.Mui-focused': {
-                      boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.4)', // Slightly more pronounced shadow on focus
+                    "&.Mui-focused": {
+                      boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.4)", // Slightly more pronounced shadow on focus
                     },
                   }}
                 >
@@ -400,21 +402,24 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
                   <MenuItem
                     // key={currency.code}
                     // value={currency.code}
-                    value='INR'
+                    value="INR"
                     sx={{
-                      backgroundColor: '#fff', // Keep white for items
-                      '&:hover': {
-                        backgroundColor: '#f5f5f5', // Slight highlight on hover
+                      backgroundColor: "#fff", // Keep white for items
+                      "&:hover": {
+                        backgroundColor: "#f5f5f5", // Slight highlight on hover
                       },
-                      '&.Mui-selected': {
-                        backgroundColor: '#e0e0e0', // Highlight selected item
-                        fontWeight: 'bold', // Bold for the selected item
+                      "&.Mui-selected": {
+                        backgroundColor: "#e0e0e0", // Highlight selected item
+                        fontWeight: "bold", // Bold for the selected item
                       },
                     }}
                   >
                     <Box display="flex" alignItems="center" gap={1}>
-                      <Avatar src={getFlagUrl('INR')} sx={{ width: 24, height: 24 }} />
-                      <Typography>{'INR'}</Typography>
+                      <Avatar
+                        src={getFlagUrl("INR")}
+                        sx={{ width: 24, height: 24 }}
+                      />
+                      <Typography>{"INR"}</Typography>
                       {/* <Avatar src={getFlagUrl(currency.code)} sx={{ width: 24, height: 24 }} />
                         <Typography>{currency.code}</Typography> */}
                     </Box>
@@ -428,24 +433,25 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
                   inputProps={{ min: 0, step: 0.01 }}
                   disabled={book}
                 />
-
               </div>
             </div>
-            {!isButtonEnabled &&
+            {!isButtonEnabled && (
               <Typography
                 sx={{
-                  color: 'red',
+                  color: "red",
                   fontSize: 12,
                   fontWeight: 600,
-                  textAlign: 'right', // Right-align text
-                  display: 'inline-flex', // Inline flex ensures it works well with text alignment
-                  alignItems: 'center', // Vertically center the icon and text
-                  justifyContent: 'flex-end', // Push content to the right
-                  gap: '4px', // Add spacing between icon and text
-                  width: '100%', // Ensure it spans the container for alignment
+                  textAlign: "right", // Right-align text
+                  display: "inline-flex", // Inline flex ensures it works well with text alignment
+                  alignItems: "center", // Vertically center the icon and text
+                  justifyContent: "flex-end", // Push content to the right
+                  gap: "4px", // Add spacing between icon and text
+                  width: "100%", // Ensure it spans the container for alignment
                 }}
-              >Outside working hours</Typography>
-            }
+              >
+                Outside working hours
+              </Typography>
+            )}
 
             {/* <Typography
               sx={{
@@ -469,8 +475,7 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
               } */}
             {/* {lastUpdated} */}
             {/* </Typography> */}
-            {
-              book &&
+            {book && (
               <Box
                 sx={{
                   display: 'flex',
@@ -478,55 +483,56 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
                   width: '100%', // Ensures it spans the container
                   paddingTop: '20px'
                 }}
-              ><Button
-                className="btn-1 btn-small"
-                onClick={() => {
-                  setIsLoading(true); // Set loading state to true
-                  handleGetFxRateClick();
-                  setTimeout(() => {
-                    setIsLoading(false); // Reset loading state
-                  }, 300);
-                }}
-                sx={{
-                  display: 'flex',
-                  right: '10',
-                  borderRadius: '8px',
-                  backgroundColor: isButtonEnabled ? '#004080' : '#d3d3d3', // Gray if disabled
-                  color: '#ffffff',
-                  textTransform: 'none',
-                  paddingX: '16px',
-                  animation: isButtonEnabled && !isLoading ? 'blink 2s ' : 'none',
-                  '&:hover': {
-                    backgroundColor: isButtonEnabled ? '#00264d' : '#d3d3d3', // Prevent hover effect if disabled
-                  },
-                  '@keyframes blink': {
-                    '0%': { opacity: 1 },
-                    '50%': { background: '#00264d', opacity: 0.8 },
-                    '100%': { opacity: 1 },
-                  },
-                }}
-                disabled={!isButtonEnabled || isLoading} // Disable if outside time range or loading
               >
+                <Button
+                  className="btn-1 btn-small"
+                  onClick={() => {
+                    setIsLoading(true); // Set loading state to true
+                    handleGetFxRateClick();
+                    setTimeout(() => {
+                      setIsLoading(false); // Reset loading state
+                    }, 300);
+                  }}
+                  sx={{
+                    display: "flex",
+                    right: "10",
+                    borderRadius: "8px",
+                    backgroundColor: isButtonEnabled ? "#004080" : "#d3d3d3", // Gray if disabled
+                    color: "#ffffff",
+                    textTransform: "none",
+                    paddingX: "16px",
+                    animation:
+                      isButtonEnabled && !isLoading ? "blink 2s " : "none",
+                    "&:hover": {
+                      backgroundColor: isButtonEnabled ? "#00264d" : "#d3d3d3", // Prevent hover effect if disabled
+                    },
+                    "@keyframes blink": {
+                      "0%": { opacity: 1 },
+                      "50%": { background: "#00264d", opacity: 0.8 },
+                      "100%": { opacity: 1 },
+                    },
+                  }}
+                  disabled={!isButtonEnabled || isLoading} // Disable if outside time range or loading
+                >
                   <AutorenewIcon
                     sx={{
                       fontSize: 16,
-                      animation: isLoading
-                        ? 'spin 1s linear infinite'
-                        : 'none',
-                      '@keyframes spin': {
-                        '0%': { transform: 'rotate(0deg)' },
-                        '100%': { transform: 'rotate(360deg)' },
+                      animation: isLoading ? "spin 1s linear infinite" : "none",
+                      "@keyframes spin": {
+                        "0%": { transform: "rotate(0deg)" },
+                        "100%": { transform: "rotate(360deg)" },
                       },
                     }}
                   />
                   Get FX Rate
                 </Button>
               </Box>
-            }
+            )}
 
             <div className="control-parent">
-
-              <Typography className="control-label">Receiving Amount</Typography>
+              <Typography className="control-label">
+                Receiving Amount
+              </Typography>
 
               <div className="control">
                 <Select
@@ -535,28 +541,28 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
                   variant="outlined"
                   IconComponent={() => null} // Removes the dropdown arrow
                   sx={{
-                    borderRadius: '10px', // Rounded corners
-                    padding: '0 !important', // Exactly as specified
-                    margin: '0 !important', // Exactly as specified
+                    borderRadius: "10px", // Rounded corners
+                    padding: "0 !important", // Exactly as specified
+                    margin: "0 !important", // Exactly as specified
                     minWidth: 120, // Keep the minimum width
-                    backgroundColor: '#fff', // Default white background
-                    boxShadow: '0px 2px 5px rgba(0, 0, 0, 0.2)', // Subtle shadow for aesthetics
-                    '.MuiSelect-select': {
-                      padding: '8px 18px !important', // As per your original request
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px', // Space between flag and code
+                    backgroundColor: "#fff", // Default white background
+                    boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.2)", // Subtle shadow for aesthetics
+                    ".MuiSelect-select": {
+                      padding: "8px 18px !important", // As per your original request
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px", // Space between flag and code
                       fontWeight: 600, // Bold text
-                      fontSize: '14px', // Font size for better readability
+                      fontSize: "14px", // Font size for better readability
                     },
-                    '.MuiOutlinedInput-notchedOutline': {
-                      border: '1px solid #ddd', // Subtle border for a clean look
+                    ".MuiOutlinedInput-notchedOutline": {
+                      border: "1px solid #ddd", // Subtle border for a clean look
                     },
-                    '&:hover': {
-                      boxShadow: '0px 3px 8px rgba(0, 0, 0, 0.3)', // Slightly enhanced shadow on hover
+                    "&:hover": {
+                      boxShadow: "0px 3px 8px rgba(0, 0, 0, 0.3)", // Slightly enhanced shadow on hover
                     },
-                    '&.Mui-focused': {
-                      boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.4)', // Slightly more pronounced shadow on focus
+                    "&.Mui-focused": {
+                      boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.4)", // Slightly more pronounced shadow on focus
                     },
                   }}
                 >
@@ -565,18 +571,21 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
                       key={currency.code}
                       value={currency.code}
                       sx={{
-                        backgroundColor: '#fff', // Keep white for items
-                        '&:hover': {
-                          backgroundColor: '#f5f5f5', // Slight highlight on hover
+                        backgroundColor: "#fff", // Keep white for items
+                        "&:hover": {
+                          backgroundColor: "#f5f5f5", // Slight highlight on hover
                         },
-                        '&.Mui-selected': {
-                          backgroundColor: '#e0e0e0', // Highlight selected item
-                          fontWeight: 'bold', // Bold for the selected item
+                        "&.Mui-selected": {
+                          backgroundColor: "#e0e0e0", // Highlight selected item
+                          fontWeight: "bold", // Bold for the selected item
                         },
                       }}
                     >
                       <Box display="flex" alignItems="center" gap={1}>
-                        <Avatar src={getFlagUrl(currency.code)} sx={{ width: 24, height: 24 }} />
+                        <Avatar
+                          src={getFlagUrl(currency.code)}
+                          sx={{ width: 24, height: 24 }}
+                        />
                         <Typography>{currency.code}</Typography>
                       </Box>
                     </MenuItem>
@@ -585,7 +594,6 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
 
                 <Input type="text" value={formattedTargetValue} readOnly />
               </div>
-
             </div>
           </div>
 
@@ -596,7 +604,11 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
               <li className="rate-detail">
                 <span className="rate">
                   <i className="ri-close-line sign"></i>
-                  {isLoading ? <span className='skeleton'>000000</span> : (Math.round(rate * 100) / 100).toFixed(2)}
+                  {isLoading ? (
+                    <span className="skeleton">000000</span>
+                  ) : (
+                    (Math.round(rate * 100) / 100).toFixed(2)
+                  )}
                   {/* ₹ 84.96 */}
                   <Tooltip
                     title="And here's some amazing content. It's very engaging. Right?"
@@ -605,7 +617,7 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
                   >
                     <i
                       className="ri-information-line"
-                      style={{ cursor: 'pointer', color: '#17a2b8' }}
+                      style={{ cursor: "pointer", color: "#17a2b8" }}
                     ></i>
                   </Tooltip>
                 </span>
@@ -647,27 +659,54 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
               <span className="rate-reason">GST</span>
             </li> */}
               <li className="rate-detail">
-                <span className="rate"><i className="ri-add-line sign"></i>₹ 2,000.00</span
-                ><span className="rate-reason"
-                >Service Charge <span className="gst">(incl. GST)</span></span>
+                <span className="rate">
+                  <i className="ri-add-line sign"></i>₹ 2,000.00
+                </span>
+                <span className="rate-reason">
+                  Service Charge <span className="gst">(incl. GST)</span>
+                </span>
               </li>
             </ul>
             <div className="final-charge-parent">
               <Typography className="final-charge-label totalPayment rate">
-                <i className="ri-equal-line sign"></i>
-                ₹ {target == 'INR' ?
-                  formatWithCommas(String(parseFloat(targetValue) + 2000), 'IND')
-                  :
-                  formatWithCommas(String(parseFloat(baseValue) + 2000), 'IND')
-                }
+                <i className="ri-equal-line sign"></i>₹{" "}
+                {target == "INR"
+                  ? formatWithCommas(
+                      String(parseFloat(targetValue) + 2000),
+                      "IND"
+                    )
+                  : formatWithCommas(
+                      String(parseFloat(baseValue) + 2000),
+                      "IND"
+                    )}
               </Typography>
-              <Typography className="final-charge-label">Total Payment</Typography>
+              <Typography className="final-charge-label">
+                Total Payment
+              </Typography>
             </div>
             <div className="book-parent">
-
-              <Box className="timer-button-wrapper" sx={{ display: 'flex', alignItems: 'center', gap: 2, justifyContent: 'flex-end', marginTop: (errorMsg ? '4px' : '22px') }}>
-
-                <Box className="timer" sx={{ marginLeft: 'auto', position: 'relative', display: 'flex', justifyContent: 'center', alignItems: 'center' }}> {/* Timer Circle */}
+              <Box
+                className="timer-button-wrapper"
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 2,
+                  justifyContent: "flex-end",
+                  marginTop: errorMsg ? "4px" : "22px",
+                }}
+              >
+                <Box
+                  className="timer"
+                  sx={{
+                    marginLeft: "auto",
+                    position: "relative",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  {" "}
+                  {/* Timer Circle */}
                   <CircularProgress
                     variant="determinate"
                     value={(timer / 30) * 100}
@@ -675,23 +714,23 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
                     thickness={6}
                     sx={{
                       color: getColor(timer), // Color transition from green to red (Edited)
-                      transition: 'color 1s linear, stroke-dashoffset 0.1s linear', // Smooth color transition (Edited)
-                      strokeLinecap: 'round' // Rounded edges for loader (Edited)
+                      transition:
+                        "color 1s linear, stroke-dashoffset 0.1s linear", // Smooth color transition (Edited)
+                      strokeLinecap: "round", // Rounded edges for loader (Edited)
                     }}
                   />
-                  {timer != 0 &&
+                  {timer != 0 && (
                     <Typography
                       variant="caption"
                       component="div"
                       color="textSecondary"
-                      sx={{ position: 'absolute', fontSize: '13px' }}
+                      sx={{ position: "absolute", fontSize: "13px" }}
                     >
                       {timer}
                     </Typography>
-                  }
+                  )}
                 </Box>
-                {
-                  book &&
+                {book && (
                   <Button
                     type="button"
                     className="btn-1 book-button"
@@ -701,9 +740,8 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
                     onClick={handleBookFxRate}>
                     <i className="ri-wallet-line"></i> Book Now
                   </Button>
-                }
-                {
-                  !book &&
+                )}
+                {!book && (
                   <Button
                     className="btn-1 book-button"
                     onClick={() => {
@@ -714,19 +752,22 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
                       }, 300);
                     }}
                     sx={{
-                      borderRadius: '8px',
-                      backgroundColor: isButtonEnabled ? '#004080' : '#d3d3d3', // Gray if disabled
-                      color: '#ffffff',
-                      textTransform: 'none',
-                      paddingX: '16px',
-                      animation: isButtonEnabled && !isLoading ? 'blink 2s ' : 'none',
-                      '&:hover': {
-                        backgroundColor: isButtonEnabled ? '#00264d' : '#d3d3d3', // Prevent hover effect if disabled
+                      borderRadius: "8px",
+                      backgroundColor: isButtonEnabled ? "#004080" : "#d3d3d3", // Gray if disabled
+                      color: "#ffffff",
+                      textTransform: "none",
+                      paddingX: "16px",
+                      animation:
+                        isButtonEnabled && !isLoading ? "blink 2s " : "none",
+                      "&:hover": {
+                        backgroundColor: isButtonEnabled
+                          ? "#00264d"
+                          : "#d3d3d3", // Prevent hover effect if disabled
                       },
-                      '@keyframes blink': {
-                        '0%': { opacity: 1 },
-                        '50%': { background: '#00264d', opacity: 0.8 },
-                        '100%': { opacity: 1 },
+                      "@keyframes blink": {
+                        "0%": { opacity: 1 },
+                        "50%": { background: "#00264d", opacity: 0.8 },
+                        "100%": { opacity: 1 },
                       },
                     }}
                     disabled={!isButtonEnabled || isLoading} // Disable if outside time range or loading
@@ -735,18 +776,17 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
                       sx={{
                         fontSize: 16,
                         animation: isLoading
-                          ? 'spin 1s linear infinite'
-                          : 'none',
-                        '@keyframes spin': {
-                          '0%': { transform: 'rotate(0deg)' },
-                          '100%': { transform: 'rotate(360deg)' },
+                          ? "spin 1s linear infinite"
+                          : "none",
+                        "@keyframes spin": {
+                          "0%": { transform: "rotate(0deg)" },
+                          "100%": { transform: "rotate(360deg)" },
                         },
                       }}
                     />
                     Get FX Rate
                   </Button>
-                }
-
+                )}
               </Box>
             </div>
           </section>

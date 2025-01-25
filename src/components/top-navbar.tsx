@@ -9,6 +9,7 @@ import { Menu, WbSunny, NightlightRound, Notifications, Fullscreen, FullscreenEx
 import { toggleDarkMode } from '@/app/redux/slices/uiSlice';
 import UserProfileMenu from './logout-menu';
 import SideNavbar from './sideNavbar/side-navbar'; // Import SideNavbar for the drawer
+import Head from "next/head";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 
@@ -86,6 +87,11 @@ const TopNavbar: React.FC = () => {
   const iconSize = isSmallScreen ? 16 : 30;
 
   return (
+    <>
+     {/* Dynamically Set Page Title */}
+     <Head>
+        <title>{dashboardTitle}</title>
+      </Head>
     <AppBar
       position="sticky"
       sx={{
@@ -246,6 +252,7 @@ const TopNavbar: React.FC = () => {
         </Drawer>
       }
     </AppBar>
+    </>
   );
 };
 
