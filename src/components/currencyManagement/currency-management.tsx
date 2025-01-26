@@ -7,17 +7,20 @@ import CurrencyExchanger from './currency-exchanger/currency-exchanger';
 import './currency-management.css'
 
 const CurrencyManagement: React.FC = () => {
+    useEffect(() => {
+        localStorage.setItem("prev_component", 'currency-management')
+    })
     return (
-     <div className='currency-management-parent'>
-        <div className="left-section">
+        <div className='currency-management-parent'>
+            <div className="left-section">
                 <CurrencyTransactions />
                 <RecentPayments />
             </div>
             <div className="right-section">
                 <AccountDetails />
-                <CurrencyExchanger book={false}/>
+                <CurrencyExchanger book={false} />
             </div>
-     </div>
+        </div>
     )
 }
 

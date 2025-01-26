@@ -105,7 +105,7 @@ const TopNavbar: React.FC = () => {
         backgroundColor: 'var(--bg-clr-1)',
         borderBottom: '1px solid #cccc',
         transition: 'var(--tran-04)',
-        fontFamily: 'Poppins, sans-serif',
+        fontFamily: 'Montserrat, sans-serif',
       }}
     >
       <Toolbar disableGutters sx={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 10px 10px 10px', minHeight: '55px' }}>
@@ -121,7 +121,7 @@ const TopNavbar: React.FC = () => {
           variant="h6"
           noWrap
           sx={{
-            fontFamily: "'Poppins', sans-serif",
+            fontFamily: "'Montserrat', sans-serif",
             fontWeight: 500,
             fontSize: isSmallScreen ? '16px' : '28px',
             marginBottom: 0,
