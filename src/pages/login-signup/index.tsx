@@ -7,7 +7,7 @@ import {
   Box,
   Typography,
   TextField,
-  Button,
+  Button,InputBase 
 } from '@mui/material';
 import './login-signup.css'; // Assuming the CSS will be in this file
 import '@/../public/assets/css/table.css';
@@ -29,9 +29,90 @@ const LoginSignup: React.FC = () => {
   const [otp, setOtp] = useState('');
   const [isOtpFieldVisible, setIsOtpFieldVisible] = useState(false);
   const [isLoginOtpSent, setIsLoginOtpSent] = useState(false);
+  const [timer, setTimer] = useState<number>(30);
+  const [isResendEnabled, setIsResendEnabled] = useState<boolean>(false);
 
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+
+    // Allow only numeric input and limit to 6 digits
+    if (!/^\d{0,6}$/.test(value)) return;
+
+    setOtp(value);
+  };
+
+  const handleBoxClick = () => {
+    // Focus the hidden input field when any box is clicked
+    const inputField = document.getElementById("hidden-otp-input");
+    if (inputField) {
+      inputField.focus();
+    }
+  };
+
+  const handleOtpInput = (
+    e: any,
+    index: number
+  ) => {
+    const input = e.target as HTMLInputElement;
+    const value = input.value;
+  
+    if (e.type === "change") {
+      // Ensure input is numeric and only one character
+      if (!/^\d$/.test(value) && value !== "") return;
+  
+      const otpArray = otp.split(""); // Convert OTP string to an array
+      otpArray[index] = value; // Update the value at the given index
+      setOtp(otpArray.join("")); // Join back into a single string
+  
+      // Move focus to the next box if a digit is entered
+      if (value && index < 5) {
+        const nextInput = document.getElementById(`otp-input-${index + 1}`);
+        if (nextInput) (nextInput as HTMLInputElement).focus();
+      }
+    } else if (e.type === "keydown" && (e as React.KeyboardEvent<HTMLInputElement>).key === "Backspace") {
+      const otpArray = otp.split(""); // Convert OTP string to an array
+      otpArray[index] = ""; // Clear the value at the current index
+      setOtp(otpArray.join("")); // Update the OTP state
+  
+      // Move focus to the previous box if the current box is empty
+      if (index > 0) {
+        const prevInput = document.getElementById(`otp-input-${index - 1}`);
+        if (prevInput) {
+          (prevInput as HTMLInputElement).focus();
+          (prevInput as HTMLInputElement).select(); // Highlight the previous input box for easy editing
+        }
+      }
+    }
+  };
+  
+  const renderOtpBoxes = () => {
+    return (
+      <Box display="flex" justifyContent="center" gap={1}>
+        {Array.from({ length: 6 }).map((_, index) => (
+          <TextField
+            key={index}
+            id={`otp-input-${index}`}
+            value={otp[index] || ""}
+            onChange={(e) => handleOtpInput(e, index)}
+            onKeyDown={(e) => handleOtpInput(e, index)}
+            inputProps={{
+              maxLength: 1,
+              style: {
+                textAlign: "center",
+                fontSize: "12px",
+                width: "8px",
+                height: "8px",
+              },
+            }}
+            variant="outlined"
+          />
+        ))}
+      </Box>
+    );
+  };
 
   useEffect(() => {
     // setIsClient(true);
@@ -39,6 +120,23 @@ const LoginSignup: React.FC = () => {
       window.location.href = '/dashboard';
     }
   }, [router])
+
+  useEffect(() => {
+    let countdown: NodeJS.Timeout | null = null;
+
+    if (!isResendEnabled && timer > 0) {
+      countdown = setInterval(() => {
+        setTimer((prev) => prev - 1);
+      }, 1000);
+    } else if (timer === 0) {
+      setIsResendEnabled(true); // Enable the resend link after 30 seconds
+      setTimer(30); // Reset the timer for the next countdown
+    }
+
+    return () => {
+      if (countdown) clearInterval(countdown);
+    };
+  }, [timer, isResendEnabled]);
 
   useEffect(() => {
     dispatch(setDarkMode(true));
@@ -88,10 +186,13 @@ const LoginSignup: React.FC = () => {
   };
 
   const handleSendLoginOtp = async () => {
+
     try {
       const response = await dispatch(login({ username, password })).unwrap();
       toast.success(response.message);
       setIsLoginOtpSent(true);
+      setIsResendEnabled(false); // Disable the link
+      setTimer(30);
     } catch (error) {
       const errorMessage =
         typeof error === "string"
@@ -157,17 +258,27 @@ const LoginSignup: React.FC = () => {
                         onChange={(e) => setEmail(e.target.value)}
                         required
                       />
-                      {isOtpFieldVisible && (
+                      {/* {isOtpFieldVisible && (
                         <>
-                          <TextField
-                            fullWidth
-                            label="Enter OTP"
-                            variant="standard"
-                            value={otp}
-                            type='number'
-                            onChange={(e) => setOtp(e.target.value)}
-                            required
-                          />
+                          {otp.split("").map((value, index) => (
+                            <TextField
+                              key={index}
+                              id={`otp-input-${index}`}
+                              value={value}
+                              onChange={(e) => handleChange(e, index)}
+                              onKeyDown={(e) => handleKeyDown(e, index)}
+                              inputProps={{
+                                maxLength: 1,
+                                style: {
+                                  textAlign: "center",
+                                  fontSize: "18px",
+                                  width: "40px",
+                                  height: "40px",
+                                },
+                              }}
+                              variant="outlined"
+                            />
+                          ))}
                           <Button
                             type="button"
                             variant="contained"
@@ -179,7 +290,7 @@ const LoginSignup: React.FC = () => {
                             Verify OTP
                           </Button>
                         </>
-                      )}
+                      )} */}
                     </>
                   )}
                   <TextField
@@ -217,16 +328,51 @@ const LoginSignup: React.FC = () => {
                   {
                     !isSignUpMode && isLoginOtpSent &&
                     <>
-                      <TextField
-                        fullWidth
-                        label="Enter OTP"
-                        variant="standard"
-                        value={otp}
-                        type='number'
-                        onChange={(e) => setOtp(e.target.value)}
-                        required
-                      />
-                      <Button
+                      <Box display="flex" flexDirection="column" alignItems="center" gap={2} mt={2}>
+      {/* Render the visible OTP boxes */}
+      <Box display="flex" justifyContent="center">
+        {renderOtpBoxes()}
+      </Box>
+
+      {/* Hidden Input Field for Typing */}
+      <InputBase
+        value={otp}
+        onChange={handleChange}
+        inputProps={{
+          maxLength: 6, // Limit to 6 characters
+        }}
+        sx={{
+          position: "absolute",
+          opacity: 0,
+          pointerEvents: "none",
+        }}
+        autoFocus
+      />
+    </Box>
+                      <div
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          marginTop: '10px',
+                        }}
+                      >
+                        <span></span>
+                        {isResendEnabled ? (
+                          <span
+                            style={{
+                              color: 'blue',
+                              cursor: 'pointer',
+                              textDecoration: 'underline',
+                            }}
+                            onClick={handleSendLoginOtp}
+                          >
+                            Resend OTP
+                          </span>
+                        ) : (
+                          <span style={{ color: 'gray' }}>Resend OTP in {timer}s</span>
+                        )}
+                      </div>                      <Button
                         type="submit"
                         variant="contained"
                         color="primary"
@@ -238,16 +384,16 @@ const LoginSignup: React.FC = () => {
                     </>
                   }
                   {
-                    isSignUpMode && 
+                    isSignUpMode &&
                     <Button
-                        type="submit"
-                        variant="contained"
-                        color="primary"
-                        fullWidth
-                        className="small-btn mt-10 mb-30"
-                      >
-                        Sign Up
-                      </Button>
+                      type="submit"
+                      variant="contained"
+                      color="primary"
+                      fullWidth
+                      className="small-btn mt-10 mb-30"
+                    >
+                      Sign Up
+                    </Button>
                   }
                   <Typography variant="body2" align="center" className="text">
                     Forgot Password? <a href="">Get help</a> signing in.

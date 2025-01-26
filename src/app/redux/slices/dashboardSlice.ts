@@ -42,6 +42,8 @@ function getTitleByDashboard(dashboard: string): string {
       return 'Accounts';
     case 'document-uploads':
       return 'Document Uploads';
+    case 'document-viewer':
+      return 'Document Viewer'
     default:
       return 'Payments';
   }
