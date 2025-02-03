@@ -138,7 +138,7 @@ const RecentPayments: React.FC = () => {
         dispatch(setCurrentDashboard("document-uploads"));
         break;
       case "2":
-        dispatch(setCurrentDashboard("document-viewer"));
+        dispatch(setCurrentDashboard("document-uploads"));
         break;
       case "3":
         dispatch(setCurrentDashboard("track-payments"));

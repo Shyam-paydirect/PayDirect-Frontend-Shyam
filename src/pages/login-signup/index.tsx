@@ -7,7 +7,7 @@ import {
   Box,
   Typography,
   TextField,
-  Button,InputBase 
+  Button, InputBase
 } from '@mui/material';
 import './login-signup.css'; // Assuming the CSS will be in this file
 import '@/../public/assets/css/table.css';
@@ -19,11 +19,13 @@ import { login, signup, sendEmailOtp, verifyEmailOtp, verifyLoginOtp } from '@/a
 import { ToastContainer, toast } from 'react-toastify';
 import { useRouter } from 'next/router';
 import Cookies from 'js-cookie';
+import { requestPasswordReset } from '@/app/redux/slices/api/forgotPasswordSlice';
 
 const LoginSignup: React.FC = () => {
   const [isSignUpMode, setIsSignUpMode] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [clicked, setClicked] = useState(false);
   const [email, setEmail] = useState('');
   const [activeTextIndex, setActiveTextIndex] = useState(0);
   const [otp, setOtp] = useState('');
@@ -52,21 +54,47 @@ const LoginSignup: React.FC = () => {
     }
   };
 
+  const handleRequestReset = async () => {
+    if (!clicked) {
+      setClicked(true);
+
+      if (!username) {
+        toast.error("Please enter your username!");
+        return;
+      }
+
+      try {
+        const response = await dispatch(requestPasswordReset(username)).unwrap();
+        toast.success(response?.message);
+      } catch (error) {
+        // console.log("error-====",typeof error)
+        const errorMessage: string =
+          typeof error === "string" ? error : "An unknown error occurred";
+
+
+        toast.error(errorMessage);
+      }
+      setTimeout(() => {
+        setClicked(false);
+      }, 5000);
+    }
+  };
+
   const handleOtpInput = (
     e: any,
     index: number
   ) => {
     const input = e.target as HTMLInputElement;
     const value = input.value;
-  
+
     if (e.type === "change") {
       // Ensure input is numeric and only one character
       if (!/^\d$/.test(value) && value !== "") return;
-  
+
       const otpArray = otp.split(""); // Convert OTP string to an array
       otpArray[index] = value; // Update the value at the given index
       setOtp(otpArray.join("")); // Join back into a single string
-  
+
       // Move focus to the next box if a digit is entered
       if (value && index < 5) {
         const nextInput = document.getElementById(`otp-input-${index + 1}`);
@@ -76,7 +104,7 @@ const LoginSignup: React.FC = () => {
       const otpArray = otp.split(""); // Convert OTP string to an array
       otpArray[index] = ""; // Clear the value at the current index
       setOtp(otpArray.join("")); // Update the OTP state
-  
+
       // Move focus to the previous box if the current box is empty
       if (index > 0) {
         const prevInput = document.getElementById(`otp-input-${index - 1}`);
@@ -87,7 +115,7 @@ const LoginSignup: React.FC = () => {
       }
     }
   };
-  
+
   const renderOtpBoxes = () => {
     return (
       <Box display="flex" justifyContent="center" gap={1}>
@@ -329,26 +357,26 @@ const LoginSignup: React.FC = () => {
                     !isSignUpMode && isLoginOtpSent &&
                     <>
                       <Box display="flex" flexDirection="column" alignItems="center" gap={2} mt={2}>
-      {/* Render the visible OTP boxes */}
-      <Box display="flex" justifyContent="center">
-        {renderOtpBoxes()}
-      </Box>
+                        {/* Render the visible OTP boxes */}
+                        <Box display="flex" justifyContent="center">
+                          {renderOtpBoxes()}
+                        </Box>
 
-      {/* Hidden Input Field for Typing */}
-      <InputBase
-        value={otp}
-        onChange={handleChange}
-        inputProps={{
-          maxLength: 6, // Limit to 6 characters
-        }}
-        sx={{
-          position: "absolute",
-          opacity: 0,
-          pointerEvents: "none",
-        }}
-        autoFocus
-      />
-    </Box>
+                        {/* Hidden Input Field for Typing */}
+                        <InputBase
+                          value={otp}
+                          onChange={handleChange}
+                          inputProps={{
+                            maxLength: 6, // Limit to 6 characters
+                          }}
+                          sx={{
+                            position: "absolute",
+                            opacity: 0,
+                            pointerEvents: "none",
+                          }}
+                          autoFocus
+                        />
+                      </Box>
                       <div
                         style={{
                           display: 'flex',
@@ -363,7 +391,7 @@ const LoginSignup: React.FC = () => {
                             style={{
                               color: 'blue',
                               cursor: 'pointer',
-                              textDecoration: 'underline',
+                              // textDecoration: 'underline',
                             }}
                             onClick={handleSendLoginOtp}
                           >
@@ -396,7 +424,15 @@ const LoginSignup: React.FC = () => {
                     </Button>
                   }
                   <Typography variant="body2" align="center" className="text">
-                    Forgot Password? <a href="">Get help</a> signing in.
+                    Forgot Password? <span
+                      style={{
+                        color: clicked ? "black" : "blue", // Change color when clicked
+                        cursor: clicked ? "default" : "pointer", // Remove pointer when clicked
+                      }}
+                      onClick={!clicked ? handleRequestReset : undefined}
+                    >
+                      Get Help
+                    </span> signing in.
                   </Typography>
                 </form>
               </Box>

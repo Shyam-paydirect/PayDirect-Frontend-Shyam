@@ -15,14 +15,16 @@ import UploadFileIcon from "@mui/icons-material/UploadFile";
 import CloseIcon from "@mui/icons-material/Close";
 import { useDispatch, useSelector } from "react-redux";
 import { uploadFiles } from "@/app/redux/slices/api/fileUploadSlice";
-import { fetchDocuments } from "@/app/redux/slices/api/documentSlice";
+import { fetchDocuments, fetchFileData } from '@/app/redux/slices/api/documentSlice';
 import { AppDispatch } from "@/app/redux/store";
 import { toast, ToastContainer } from "react-toastify";
 import { setCurrentDashboard } from "@/app/redux/slices/dashboardSlice";
 import Cookies from "js-cookie";
-import {jwtDecode} from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 import PaymentProgress from "../paymentDetails/payment-progress";
 import { selectSelectedOrderId, updateOrderPaymentStatus } from "@/app/redux/slices/api/orderSlice";
+import DownloadIcon from '@mui/icons-material/Download';
+import crypto from 'crypto';
 
 interface CustomJwtPayload {
     username: string;
@@ -34,6 +36,7 @@ const DocumentUploads: React.FC = () => {
     const theme = useTheme();
     const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
     const currOrderId = useSelector(selectSelectedOrderId);
+    const [allApproved, setAllApproved] = useState(false);
 
     const [uploadedFiles, setUploadedFiles] = useState<{ [key: number]: File[] }>({});
     const [preUploadedDocs, setPreUploadedDocs] = useState<{ [key: number]: any[] }>({});
@@ -52,6 +55,8 @@ const DocumentUploads: React.FC = () => {
             try {
                 const response = await dispatch(fetchDocuments(currOrderId)).unwrap();
                 const fetchedDocs = response.allDocs || [];
+                console.log('fetch', fetchedDocs.every((doc: any) => doc.status === 'approved'));
+                setAllApproved(fetchedDocs.every((doc: any) => doc.status === 'approved'));
 
                 const mappedDocs: { [key: number]: any[] } = {};
                 fetchedDocs.forEach((doc: any, index: number) => {
@@ -68,6 +73,11 @@ const DocumentUploads: React.FC = () => {
 
         fetchUploadedDocs();
     }, [dispatch, currOrderId]);
+
+    const handleNext = () => {
+        localStorage.setItem("prev_component", 'document-upload')
+        dispatch(setCurrentDashboard('fx-rate-booker'))
+    }
 
     const handleFileChange = (index: number) => {
         const input = document.createElement("input");
@@ -92,6 +102,23 @@ const DocumentUploads: React.FC = () => {
         }));
     };
 
+    const decryptUrl = (encryptedUrl: string, encryptionKey: string) => {
+        const algorithm = 'aes-256-cbc';
+        const [iv, encrypted] = encryptedUrl.split(':');
+
+        const decipher = crypto.createDecipheriv(algorithm, Buffer.from(encryptionKey, 'hex'), Buffer.from(iv, 'hex'));
+        let decrypted = decipher.update(encrypted, 'hex', 'utf8');
+        decrypted += decipher.final('utf8');
+
+        return decrypted;
+    };
+
+    const handleDownloadFile = async (s3Path: string) => {
+        const response = await dispatch(fetchFileData(s3Path)).unwrap();
+        const file = decryptUrl(response.encryptedUrl, '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef');
+        window.open(file, '_blank');
+    };
+
     const handleUploadAll = async () => {
         const filesToUpload = Object.entries(uploadedFiles)
             .flatMap(([index, files]) => files)
@@ -104,8 +131,6 @@ const DocumentUploads: React.FC = () => {
                 await dispatch(uploadFiles({ files: filesToUpload, custRefId, customerId })).unwrap();
                 toast.success("Documents uploaded successfully");
                 setTimeout(() => {
-                    localStorage.setItem("prev_component", "document-uploads");
-                    dispatch(setCurrentDashboard("document-viewer"));
                     dispatch(updateOrderPaymentStatus({
                         orderId: custRefId,
                         statusPayment: '2'
@@ -116,8 +141,8 @@ const DocumentUploads: React.FC = () => {
                     typeof error === "string"
                         ? error
                         : error instanceof Error
-                        ? error.message
-                        : "An unknown error occurred";
+                            ? error.message
+                            : "An unknown error occurred";
 
                 toast.error(errorMessage);
             }
@@ -163,7 +188,6 @@ const DocumentUploads: React.FC = () => {
                     alignItems: isSmallScreen ? "center" : "flex-start",
                     width: "100%",
                     padding: 3,
-                    backgroundColor: "#f0f4ff",
                 }}
             >
                 <PaymentProgress steps={steps} activeStep={1} />
@@ -182,7 +206,7 @@ const DocumentUploads: React.FC = () => {
 
                     <Grid container spacing={3}>
                         {documents.map((doc, index) => (
-                            <Grid item xs={12} sm={6} key={index}>
+                            <Grid item xs={12} key={index}>
                                 <Card
                                     sx={{
                                         height: "100%",
@@ -201,72 +225,66 @@ const DocumentUploads: React.FC = () => {
                                         </Typography>
                                     </CardContent>
                                     <CardActions>
-                                        <Box width="100%">
+                                        <Box width="100%" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                                             {preUploadedDocs[index]?.map((file, idx) => (
                                                 <Box
-                                                    key={idx}
                                                     sx={{
-                                                        border: "1px solid #ddd",
-                                                        borderRadius: "8px",
-                                                        padding: "8px 12px",
-                                                        marginBottom: 1,
-                                                        backgroundColor: "#f9f9f9",
-                                                    }}
-                                                >
-                                                    <Typography variant="body2">{file.doc_name}</Typography>
-                                                </Box>
-                                            ))}
-                                            {uploadedFiles[index]?.map((file, idx) => (
-                                                <Box
-                                                    key={idx}
-                                                    sx={{
-                                                        border: "1px solid #ddd",
-                                                        borderRadius: "8px",
-                                                        padding: "8px 12px",
-                                                        marginBottom: 1,
                                                         display: "flex",
                                                         alignItems: "center",
                                                         justifyContent: "space-between",
-                                                        backgroundColor: "#f9f9f9",
+                                                        flex: 1,
                                                     }}
-                                                >
-                                                    <Typography variant="body2">{file.name}</Typography>
-                                                    <IconButton
-                                                        onClick={() => handleRemoveFile(index, idx)}
-                                                        color="error"
-                                                        size="small"
+                                                >                                                    {/* File Box */}
+                                                    <Box
+                                                        key={idx}
+                                                        sx={{
+                                                            border: "1px solid #ddd",
+                                                            borderRadius: "8px",
+                                                            padding: "8px 12px",
+                                                            backgroundColor: "#f9f9f9",
+                                                            display: "flex",
+                                                            justifyContent: "space-between",
+                                                            alignItems: "center",
+                                                            flex: 1,
+                                                            maxWidth: "50%",
+                                                            minWidth: 0 // Ensures responsiveness
+                                                        }}
                                                     >
+                                                        <Typography variant="body2" sx={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                                                            {file.doc_name}
+                                                        </Typography>
+                                                        <DownloadIcon sx={{ fontSize: 16, color: "#555" }} onClick={() => handleDownloadFile(file.s3_path)} />
+                                                    </Box>
+
+                                                    {/* Approved Status (Outside Box) */}
+                                                    <Box className={file.status == 'approved' ? "status-sale status capitalize" : "status-charges status capitalize"}>
+                                                        {file.status}
+                                                    </Box>
+                                                </Box>
+                                            ))}
+
+                                            {uploadedFiles[index]?.map((file, idx) => (
+                                                <Box key={idx} sx={{ border: "1px solid #ddd", borderRadius: "8px", padding: "8px 12px", marginBottom: 1, display: "flex", alignItems: "center", justifyContent: "space-between", backgroundColor: "#f9f9f9" }}>
+                                                    <Typography variant="body2">{file.name}</Typography>
+                                                    <IconButton onClick={() => handleRemoveFile(index, idx)} color="error" size="small">
                                                         <CloseIcon />
                                                     </IconButton>
                                                 </Box>
                                             ))}
+
                                             {index === 3 && ((preUploadedDocs[index]?.length || 0) + (uploadedFiles[index]?.length || 0)) < 2 && (
-                                                <Button
-                                                    variant="outlined"
-                                                    color="primary"
-                                                    onClick={() => handleFileChange(index)}
-                                                    fullWidth
-                                                    sx={{ marginBottom: 1 }}
-                                                >
-                                                    <UploadFileIcon />
-                                                    Select File
+                                                <Button variant="outlined" color="primary" onClick={() => handleFileChange(index)} fullWidth sx={{ marginBottom: 1 }}>
+                                                    <UploadFileIcon /> Select File
                                                 </Button>
                                             )}
-                                            {index < 3 &&
-                                                !preUploadedDocs[index]?.length &&
-                                                uploadedFiles[index]?.length !== 1 && (
-                                                    <Button
-                                                        variant="outlined"
-                                                        color="primary"
-                                                        onClick={() => handleFileChange(index)}
-                                                        fullWidth
-                                                    >
-                                                        <UploadFileIcon />
-                                                        Select File
-                                                    </Button>
-                                                )}
+                                            {index < 3 && !preUploadedDocs[index]?.length && uploadedFiles[index]?.length !== 1 && (
+                                                <Button variant="outlined" color="primary" onClick={() => handleFileChange(index)} fullWidth>
+                                                    <UploadFileIcon /> Select File
+                                                </Button>
+                                            )}
                                         </Box>
                                     </CardActions>
+
                                 </Card>
                             </Grid>
                         ))}
@@ -278,6 +296,19 @@ const DocumentUploads: React.FC = () => {
                         sx={{ width: "100%", marginTop: 2 }}
                     >
                         Upload All Files
+                    </Button>
+                    <Button
+                        variant="contained"
+                        disabled={!allApproved}
+                        color="success"
+                        onClick={handleNext}
+                        sx={{
+                            background: allApproved ? "rgb(0, 129, 19)" : "gray",
+                            cursor: allApproved ? "pointer" : "not-allowed",
+                            width: "100%", marginTop: 2
+                        }}
+                    >
+                    {"Book FX Rate >"}
                     </Button>
                 </Box>
             </Box>

@@ -37,12 +37,12 @@ interface CustomJwtPayload {
 
 const token = Cookies.get('token') || "";
 
-  let decodedToken: CustomJwtPayload | null = null; // Initialize with null
+let decodedToken: CustomJwtPayload | null = null; // Initialize with null
 
-  if (token !== "") {
-      decodedToken = jwtDecode<CustomJwtPayload>(token); // Assign the decoded token
-  }
-  const userID = decodedToken?.id || 0;
+if (token !== "") {
+  decodedToken = jwtDecode<CustomJwtPayload>(token); // Assign the decoded token
+}
+const userID = decodedToken?.id || 0;
 
 const OrderPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -99,7 +99,7 @@ const OrderPage: React.FC = () => {
     else {
       localStorage.setItem('txnAmount', txnAmount)
       localStorage.setItem("prev_component", 'order-book')
-      dispatch(setCurrentDashboard('document-viewer'));
+      dispatch(setCurrentDashboard('document-uploads'));
       dispatch(setSelectedOrderId(id));
     }
   }
@@ -382,49 +382,54 @@ const OrderPage: React.FC = () => {
                             alignItems: 'center',
                           }}
                         >
-                          <Button
-                            variant="contained"
-                            color="primary"
-                            // startIcon={<Icon>description</Icon>} // Icon for the document
-                            sx={{
-                              textTransform: 'none',
-                              padding: '8px 16px',
-                              borderRadius: 8,
-                              fontSize: '0.85rem',
-                              fontWeight: 600,
-                              boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
-                              backgroundColor: '#673ab7',
-                              '&:hover': {
-                                backgroundColor: '#5e35b1',
-                              },
-                            }}
-                            onClick={() => handleDocumentClick(order.orderId)}
-                          >
-                            {/* View Documents */}
-                            <DescriptionIcon />
-                          </Button>
+                          {order.statusPayment == '1' &&
+                            <Button
+                              variant="contained"
+                              color="primary"
+                              // startIcon={<Icon>description</Icon>} // Icon for the document
+                              sx={{
+                                textTransform: 'none',
+                                padding: '8px 16px',
+                                borderRadius: 8,
+                                fontSize: '0.85rem',
+                                fontWeight: 600,
+                                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+                                backgroundColor: '#673ab7',
+                                '&:hover': {
+                                  backgroundColor: '#5e35b1',
+                                },
+                              }}
+                              onClick={() => handleDocumentClick(order.orderId)}
+                            >
+                              {/* View Documents */}
+                              <DescriptionIcon />
+                            </Button>
 
-                          <Button
-                            variant="outlined"
-                            color="secondary"
-                            sx={{
-                              textTransform: 'none',
-                              marginLeft: '10px',
-                              padding: '10px 16px',
-                              borderRadius: 8,
-                              fontSize: '0.85rem',
-                              fontWeight: 600,
-                              boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-                              backgroundColor: '#ffffff',
-                              '&:hover': {
-                                backgroundColor: '#f5f5f5',
-                              },
-                            }}
-                            onClick={() => handleViewDocuments(order.orderId, order.txnAmount)}
+                          }
+                          {order.statusPayment == '2' &&
 
-                          >
-                            <Visibility sx={{ fontSize: '1.2rem', color: '#673ab7' }} />
-                          </Button>
+                            <Button
+                              variant="outlined"
+                              color="secondary"
+                              sx={{
+                                textTransform: 'none',
+                                marginLeft: '10px',
+                                padding: '10px 16px',
+                                borderRadius: 8,
+                                fontSize: '0.85rem',
+                                fontWeight: 600,
+                                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                                backgroundColor: '#ffffff',
+                                '&:hover': {
+                                  backgroundColor: '#f5f5f5',
+                                },
+                              }}
+                              onClick={() => handleViewDocuments(order.orderId, order.txnAmount)}
+
+                            >
+                              <Visibility sx={{ fontSize: '1.2rem', color: '#673ab7' }} />
+                            </Button>
+                          }
                         </Box>
                       }
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: { xs: '0.8rem', sm: '0.9rem', md: '1rem' } }}>

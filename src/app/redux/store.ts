@@ -10,6 +10,7 @@ import fileUploadReducer from './slices/api/fileUploadSlice';
 import txnOtpReducer from './slices/api/txnOtpSlice';
 import documentReducer from './slices/api/documentSlice';
 import accountsReducer from './slices/api/accountsSlice';
+import forgotPasswordReducer from './slices/api/forgotPasswordSlice';
 
 export const store = configureStore({
   reducer: {
@@ -24,6 +25,7 @@ export const store = configureStore({
     txnOtp: txnOtpReducer,
     documents: documentReducer,
     accounts: accountsReducer,
+    forgotPassword: forgotPasswordReducer,
   },
 });
 
