@@ -44,6 +44,32 @@ const AccountDetails: React.FC = () => {
     selfAccount: 1
   });
 
+  const addressRegex = /^[a-zA-Z0-9\s,-]+$/; // Allows letters, numbers, spaces, commas, and hyphens
+
+  const [errors, setErrors] = useState({
+    bankAddress: "",
+    city: "",
+    state: "",
+    country: "",
+  });
+
+  // Validation function
+  const validateField = (field: string, value: string) => {
+    if (!addressRegex.test(value)) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        [field]: "Invalid characters used. Only letters, numbers, spaces, hyphens (-), and commas (,) are allowed.",
+      }));
+    } else {
+      setErrors((prevErrors) => ({ ...prevErrors, [field]: "" }));
+    }
+  };
+
+  const handleInputChange = (field: string, value: string) => {
+    validateField(field, value);
+    setNewAccount((prev) => ({ ...prev, [field]: value }));
+  };
+
   useEffect(() => {
     dispatch(fetchAccounts(`${userId}`));
   }, [dispatch, userId]);
@@ -137,8 +163,9 @@ const AccountDetails: React.FC = () => {
                 label="Bank Address"
                 fullWidth
                 value={newAccount.bankAddress}
-                onChange={(e) => setNewAccount({ ...newAccount, bankAddress: e.target.value })}
-              />
+                onChange={(e) => handleInputChange("bankAddress", e.target.value)}
+                error={!!errors.bankAddress}
+                helperText={errors.bankAddress} />
             </Grid>
             <Grid item xs={12}>
               <Typography variant="subtitle1">Beneficiary Addresses</Typography>
@@ -150,8 +177,9 @@ const AccountDetails: React.FC = () => {
                       fullWidth
                       value={address.address}
                       onChange={(e) => {
+                        const validValue = e.target.value.replace(/[^a-zA-Z0-9\s,-]/g, ""); // Allow letters, numbers, space, comma, and hyphen
                         const updatedAddresses = [...newAccount.beneficiaryAddresses];
-                        updatedAddresses[index].address = e.target.value;
+                        updatedAddresses[index].address = validValue;
                         setNewAccount({ ...newAccount, beneficiaryAddresses: updatedAddresses });
                       }}
                     />

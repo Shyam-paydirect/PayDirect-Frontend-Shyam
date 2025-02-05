@@ -97,6 +97,14 @@ const BankDetails: React.FC<BankDetailsProps> = ({
             newErrors.beneficiaryAccountNumber = "Account Number must be 9-18 digits.";
         }
 
+        const addressRegex = /^[a-zA-Z0-9\s,.-]+$/;
+
+        (["bankAddress", "city", "state", "country"] as Array<keyof typeof bankDetails>).forEach((field) => {
+            if (bankDetails[field] && !addressRegex.test(bankDetails[field])) {
+                newErrors[field] = `${field.replace(/([A-Z])/g, " $1")} contains invalid characters.`;
+            }
+        });
+
         setErrors(newErrors);
 
         // Return whether the form is valid

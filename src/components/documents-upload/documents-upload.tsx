@@ -42,6 +42,8 @@ const DocumentUploads: React.FC = () => {
     const [preUploadedDocs, setPreUploadedDocs] = useState<{ [key: number]: any[] }>({});
     const token = Cookies.get("token") || "";
 
+    const [reload, setReload] = useState(false)
+
     let decodedToken: CustomJwtPayload | null = null;
 
     if (token !== "") {
@@ -56,7 +58,7 @@ const DocumentUploads: React.FC = () => {
                 const response = await dispatch(fetchDocuments(currOrderId)).unwrap();
                 const fetchedDocs = response.allDocs || [];
                 console.log('fetch', fetchedDocs.every((doc: any) => doc.status === 'approved'));
-                setAllApproved(fetchedDocs.every((doc: any) => doc.status === 'approved'));
+                setAllApproved(fetchedDocs.length > 0 && fetchedDocs.every((doc: any) => doc.status === 'approved'));
 
                 const mappedDocs: { [key: number]: any[] } = {};
                 fetchedDocs.forEach((doc: any, index: number) => {
@@ -72,7 +74,7 @@ const DocumentUploads: React.FC = () => {
         };
 
         fetchUploadedDocs();
-    }, [dispatch, currOrderId]);
+    }, [dispatch, currOrderId, reload]);
 
     const handleNext = () => {
         localStorage.setItem("prev_component", 'document-upload')
@@ -135,6 +137,8 @@ const DocumentUploads: React.FC = () => {
                         orderId: custRefId,
                         statusPayment: '2'
                     }))
+                setReload(!reload)
+                setUploadedFiles([])
                 }, 2000);
             } catch (error) {
                 const errorMessage =
