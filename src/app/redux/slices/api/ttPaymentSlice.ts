@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { stagingApi } from '@/constants';
+import Cookies from 'js-cookie';
 
 interface PaymentState {
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
@@ -14,14 +15,20 @@ const initialState: PaymentState = {
   paymentStatus: null,
 };
 
+const getAuthToken = () => {
+  return Cookies.get('token'); // Assuming 'token' is the key in cookies
+};
+
 // Async thunk for making the ttPayment API call
 export const submitPayment = createAsyncThunk(
   'payment/submitPayment',
   async (paymentData: any, { rejectWithValue }) => {
     try {
+      const token = getAuthToken();
       const response = await axios.post(`${stagingApi}/ttPayment`, paymentData, {
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
         },
       });
       return response.data;
