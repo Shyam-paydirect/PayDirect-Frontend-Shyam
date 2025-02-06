@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { stagingApi } from '@/constants';
+import Cookies from 'js-cookie';
 
 interface FxRateState {
     fxRate: number | null;
@@ -14,11 +15,20 @@ const initialState: FxRateState = {
     error: null,
 };
 
+const getAuthToken = () => {
+    return Cookies.get('token'); // Assuming 'token' is the key in cookies
+};
+  
 export const fetchFxRate = createAsyncThunk(
     'fxRate/fetchFxRate',
     async (bodyData: any, { rejectWithValue }) => {
         try {
-            const response = await axios.post(`${stagingApi}/fxrate/spot-rate`, bodyData);
+            const token = getAuthToken();
+            const response = await axios.post(`${stagingApi}/fxrate/spot-rate`, bodyData,{
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              });
             return response.data;
         } catch (err: any) {
             return rejectWithValue(err.response?.data?.error || err?.message || 'Failed to fetch FX rate');
@@ -30,7 +40,13 @@ export const bookFxRate = createAsyncThunk(
     'fxRate/bookFxRate',
     async (bodyData: any, { rejectWithValue }) => {
         try {
-            const response = await axios.post(`${stagingApi}/fxrate/forward-rate`, bodyData);
+            const token = getAuthToken();
+            const response = await axios.post(`${stagingApi}/fxrate/forward-rate`, bodyData, {
+                headers: {
+                  'Content-Type': 'application/json',
+                  Authorization: `Bearer ${token}`,
+                },
+              });
             return response.data;
         } catch (err: any) {
             return rejectWithValue(err.response?.data?.error || err?.message || 'Failed to book FX rate');
