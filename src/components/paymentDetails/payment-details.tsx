@@ -135,9 +135,9 @@ const PaymentDetails: React.FC = () => {
         purposeOfPayment: "OTHR",
         chargeBearer: "DEBT",
         senderParty: {
-            name: "ProductStackArrayTechnologies PVT LTD",
-            accountNo: "8827210000027502",
-            swiftBic: "DBSSINB0XXX",
+            name: "Articulus Surgery",
+            accountNo: "8151210000004565",
+            swiftBic: "DBSSINBBXXX",
         },
         receivingParty: {
             name: bankDetails.beneficiaryName,
@@ -181,8 +181,8 @@ const PaymentDetails: React.FC = () => {
                 responseType: response?.data?.txnResponses[0]?.responseType,
                 txnStatus: response?.data?.txnResponses[0]?.txnStatus,
                 txnStatusDescription: response?.data?.txnResponses[0]?.txnStatusDescription,
-                sendingPartyName: "ProductStackArrayTechnologies PVT LTD",
-                sendingPartyAccountNo: "8827210000027502",
+                sendingPartyName: "Articulus Surgery",
+                sendingPartyAccountNo: "8151210000004565",
                 receivingPartyName: bankDetails.beneficiaryName,
                 receivingPartyAccountNo: bankDetails.beneficiaryAccountNumber
             }
