@@ -25,6 +25,7 @@ import PaymentProgress from "../paymentDetails/payment-progress";
 import { selectSelectedOrderId, updateOrderPaymentStatus } from "@/app/redux/slices/api/orderSlice";
 import DownloadIcon from '@mui/icons-material/Download';
 import crypto from 'crypto';
+import { uploadApprovedDoc } from "@/app/redux/slices/api/uploadFinalDocs";
 
 interface CustomJwtPayload {
     username: string;
@@ -76,9 +77,25 @@ const DocumentUploads: React.FC = () => {
         fetchUploadedDocs();
     }, [dispatch, currOrderId, reload]);
 
-    const handleNext = () => {
+    const handleNext = async () => {
         localStorage.setItem("prev_component", 'document-upload')
-        dispatch(setCurrentDashboard('fx-rate-booker'))
+        try {
+            const body = {
+                custRefId: currOrderId || "",
+                isFinal: "Y"
+            }
+            await dispatch(uploadApprovedDoc(body))
+            await dispatch(setCurrentDashboard('fx-rate-booker'))
+        }
+        catch (error) {
+            const errorMessage =
+                typeof error === "string"
+                    ? error
+                    : error instanceof Error
+                        ? error.message
+                        : "An unknown error occurred";
+            toast.error(errorMessage)
+        }
     }
 
     const handleFileChange = (index: number) => {
@@ -137,8 +154,8 @@ const DocumentUploads: React.FC = () => {
                         orderId: custRefId,
                         statusPayment: '2'
                     }))
-                setReload(!reload)
-                setUploadedFiles([])
+                    setReload(!reload)
+                    setUploadedFiles([])
                 }, 2000);
             } catch (error) {
                 const errorMessage =
@@ -312,7 +329,7 @@ const DocumentUploads: React.FC = () => {
                             width: "100%", marginTop: 2
                         }}
                     >
-                    {"Book FX Rate >"}
+                        {"Book FX Rate >"}
                     </Button>
                 </Box>
             </Box>

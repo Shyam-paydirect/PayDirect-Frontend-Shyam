@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
+import Cookies from 'js-cookie';
 
 // Import the base URL
 import { stagingApi } from '@/constants';
@@ -14,30 +15,29 @@ const initialState: UploadDocState = {
   error: null,
 };
 
+const getAuthToken = () => {
+  return Cookies.get('token'); // Assuming 'token' is the key in cookies
+};
+
 // Async Thunk for uploading approved documents
 export const uploadApprovedDoc = createAsyncThunk(
   'uploadApprovedDoc/upload',
   async (
     {
       custRefId,
-      transactionRef,
-      acctNo,
       isFinal,
     }: {
       custRefId: string;
-      transactionRef: string;
-      acctNo: number;
       isFinal: string;
     },
     { rejectWithValue }
   ) => {
     try {
+      const token = getAuthToken();
       const response = await axios.post(
         `${stagingApi}/uploadApprovedDoc`, // Use the base URL from `stagingApi`
         {
           custRefId,
-          transactionRef,
-          acctNo,
           isFinal,
         },
         {
@@ -46,6 +46,7 @@ export const uploadApprovedDoc = createAsyncThunk(
             'X-DBS-ORG_ID': 'INPROD06',
             'X-DBS-PROFILE': 'DEFAULT',
             'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
           },
         }
       );
