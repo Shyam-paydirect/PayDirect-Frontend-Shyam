@@ -132,7 +132,7 @@ const PaymentDetails: React.FC = () => {
         customerReference: customerReference,
         txnCcy: currency,
         debitAccountAmount: remittanceAmount,
-        purposeOfPayment: "OTHR",
+        purposeOfPayment: "S0101",
         chargeBearer: "DEBT",
         senderParty: {
             name: "Articulus Surgery",
