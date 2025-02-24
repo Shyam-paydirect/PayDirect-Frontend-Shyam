@@ -29,7 +29,7 @@ const AccountDetails: React.FC = () => {
     userId: `${userId}`,
     name: "",
     accountNo: "",
-    swiftBic: "DBSSSGSGXXX",
+    swiftBic: "",
     IFSC: "",
     UPI_ID: "",
     bankName: "",
@@ -130,7 +130,7 @@ const AccountDetails: React.FC = () => {
                 label="SWIFT BIC"
                 fullWidth
                 value={newAccount.swiftBic}
-                disabled
+                // disabled
                 onChange={(e) => setNewAccount({ ...newAccount, swiftBic: e.target.value })}
               />
             </Grid>

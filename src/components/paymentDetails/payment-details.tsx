@@ -46,7 +46,7 @@ const PaymentDetails: React.FC = () => {
     const [otpTransactionId, setOtpTransactionId] = useState<string>("");
 
     const [remittanceAmount, setRemittanceAmount] = useState('');
-    const [currency, setCurrency] = useState('INR');
+    const [currency, setCurrency] = useState('USD');
     const [dateOfTransfer, setDateOfTransfer] = useState(moment().format("YYYY-MM-DD"));
     const [invoiceNumber, setInvoiceNumber] = useState('');
     const [purposeCode, setPurposeCode] = useState('');
@@ -119,25 +119,26 @@ const PaymentDetails: React.FC = () => {
 
             toast.info("OTP sent to your registered email.");
             setOtpTransactionId(customerReference);
-                dispatch(setSelectedOrderId(customerReference));
-            
+            dispatch(setSelectedOrderId(customerReference));
+
             setIsDialogOpen(true);
         } catch (error) {
             toast.error("Failed to send OTP. Please try again.");
         }
     };
 
+
     const paymentData = {
         txnAmount: remittanceAmount,
         customerReference: customerReference,
         txnCcy: currency,
         debitAccountAmount: remittanceAmount,
-        purposeOfPayment: "S0101",
+        purposeOfPayment: purposeCode,
         chargeBearer: "DEBT",
         senderParty: {
-            name: "Articulus Surgery",
-            accountNo: "8151210000004565",
-            swiftBic: "DBSSINBBXXX",
+            name: bankDetails.senderName,
+            accountNo: bankDetails.senderAccNo,
+            swiftBic: bankDetails.senderBic,
         },
         receivingParty: {
             name: bankDetails.beneficiaryName,
@@ -188,6 +189,7 @@ const PaymentDetails: React.FC = () => {
             }
             await handleOrderCreation(orderData);
             localStorage.setItem('txnAmount', remittanceAmount);
+            localStorage.setItem('currency', currency);
             toast.success("TT Payment Initiated")
 
             setTimeout(() => {
@@ -195,7 +197,7 @@ const PaymentDetails: React.FC = () => {
 
             }, 2000)
 
-        
+
         }
         catch (error) {
             const errorMessage =
@@ -226,6 +228,9 @@ const PaymentDetails: React.FC = () => {
                 beneficiaryName: '',
                 beneficiaryAccountNumber: '',
                 micrCode: '',
+                senderName: '',
+                senderAccNo: '',
+                senderBic: ''
             };
             dispatch(saveBankDetails(initialBankData));
         }
@@ -343,8 +348,8 @@ const PaymentDetails: React.FC = () => {
                                     />
                                 </Grid>
                                 <Grid item xs={12}>
-                                <FormControl fullWidth variant="outlined" sx={{ marginTop: 0 }}>
-                                <InputLabel>Purpose Code</InputLabel>
+                                    <FormControl fullWidth variant="outlined" sx={{ marginTop: 0 }}>
+                                        <InputLabel>Purpose Code</InputLabel>
                                         <Select
                                             value={purposeCode}
                                             onChange={(e) => setPurposeCode(e.target.value)}

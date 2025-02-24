@@ -13,7 +13,7 @@ import { useDispatch } from "react-redux";
 import { saveBankDetails } from "@/app/redux/slices/paymentDetailsSlice";
 import AccountSelectorModal from "./fetch-bank"; // Import the selector modal
 import Cookies from "js-cookie";
-import {jwtDecode} from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 import { createAccount } from "@/app/redux/slices/api/accountsSlice";
 import { AppDispatch } from "@/app/redux/store";
 
@@ -58,14 +58,31 @@ const BankDetails: React.FC<BankDetailsProps> = ({
         micrCode: "",
         beneficiaryName: "",
         beneficiaryAccountNumber: "",
+        senderName: '',
+        senderAccNo: '',
+        senderBic: ''
     });
+
+    const [selfDetails, setSelfDetails] = useState({
+
+    })
 
     const [modalOpen, setModalOpen] = useState(false);
     const [accountType, setAccountType] = useState<"self" | "beneficiary">("self");
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
+    const mapAccountToSelf = (account: any) => {
+        setBankDetails(prev => ({
+            ...prev,
+            senderName: account.name,
+            senderAccNo: account.accountNo,
+            senderBic: account.swiftBic
+        }))
+    }
+
     const mapAccountToBankDetails = (account: any) => {
-        setBankDetails({
+        setBankDetails(prev => ({
+            ...prev,
             swiftCode: account.swiftBic || "",
             beneficiaryBank: account.bankName || "",
             // branch: account.branchCode || "",
@@ -76,7 +93,7 @@ const BankDetails: React.FC<BankDetailsProps> = ({
             beneficiaryName: account.name || "",
             beneficiaryAccountNumber: account.accountNo || "",
             micrCode: account.micrCode || "",
-        });
+        }));
     };
 
     const validateFields = () => {
@@ -192,6 +209,15 @@ const BankDetails: React.FC<BankDetailsProps> = ({
                         <Button
                             variant="outlined"
                             fullWidth
+                            onClick={handleFetchBankDetails}
+                        >
+                            Fetch Self Account Details
+                        </Button>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <Button
+                            variant="outlined"
+                            fullWidth
                             onClick={handleFetchBeneficiaryDetails}
                         >
                             Fetch Beneficiary Account Details
@@ -232,6 +258,7 @@ const BankDetails: React.FC<BankDetailsProps> = ({
                 <AccountSelectorModal
                     open={modalOpen}
                     onClose={() => setModalOpen(false)}
+                    onSelectSender={mapAccountToSelf}
                     onSelect={mapAccountToBankDetails}
                     accountType={accountType}
                 />

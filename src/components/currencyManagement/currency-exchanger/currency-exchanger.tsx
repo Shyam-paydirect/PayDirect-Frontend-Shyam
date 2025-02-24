@@ -50,9 +50,10 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
   };
 
   const txnAmount = localStorage.getItem('txnAmount') || "1";
+  const ccy = localStorage.getItem('currency') || 'INR'; 
 
-  const [base, setBase] = useState<string>('INR');
-  const [target, setTarget] = useState<string>('USD');
+  const [base, setBase] = useState<string>(ccy);
+  const [target, setTarget] = useState<string>(ccy == 'INR' ? 'USD' : 'INR');
   const [baseValue, setBaseValue] = useState<string>(book? txnAmount : "1");
   
   const formatted = base === 'INR'
@@ -402,7 +403,7 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
                   <MenuItem
                     // key={currency.code}
                     // value={currency.code}
-                    value="INR"
+                    value={base}
                     sx={{
                       backgroundColor: "#fff", // Keep white for items
                       "&:hover": {
@@ -416,15 +417,15 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
                   >
                     <Box display="flex" alignItems="center" gap={1}>
                       <Avatar
-                        src={getFlagUrl("INR")}
+                        src={getFlagUrl(base)}
                         sx={{ width: 24, height: 24 }}
                       />
-                      <Typography>{"INR"}</Typography>
+                      <Typography>{base}</Typography>
                       {/* <Avatar src={getFlagUrl(currency.code)} sx={{ width: 24, height: 24 }} />
                         <Typography>{currency.code}</Typography> */}
                     </Box>
                   </MenuItem>
-                  {/* ))} */}
+                  {/* ))}  */}
                 </Select>
                 <Input
                   type="text"
