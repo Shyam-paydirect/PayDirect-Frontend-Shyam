@@ -25,6 +25,7 @@ interface CustomJwtPayload {
 interface AccountSelectorModalProps {
   open: boolean;
   onClose: () => void;
+  onSelectSender: (account: any) => void;
   onSelect: (account: any) => void;
   accountType: "self" | "beneficiary";
 }
@@ -33,6 +34,7 @@ const AccountSelectorModal: React.FC<AccountSelectorModalProps> = ({
   open,
   onClose,
   onSelect,
+  onSelectSender,
   accountType,
 }) => {
 
@@ -104,7 +106,7 @@ const AccountSelectorModal: React.FC<AccountSelectorModalProps> = ({
               <ListItem
                 key={index}
                 onClick={() => {
-                  onSelect(account);
+                  accountType === "self" ? onSelectSender(account) : onSelect(account);
                   onClose();
                 }}
               >

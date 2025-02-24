@@ -18,6 +18,9 @@ interface PaymentDetailsState {
     beneficiaryName: string;
     beneficiaryAccountNumber: string;
     micrCode: string;
+    senderName: string;
+    senderAccNo: string;
+    senderBic: string;
   };
 }
 
@@ -39,6 +42,9 @@ const initialState: PaymentDetailsState = {
     beneficiaryName: '',
     beneficiaryAccountNumber: '',
     micrCode: '',
+    senderName: '',
+    senderAccNo: '',
+    senderBic: ''
   },
 };
 
@@ -70,6 +76,9 @@ const paymentDetailsSlice = createSlice({
         beneficiaryName: '',
         beneficiaryAccountNumber: '',
         micrCode: '',
+        senderName: '',
+        senderAccNo: '',
+        senderBic: ''
       };
     },
   },
