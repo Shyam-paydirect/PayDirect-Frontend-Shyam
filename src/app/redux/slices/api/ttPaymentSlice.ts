@@ -33,7 +33,7 @@ export const submitPayment = createAsyncThunk(
       });
       return response.data;
     } catch (err: any) {
-      return rejectWithValue(err.response ? err.response.data : err.message);
+      return rejectWithValue(err.response ? err.response.data.message : err.data.message  );
     }
   }
 );
@@ -50,7 +50,7 @@ export const fetchPaymentStatus = createAsyncThunk(
       });
       return response.data;
     } catch (err: any) {
-      return rejectWithValue(err.response ? err.response.data : err.message);
+      return rejectWithValue(err.response ? err.response.data.message : err.data.message);
     }
   }
 );

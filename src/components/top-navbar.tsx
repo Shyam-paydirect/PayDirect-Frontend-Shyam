@@ -50,6 +50,8 @@ const TopNavbar: React.FC = () => {
         return 'Financial Analytics';
       case 'admin-portal':
         return 'Admin Portal';
+      case 'account-statement':
+        return 'Account Statement';
       default:
         return 'General Ledger';
     }

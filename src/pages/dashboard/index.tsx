@@ -9,6 +9,7 @@ import { RootState } from '@/app/redux/store';
 import { setCurrentDashboard } from '@/app/redux/slices/dashboardSlice';
 import "./main.css";
 import "@/styles/global.css";
+import AccountStatement from '@/components/account-statement/account-statement';
 
 // Dynamically import all components with ssr: false
 const SideNavbar = dynamic(() => import('@/components/sideNavbar/side-navbar'), { ssr: false });
@@ -63,6 +64,8 @@ const Main: React.FC = () => {
         return <DocumentUploads />;
       case 'document-viewer':
         return <DocumentViewer />;
+      case 'account-statement':
+        return <AccountStatement />
       default:
         localStorage.setItem("prev_component", 'currency-management');
         return <CurrencyManagement />;

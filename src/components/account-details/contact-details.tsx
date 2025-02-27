@@ -30,7 +30,7 @@ const ContactDetails: React.FC = () => {
     userId: `${userId}`,
     name: "",
     accountNo: "",
-    swiftBic: "DBSSSGSGXXX",
+    swiftBic: "",
     IFSC: "",
     UPI_ID: "",
     bankName: "",
@@ -83,7 +83,7 @@ const ContactDetails: React.FC = () => {
       userId: `${userId}`,
       name: "",
       accountNo: "",
-      swiftBic: "DBSSSGSGXXX",
+      swiftBic: "",
       IFSC: "",
       UPI_ID: "",
       bankName: "",
@@ -143,7 +143,7 @@ const ContactDetails: React.FC = () => {
                 label="SWIFT BIC"
                 fullWidth
                 value={newContact.swiftBic}
-                disabled
+                // disabled
                 onChange={(e) => setNewContact({ ...newContact, swiftBic: e.target.value })}
               />
             </Grid>

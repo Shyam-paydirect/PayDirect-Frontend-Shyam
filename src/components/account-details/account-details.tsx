@@ -1,9 +1,11 @@
 // Import necessary modules
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, Typography, Grid, Card, CardActionArea, CardContent, CardMedia, Button } from '@mui/material';
 import { AccountBalance, Contacts } from '@mui/icons-material';
 import AccountDetails from './self-accounts';
 import ContactDetails from './contact-details';
+import axios from 'axios';
+import Cookies from 'js-cookie';
 
 const Accounts: React.FC = () => {
   const [view, setView] = useState<'accountDetails' | 'contactDetails' | null>(null);
@@ -17,6 +19,27 @@ const Accounts: React.FC = () => {
   const handleViewContactDetails = () => {
     setView('contactDetails');
   };
+
+  useEffect(() => {
+    const getAuthToken = () => {
+      return Cookies.get('token'); // Assuming 'token' is the key in cookies
+  };
+    const token = getAuthToken();
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      }
+    }
+
+    const body = {
+      accountNo: "8827210000027502",
+      accountCcy: "INR"
+    }
+    const url = 'https://stage.paydirectgo.com:5000/api/balanceEnquiry';
+    const response = axios.post(url, body, config)
+    console.log("resspsppp", response)
+  }, [])
 
   if (view === null) {
     return (

@@ -41,7 +41,8 @@ export const sendOtp = createAsyncThunk(
             });
             return response.data;
         } catch (error: any) {
-            return thunkAPI.rejectWithValue(error.response.data);
+            console.log("WHAT the FUCKKKK", error)
+            return thunkAPI.rejectWithValue(error.response ? error.response.data.message : error.data.message);
         }
     }
 );
@@ -56,7 +57,7 @@ export const verifyOtp = createAsyncThunk(
             });
             return response.data;
         } catch (error: any) {
-            return thunkAPI.rejectWithValue(error.response.data);
+            return thunkAPI.rejectWithValue(error.response ? error.response.data.message : error.data.message);
         }
     }
 );
@@ -70,7 +71,7 @@ export const fetchUserDetails = createAsyncThunk(
             );
             return response.data;
         } catch (error: any) {
-            return thunkAPI.rejectWithValue(error.response.data);
+            return thunkAPI.rejectWithValue(error.response ? error.response.data.message : error.data.message);
         }
     }
 );

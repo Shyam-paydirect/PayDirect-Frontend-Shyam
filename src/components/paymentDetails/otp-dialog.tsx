@@ -37,7 +37,13 @@ const OTPDialog: React.FC<OTPDialogProps> = ({ open, onClose, transactionId, onC
                 toast.error("Invalid OTP. Please try again.");
             }
         } catch (error) {
-            toast.error("An error occurred during OTP verification.");
+            const errorMessage =
+                typeof error === "string"
+                    ? error
+                    : error instanceof Error
+                        ? error.message
+                        : "An unknown error occurred";
+            toast.error(errorMessage);
         } finally {
             setIsSubmitting(false);
         }
