@@ -48,7 +48,7 @@ const BankDetails: React.FC<BankDetailsProps> = ({
     const wideFields = ['beneficiaryAccountNumber', 'beneficiaryBank', 'bankAddress', 'beneficiaryName']
 
     const [bankDetails, setBankDetails] = useState({
-        swiftCode: "DBSSSGSGXXX",
+        swiftCode: "",
         beneficiaryBank: "",
         // branch: "",
         bankAddress: "",
@@ -200,7 +200,7 @@ const BankDetails: React.FC<BankDetailsProps> = ({
                                     swiftCode: e.target.value,
                                 }))
                             }
-                            disabled
+                            // disabled
                             error={!!errors.swiftCode}
                             helperText={errors.swiftCode}
                         />

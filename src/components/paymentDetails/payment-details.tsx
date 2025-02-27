@@ -123,7 +123,13 @@ const PaymentDetails: React.FC = () => {
 
             setIsDialogOpen(true);
         } catch (error) {
-            toast.error("Failed to send OTP. Please try again.");
+            const errorMessage =
+                typeof error === "string"
+                    ? error
+                    : error instanceof Error
+                        ? error.message
+                        : "An unknown error occurred";
+            toast.error(errorMessage);
         }
     };
 
@@ -198,18 +204,6 @@ const PaymentDetails: React.FC = () => {
             }, 2000)
 
 
-        }
-        catch (error) {
-            const errorMessage =
-                typeof error === "string"
-                    ? error
-                    : error instanceof Error
-                        ? error.message
-                        : "An unknown error occurred";
-            toast.dismiss();
-            toast.error(errorMessage)
-        }
-        finally {
             setIsLoading(false); // Reset loading state
             setCustomerReference("");
             setRemittanceAmount('');
@@ -233,6 +227,19 @@ const PaymentDetails: React.FC = () => {
                 senderBic: ''
             };
             dispatch(saveBankDetails(initialBankData));
+
+
+        }
+        catch (error) {
+            const errorMessage =
+                typeof error === "string"
+                    ? error
+                    : error instanceof Error
+                        ? error.message
+                        : "An unknown error occurred";
+            toast.dismiss();
+            toast.error(errorMessage)
+            setIsLoading(false); // Reset loading state
         }
     };
 

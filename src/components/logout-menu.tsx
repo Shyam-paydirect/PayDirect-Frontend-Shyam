@@ -1,90 +1,94 @@
 import React, { useState } from 'react';
-import { Avatar, Button, Menu, MenuItem, Typography, Divider, Box } from '@mui/material';
+import { Avatar, Menu, MenuItem, Typography, Divider, Box } from '@mui/material';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { jwtDecode } from 'jwt-decode';
 import Cookies from 'js-cookie';
 import { useDispatch } from 'react-redux';
 import { logout } from '@/app/redux/slices/api/authSlice';
 import { useRouter } from 'next/router';
+import { setCurrentDashboard } from '@/app/redux/slices/dashboardSlice';
 
 interface CustomJwtPayload {
-    username: string;
-    id?: number;
-  }
-  
-  interface UserProfileMenuProps {
-    anchorEl: HTMLElement | null;
-    isMenuOpen: boolean;
-    handleMenuClose: () => void;
-  }
+  username: string;
+  id?: number;
+}
 
+interface UserProfileMenuProps {
+  anchorEl: HTMLElement | null;
+  isMenuOpen: boolean;
+  handleMenuClose: () => void;
+}
 
 const UserProfileMenu: React.FC<UserProfileMenuProps> = ({
-    anchorEl,
-    isMenuOpen,
-    handleMenuClose,
-  }) => {
-    const open = Boolean(anchorEl);
-    const dispatch = useDispatch();
-    const router = useRouter();
+  anchorEl,
+  isMenuOpen,
+  handleMenuClose,
+}) => {
+  const dispatch = useDispatch();
+  const router = useRouter();
 
-    const handleLogout = () => {
-        dispatch(logout());
-        window.location.href = '/';
-        handleMenuClose();
-    };
+  const handleLogout = () => {
+    dispatch(logout());
+    window.location.href = '/';
+    handleMenuClose();
+  };
 
-    const token = Cookies.get('token') || "";
+  // Optionally, you can add functionality for Accounts here
+  const handleAccounts = () => {
+    // For example, navigate to the accounts page or simply close the menu.
+    dispatch(setCurrentDashboard('account-statement'))
+    handleMenuClose();
+  };
 
-    let decodedToken: CustomJwtPayload | null = null; // Initialize with null
+  const token = Cookies.get('token') || "";
 
-    if (token !== "") {
-        decodedToken = jwtDecode<CustomJwtPayload>(token); // Assign the decoded token
-    }
+  let decodedToken: CustomJwtPayload | null = null;
 
+  if (token !== "") {
+    decodedToken = jwtDecode<CustomJwtPayload>(token);
+  }
 
-    return (
-        <div>
-            {/* Menu Component */}
-            <Menu
-                sx={
-                    {
-                        '& .MuiPaper-root': {
-                            borderRadius: '10px',
-                        }
-                    }}
-                anchorEl={anchorEl}
-                open={isMenuOpen}
-                onClose={handleMenuClose}
-                anchorOrigin={{
-                    vertical: 'top',
-                    horizontal: 'right',
-                }}
-                // transformOrigin={{
-                //     vertical: 'top',
-                //     horizontal: 'right',
-                // }}
-                className='mt-60'
-            >
-                <Box sx={{ padding: '10px 180px 10px 20px', display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <Avatar alt={decodedToken?.username} src="/path-to-avatar.jpg" />
-                    <Box>
-                        <Typography variant="body1" fontWeight="bold">
-                            {decodedToken?.username}
-                        </Typography>
-                        <Typography variant="body2" color="textSecondary">
-                            Admin
-                        </Typography>
-                    </Box>
-                </Box>
-                <Divider />
-                <MenuItem onClick={handleLogout} sx={{ color: 'red' }}>
-                    <LogoutIcon fontSize="small" sx={{ marginRight: 1 }} />
-                    Logout
-                </MenuItem>
-            </Menu>
-        </div>
-    );
+  return (
+    <div>
+      {/* Menu Component */}
+      <Menu
+        sx={{
+          '& .MuiPaper-root': {
+            borderRadius: '10px',
+          },
+        }}
+        anchorEl={anchorEl}
+        open={isMenuOpen}
+        onClose={handleMenuClose}
+        anchorOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+        className="mt-60"
+      >
+        <Box sx={{ padding: '10px 180px 10px 20px', display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Avatar alt={decodedToken?.username} src="/path-to-avatar.jpg" />
+          <Box>
+            <Typography variant="body1" fontWeight="bold">
+              {decodedToken?.username}
+            </Typography>
+            <Typography variant="body2" color="textSecondary">
+              Admin
+            </Typography>
+          </Box>
+        </Box>
+        <Divider />
+        <MenuItem onClick={handleAccounts} sx={{ cursor: 'pointer' }}>
+          <Typography variant="inherit">Accounts</Typography>
+        </MenuItem>
+        <Divider />
+        <MenuItem onClick={handleLogout} sx={{ color: 'red' }}>
+          <LogoutIcon fontSize="small" sx={{ marginRight: 1 }} />
+          Logout
+        </MenuItem>
+      </Menu>
+    </div>
+  );
 };
 
 export default UserProfileMenu;

@@ -12,6 +12,7 @@ import documentReducer from './slices/api/documentSlice';
 import accountsReducer from './slices/api/accountsSlice';
 import forgotPasswordReducer from './slices/api/forgotPasswordSlice';
 import uploadFinalDocsReducer from './slices/api/uploadFinalDocs';
+import accountBalanceReducer from './slices/api/accountBalanceSlice'
 
 export const store = configureStore({
   reducer: {
@@ -28,6 +29,7 @@ export const store = configureStore({
     accounts: accountsReducer,
     forgotPassword: forgotPasswordReducer,
     uploadFinalDocs: uploadFinalDocsReducer,
+    accountBalance: accountBalanceReducer
   },
 });
 
