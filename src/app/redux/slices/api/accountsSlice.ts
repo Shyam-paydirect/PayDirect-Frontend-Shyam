@@ -22,7 +22,7 @@ interface Account {
   micrCode: string;
   createdAt?: string;
   updatedAt?: string;
-  selfAccount?:  number;
+  selfAccount?: number;
 }
 
 interface AccountState {
@@ -79,12 +79,15 @@ export const searchAccounts = createAsyncThunk(
   "accounts/searchAccounts",
   async ({ name, userId }: { name: string; userId: string }, { rejectWithValue }) => {
     try {
-      console.log("nnnn", name, userId)
-      const response = await axios.get(`${SEARCH_ACCOUNTS_API}?name=${name}&&userId=${userId}`, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      console.log("nnnn", name, userId);
+      const response = await axios.get(
+        `${SEARCH_ACCOUNTS_API}?name=${name}&userId=${userId}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
       return response.data.data || []; // Extract `data` array from response
     } catch (error: any) {
       if (error.response && error.response.data) {
@@ -102,6 +105,7 @@ const accountsSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
+      // Create Account Cases
       .addCase(createAccount.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -111,8 +115,12 @@ const accountsSlice = createSlice({
       })
       .addCase(createAccount.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error =
+          action.payload && typeof action.payload === "object"
+            ? (action.payload as any).message
+            : (action.payload as string);
       })
+      // Fetch Accounts Cases
       .addCase(fetchAccounts.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -123,8 +131,12 @@ const accountsSlice = createSlice({
       })
       .addCase(fetchAccounts.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error =
+          action.payload && typeof action.payload === "object"
+            ? (action.payload as any).message
+            : (action.payload as string);
       })
+      // Search Accounts Cases
       .addCase(searchAccounts.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -135,7 +147,10 @@ const accountsSlice = createSlice({
       })
       .addCase(searchAccounts.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error =
+          action.payload && typeof action.payload === "object"
+            ? (action.payload as any).message
+            : (action.payload as string);
       });
   },
 });

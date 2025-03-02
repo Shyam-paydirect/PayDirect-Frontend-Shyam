@@ -144,7 +144,7 @@ const PaymentDetails: React.FC = () => {
         senderParty: {
             name: bankDetails.senderName,
             accountNo: bankDetails.senderAccNo,
-            swiftBic: bankDetails.senderBic,
+            swiftBic: bankDetails.senderSwiftBic,
         },
         receivingParty: {
             name: bankDetails.beneficiaryName,
@@ -224,7 +224,7 @@ const PaymentDetails: React.FC = () => {
                 micrCode: '',
                 senderName: '',
                 senderAccNo: '',
-                senderBic: ''
+                senderSwiftBic: ''
             };
             dispatch(saveBankDetails(initialBankData));
 
@@ -307,7 +307,7 @@ const PaymentDetails: React.FC = () => {
                                 <Grid item xs={12} sm={6}>
                                     <TextField
                                         fullWidth
-                                        label="Remittance Amount"
+                                        label="Invoice Amount"
                                         variant="outlined"
                                         type="number"
                                         value={remittanceAmount}

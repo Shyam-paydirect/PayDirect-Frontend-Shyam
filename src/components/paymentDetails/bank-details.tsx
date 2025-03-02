@@ -60,7 +60,7 @@ const BankDetails: React.FC<BankDetailsProps> = ({
         beneficiaryAccountNumber: "",
         senderName: '',
         senderAccNo: '',
-        senderBic: ''
+        senderSwiftBic: ''
     });
 
     const [selfDetails, setSelfDetails] = useState({
@@ -76,7 +76,7 @@ const BankDetails: React.FC<BankDetailsProps> = ({
             ...prev,
             senderName: account.name,
             senderAccNo: account.accountNo,
-            senderBic: account.swiftBic
+            senderSwiftBic: account.swiftBic
         }))
     }
 
@@ -192,7 +192,7 @@ const BankDetails: React.FC<BankDetailsProps> = ({
                     <Grid item xs={12}>
                         <TextField
                             fullWidth
-                            label="SWIFT/BIC Code"
+                            label="Receiver SWIFT BIC"
                             value={bankDetails.swiftCode}
                             onChange={(e) =>
                                 setBankDetails((prev) => ({
