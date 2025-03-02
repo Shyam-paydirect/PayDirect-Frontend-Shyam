@@ -659,30 +659,30 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
               </span>
               <span className="rate-reason">GST</span>
             </li> */}
-              <li className="rate-detail">
+              {/* <li className="rate-detail">
                 <span className="rate">
                   <i className="ri-add-line sign"></i>₹ 2,000.00
                 </span>
                 <span className="rate-reason">
                   Service Charge <span className="gst">(incl. GST)</span>
                 </span>
-              </li>
+              </li> */}
             </ul>
             <div className="final-charge-parent">
               <Typography className="final-charge-label totalPayment rate">
                 <i className="ri-equal-line sign"></i>₹{" "}
                 {target == "INR"
                   ? formatWithCommas(
-                      String(parseFloat(targetValue) + 2000),
+                      String(parseFloat(targetValue)),
                       "IND"
                     )
                   : formatWithCommas(
-                      String(parseFloat(baseValue) + 2000),
+                      String(parseFloat(baseValue)),
                       "IND"
                     )}
               </Typography>
               <Typography className="final-charge-label">
-                Total Payment
+                FX Amount
               </Typography>
             </div>
             <div className="book-parent">

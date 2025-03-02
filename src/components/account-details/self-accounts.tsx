@@ -80,7 +80,7 @@ const AccountDetails: React.FC = () => {
       userId: `${userId}`,
       name: "",
       accountNo: "",
-      swiftBic: "DBSSSGSGXXX",
+      swiftBic: "",
       IFSC: "",
       UPI_ID: "",
       bankName: "",
@@ -95,7 +95,7 @@ const AccountDetails: React.FC = () => {
       selfAccount: 1
 
     });
-    dispatch(fetchAccounts(`${userId}`)); // Refresh the account list
+    await dispatch(fetchAccounts(`${userId}`)); // Refresh the account list
   };
 
   return (

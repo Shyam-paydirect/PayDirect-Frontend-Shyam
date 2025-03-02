@@ -20,7 +20,7 @@ interface PaymentDetailsState {
     micrCode: string;
     senderName: string;
     senderAccNo: string;
-    senderBic: string;
+    senderSwiftBic: string;
   };
 }
 
@@ -44,7 +44,7 @@ const initialState: PaymentDetailsState = {
     micrCode: '',
     senderName: '',
     senderAccNo: '',
-    senderBic: ''
+    senderSwiftBic: ''
   },
 };
 
@@ -78,7 +78,7 @@ const paymentDetailsSlice = createSlice({
         micrCode: '',
         senderName: '',
         senderAccNo: '',
-        senderBic: ''
+        senderSwiftBic: ''
       };
     },
   },

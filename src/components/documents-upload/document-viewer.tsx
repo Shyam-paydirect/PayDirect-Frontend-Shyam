@@ -63,7 +63,7 @@ const DocumentViewer: React.FC = () => {
   };
 
   const steps = [
-    { label: "Payment Details", description: "Provide remittance details." },
+    { label: "Payment Details", description: "Provide invoice details." },
     { label: "Upload Documents", description: "Upload necessary documents." },
     { label: "Get and Book FX Rate", description: "Fetch and confirm rates." },
     { label: "Track Payment", description: "Monitor the payment process." },
