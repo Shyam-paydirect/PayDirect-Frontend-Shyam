@@ -78,9 +78,6 @@ const UserProfileMenu: React.FC<UserProfileMenuProps> = ({
           </Box>
         </Box>
         <Divider />
-        <MenuItem onClick={handleAccounts} sx={{ cursor: 'pointer' }}>
-          <Typography variant="inherit">Accounts</Typography>
-        </MenuItem>
         <Divider />
         <MenuItem onClick={handleLogout} sx={{ color: 'red' }}>
           <LogoutIcon fontSize="small" sx={{ marginRight: 1 }} />

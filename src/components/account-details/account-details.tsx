@@ -1,57 +1,49 @@
-// Import necessary modules
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Box, Typography, Grid, Card, CardActionArea, CardContent, CardMedia, Button } from '@mui/material';
-import { AccountBalance, Contacts } from '@mui/icons-material';
+import { AccountBalance, Contacts, Receipt } from '@mui/icons-material';
+import { useDispatch } from 'react-redux';
+import { setCurrentDashboard } from '@/app/redux/slices/dashboardSlice';
 import AccountDetails from './self-accounts';
 import ContactDetails from './contact-details';
-import axios from 'axios';
-import Cookies from 'js-cookie';
 
 const Accounts: React.FC = () => {
   const [view, setView] = useState<'accountDetails' | 'contactDetails' | null>(null);
+  const dispatch = useDispatch();
 
-  // Navigate to Account Details
   const handleViewAccountDetails = () => {
     setView('accountDetails');
   };
 
-  // Navigate to Contact Details
   const handleViewContactDetails = () => {
     setView('contactDetails');
   };
 
-  useEffect(() => {
-    const getAuthToken = () => {
-      return Cookies.get('token'); // Assuming 'token' is the key in cookies
+  // Dispatch action for Account Statement
+  const handleViewAccountStatement = () => {
+    dispatch(setCurrentDashboard('account-statement'));
   };
-    const token = getAuthToken();
-    const config = {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      }
-    }
-
-    const body = {
-      accountNo: "8827210000027502",
-      accountCcy: "INR"
-    }
-    const url = 'https://stage.paydirectgo.com:5000/api/balanceEnquiry';
-    const response = axios.post(url, body, config)
-    console.log("resspsppp", response)
-  }, [])
 
   if (view === null) {
     return (
-      <Box padding={3} textAlign="center" bgcolor="#f0f4ff" minHeight="100vh">
+      <Box padding={3} textAlign="center">
         <Typography variant="h4" gutterBottom>
           Welcome to the Accounts Section
         </Typography>
-        <Grid container spacing={3} justifyContent="center" alignItems="center">
-          <Grid item xs={12} sm={6} md={4}>
+        {/* Reduced spacing from 3 to 2 */}
+        <Grid container spacing={2}>
+          {/* Account Details */}
+          <Grid item xs={12} sm={6} md={6}>
             <Card
               onClick={handleViewAccountDetails}
-              sx={{ cursor: 'pointer', textAlign: 'center', border: '1px solid', borderColor: 'primary.main', borderRadius: 4 }}
+              sx={{
+                cursor: 'pointer',
+                textAlign: 'center',
+                border: '1px solid',
+                borderColor: 'primary.main',
+                borderRadius: 4,
+                width: { xs: '90%', sm: '350px' },
+                marginLeft: 'auto'
+              }}
             >
               <CardActionArea>
                 <CardMedia>
@@ -67,26 +59,28 @@ const Accounts: React.FC = () => {
                       borderRadius: '50%',
                     }}
                   >
-                    <AccountBalance
-                      sx={{
-                        fontSize: 40,
-                        color: 'primary.main',
-                      }}
-                    />
+                    <AccountBalance sx={{ fontSize: 40, color: 'primary.main' }} />
                   </Box>
                 </CardMedia>
                 <CardContent>
-                  <Typography variant="h6">
-                    Account Details
-                  </Typography>
+                  <Typography variant="h6">Account Details</Typography>
                 </CardContent>
               </CardActionArea>
             </Card>
           </Grid>
-          <Grid item xs={12} sm={6} md={4}>
+          {/* Contact Details */}
+          <Grid item xs={12} sm={6} md={6}>
             <Card
               onClick={handleViewContactDetails}
-              sx={{ cursor: 'pointer', textAlign: 'center', border: '1px solid', borderColor: 'secondary.main', borderRadius: 4 }}
+              sx={{
+                cursor: 'pointer',
+                textAlign: 'center',
+                border: '1px solid',
+                borderColor: 'secondary.main',
+                borderRadius: 4,
+                width: { xs: '90%', sm: '350px' },
+                marginRight: 'auto'
+              }}
             >
               <CardActionArea>
                 <CardMedia>
@@ -102,18 +96,48 @@ const Accounts: React.FC = () => {
                       borderRadius: '50%',
                     }}
                   >
-                    <Contacts
-                      sx={{
-                        fontSize: 40,
-                        color: 'secondary.main',
-                      }}
-                    />
+                    <Contacts sx={{ fontSize: 40, color: 'secondary.main' }} />
                   </Box>
                 </CardMedia>
                 <CardContent>
-                  <Typography variant="h6">
-                    Contact Details
-                  </Typography>
+                  <Typography variant="h6">Contact Details</Typography>
+                </CardContent>
+              </CardActionArea>
+            </Card>
+          </Grid>
+          {/* Account Statement */}
+          <Grid item xs={12} sm={6} md={6} sx={{ mx: 'auto' }}>
+            <Card
+              onClick={handleViewAccountStatement}
+              sx={{
+                cursor: 'pointer',
+                textAlign: 'center',
+                border: '1px solid',
+                borderColor: 'info.main',
+                borderRadius: 4,
+                width: { xs: '90%', sm: '350px' },
+                mx: 'auto',
+              }}
+            >
+              <CardActionArea>
+                <CardMedia>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      width: 50,
+                      height: 50,
+                      padding: 5,
+                      margin: '0 auto',
+                      borderRadius: '50%',
+                    }}
+                  >
+                    <Receipt sx={{ fontSize: 40, color: 'info.main' }} />
+                  </Box>
+                </CardMedia>
+                <CardContent>
+                  <Typography variant="h6">Account Statement</Typography>
                 </CardContent>
               </CardActionArea>
             </Card>
@@ -126,11 +150,7 @@ const Accounts: React.FC = () => {
   if (view === 'accountDetails') {
     return (
       <Box>
-        <Button
-          variant="outlined"
-          sx={{ margin: 2 }}
-          onClick={() => setView(null)}
-        >
+        <Button variant="outlined" sx={{ margin: 2 }} onClick={() => setView(null)}>
           Back
         </Button>
         <AccountDetails />
@@ -141,11 +161,7 @@ const Accounts: React.FC = () => {
   if (view === 'contactDetails') {
     return (
       <Box padding={3}>
-        <Button
-          variant="outlined"
-          sx={{ margin: 2 }}
-          onClick={() => setView(null)}
-        >
+        <Button variant="outlined" sx={{ margin: 2 }} onClick={() => setView(null)}>
           Back
         </Button>
         <ContactDetails />
