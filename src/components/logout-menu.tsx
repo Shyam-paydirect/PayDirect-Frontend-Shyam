@@ -36,7 +36,7 @@ const UserProfileMenu: React.FC<UserProfileMenuProps> = ({
   // Optionally, you can add functionality for Accounts here
   const handleAccounts = () => {
     // For example, navigate to the accounts page or simply close the menu.
-    dispatch(setCurrentDashboard('account-statement'))
+    dispatch(setCurrentDashboard('change-password'))
     handleMenuClose();
   };
 
@@ -78,6 +78,9 @@ const UserProfileMenu: React.FC<UserProfileMenuProps> = ({
           </Box>
         </Box>
         <Divider />
+        <MenuItem onClick={handleAccounts} sx={{ cursor: 'pointer' }}>
+           <Typography variant="inherit">Change Password</Typography>
+         </MenuItem>
         <Divider />
         <MenuItem onClick={handleLogout} sx={{ color: 'red' }}>
           <LogoutIcon fontSize="small" sx={{ marginRight: 1 }} />

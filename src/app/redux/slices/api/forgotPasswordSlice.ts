@@ -31,6 +31,22 @@ export const requestPasswordReset = createAsyncThunk(
     }
   );
 
+  export const changePassword = createAsyncThunk(
+    "forgotPassword/changePassword",
+    async (
+      { userId, oldPassword, newPassword }: { userId: string; oldPassword: string; newPassword: string },
+      { rejectWithValue }
+    ) => {
+      try {
+        const response = await axios.post(`${BASE_URL}/changePassword`, { userId, oldPassword, newPassword });
+        return response.data;
+      } catch (error: unknown) {
+        const axiosError = error as AxiosError<{ message: string }>;
+        return rejectWithValue(axiosError.response?.data.message || "Failed to change password");
+      }
+    }
+  );
+
 const forgotPasswordSlice = createSlice({
   name: "forgotPassword",
   initialState: {
@@ -69,6 +85,20 @@ const forgotPasswordSlice = createSlice({
       state.successMessage = action.payload?.message || "Password reset successfully!";
     });
     builder.addCase(resetPassword.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload as string;
+    });
+
+    //Change Password
+    builder.addCase(changePassword.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    });
+    builder.addCase(changePassword.fulfilled, (state, action) => {
+      state.loading = false;
+      state.successMessage = action.payload?.message || "Password changed successfully!";
+    });
+    builder.addCase(changePassword.rejected, (state, action) => {
       state.loading = false;
       state.error = action.payload as string;
     });
