@@ -10,6 +10,7 @@ import { setCurrentDashboard } from '@/app/redux/slices/dashboardSlice';
 import "./main.css";
 import "@/styles/global.css";
 import AccountStatement from '@/components/account-statement/account-statement';
+import ChangePassword from '@/components/change-password/change-password';
 
 // Dynamically import all components with ssr: false
 const SideNavbar = dynamic(() => import('@/components/sideNavbar/side-navbar'), { ssr: false });
@@ -65,7 +66,9 @@ const Main: React.FC = () => {
       case 'document-viewer':
         return <DocumentViewer />;
       case 'account-statement':
-        return <AccountStatement />
+        return <AccountStatement />;
+      case 'change-password':
+        return <ChangePassword />;
       default:
         localStorage.setItem("prev_component", 'currency-management');
         return <CurrencyManagement />;
