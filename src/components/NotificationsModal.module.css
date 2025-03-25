@@ -1,0 +1,94 @@
+  .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 1000;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding-top: 80px;
+  }
+  
+  .modalContent {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 90%;
+    max-width: 400px;
+    padding: 20px;
+    margin-right: 20px;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+  
+  @media (min-width: 600px) {
+    .modalContent {
+      margin-right: 50px;
+    }
+  }
+  
+  .modalTitle {
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 1.5em;
+  }
+  
+  .error {
+    color: red;
+    text-align: center;
+    margin-bottom: 15px;
+  }
+  
+  .notificationCard {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 15px;
+  }
+  
+  .notificationHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  
+  .orderId {
+    font-size: 0.9em;
+    color: #555;
+  }
+  
+  .notificationBody p {
+    margin: 0;
+    font-size: 1em;
+    color: #333;
+  }
+  
+  /* Style for the Show More button */
+  .showMoreButton {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    background-color: #373FD7;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: center;
+  }
+  
+  .time {
+    font-size: 0.65em;
+    font-weight: 600;
+    color: #373FD7;
+  }
+  
+  .showMoreButton:hover {
+    background-color: #005bb5;
+  }
+  

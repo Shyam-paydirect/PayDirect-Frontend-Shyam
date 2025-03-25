@@ -58,7 +58,7 @@ const ChangePassword: React.FC = () => {
 
     try {
       // Dispatch the changePassword action and unwrap the result
-      await dispatch(changePassword({ userId: userId.toString(), oldPassword, newPassword })).unwrap();
+      await dispatch(changePassword({ userId: userId.toString(), oldPassword, newPassword })).unwrap()
       alert("Password changed successfully!");
     } catch (error: any) {
       alert("Error: " + error);

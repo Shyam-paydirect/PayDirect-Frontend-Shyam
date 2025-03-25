@@ -12,6 +12,7 @@ import SideNavbar from './sideNavbar/side-navbar'; // Import SideNavbar for the 
 import Head from "next/head";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
+import NotificationsModal from './notification-menu';
 
 interface CustomJwtPayload {
   username: string;
@@ -26,6 +27,9 @@ const TopNavbar: React.FC = () => {
     decodedToken = jwtDecode<CustomJwtPayload>(token);
   }
   const userName = decodedToken?.username || "";
+  const userId = decodedToken?.id || 0;
+
+  const [modalOpen, setModalOpen] = useState(false);
 
   const theme = useTheme();
   const dispatch = useDispatch();
@@ -210,7 +214,7 @@ const TopNavbar: React.FC = () => {
                   color: 'var(--body-text-clr)',
                 }}
               >
-                <Notifications sx={{ fontSize: iconSize, color: 'var(--text-color)' }} />
+                <Notifications sx={{ fontSize: iconSize, color: 'var(--text-color)' }} onClick={() => setModalOpen(true)} />
               </IconButton>
             </li>
             {/* Profile */}
@@ -234,6 +238,11 @@ const TopNavbar: React.FC = () => {
                 anchorEl={anchorEl}
                 isMenuOpen={isMenuOpen}
                 handleMenuClose={handleMenuClose}
+              />
+              <NotificationsModal
+                open={modalOpen} 
+                onClose={() => setModalOpen(false)}
+                userId={userId}
               />
             </li>
           </ul>
