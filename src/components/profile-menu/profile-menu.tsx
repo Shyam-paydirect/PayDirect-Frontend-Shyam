@@ -7,6 +7,7 @@ import { useDispatch } from 'react-redux';
 import { logout } from '@/app/redux/slices/api/authSlice';
 import { useRouter } from 'next/router';
 import { setCurrentDashboard } from '@/app/redux/slices/dashboardSlice';
+import style from './profile-menu.module.css'
 
 interface CustomJwtPayload {
   username: string;
@@ -38,6 +39,16 @@ const UserProfileMenu: React.FC<UserProfileMenuProps> = ({
     // For example, navigate to the accounts page or simply close the menu.
     dispatch(setCurrentDashboard('change-password'))
     handleMenuClose();
+  };
+
+  const handleUsers = () => {
+    dispatch(setCurrentDashboard('manage-users'))
+    handleMenuClose();
+  }
+
+  const capitalizeFirstLetter = (text: string): string => {
+    if (!text) return "";
+    return text.charAt(0).toUpperCase() + text.slice(1);
   };
 
   const token = Cookies.get('token') || "";
@@ -73,7 +84,7 @@ const UserProfileMenu: React.FC<UserProfileMenuProps> = ({
               {decodedToken?.username}
             </Typography>
             <Typography variant="body2" color="textSecondary">
-              Admin
+              {capitalizeFirstLetter(Cookies.get('role') || '-')}
             </Typography>
           </Box>
         </Box>
@@ -81,8 +92,12 @@ const UserProfileMenu: React.FC<UserProfileMenuProps> = ({
         <MenuItem onClick={handleAccounts} sx={{ cursor: 'pointer' }}>
            <Typography variant="inherit">Change Password</Typography>
          </MenuItem>
-        <Divider />
-        <MenuItem onClick={handleLogout} sx={{ color: 'red' }}>
+         <div className={style.divider}></div>
+         <MenuItem onClick={handleUsers} sx={{ cursor: 'pointer' }}>
+           <Typography variant="inherit">Manage Users</Typography>
+         </MenuItem>
+         <div className={style.divider}></div>
+         <MenuItem onClick={handleLogout} sx={{ color: 'red', paddingTop: 1.25 }}>
           <LogoutIcon fontSize="small" sx={{ marginRight: 1 }} />
           Logout
         </MenuItem>

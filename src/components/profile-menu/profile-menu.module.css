@@ -1,0 +1,9 @@
+.divider {
+    border: 0;
+    height: 1px;
+    /* color: #373737; */
+    background-color: #cacaca;
+    opacity: 40%;
+    margin: 2px 10px;   /* Adjust spacing above and below */
+  }
+  
