@@ -14,6 +14,7 @@ import forgotPasswordReducer from './slices/api/forgotPasswordSlice';
 import uploadFinalDocsReducer from './slices/api/uploadFinalDocs';
 import accountBalanceReducer from './slices/api/accountBalanceSlice'
 import userNotificationReducer from './slices/api/notificationSlice'
+import userManagementReducer from './slices/api/userManagementSlice'
 
 export const store = configureStore({
   reducer: {
@@ -31,7 +32,8 @@ export const store = configureStore({
     forgotPassword: forgotPasswordReducer,
     uploadFinalDocs: uploadFinalDocsReducer,
     accountBalance: accountBalanceReducer,
-    userNotification: userNotificationReducer
+    userNotification: userNotificationReducer,
+    userManagement: userManagementReducer
   },
 });
 

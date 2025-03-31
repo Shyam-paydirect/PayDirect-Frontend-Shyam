@@ -7,7 +7,7 @@ import { styled } from '@mui/system';
 import { AppBar, Toolbar, Typography, Box, IconButton, Avatar, useMediaQuery, useTheme, Drawer } from '@mui/material';
 import { Menu, WbSunny, NightlightRound, Notifications, Fullscreen, FullscreenExit } from '@mui/icons-material';
 import { toggleDarkMode } from '@/app/redux/slices/uiSlice';
-import UserProfileMenu from './logout-menu';
+import UserProfileMenu from './profile-menu/profile-menu';
 import SideNavbar from './sideNavbar/side-navbar'; // Import SideNavbar for the drawer
 import Head from "next/head";
 import Cookies from "js-cookie";

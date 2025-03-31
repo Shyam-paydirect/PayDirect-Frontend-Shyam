@@ -26,6 +26,18 @@
     font-size: 14px;
 }
 
+.searchInput {
+    background: var(--bg-clr-2);
+    border-radius: 18px;
+    margin-right: 0.6rem;
+  }
+  
+  .searchInput i {
+    font-size: 20px;
+    margin: 0 5px 0 15px;
+    color: var(--body-text-clr);
+  }
+
 .table-header {
     width: 100%;
     padding: 0.8rem 1rem;

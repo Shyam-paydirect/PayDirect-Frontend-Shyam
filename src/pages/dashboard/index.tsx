@@ -11,6 +11,7 @@ import "./main.css";
 import "@/styles/global.css";
 import AccountStatement from '@/components/account-statement/account-statement';
 import ChangePassword from '@/components/change-password/change-password';
+import UserManagement from '@/components/manage-users/manage-users';
 
 // Dynamically import all components with ssr: false
 const SideNavbar = dynamic(() => import('@/components/sideNavbar/side-navbar'), { ssr: false });
@@ -69,6 +70,8 @@ const Main: React.FC = () => {
         return <AccountStatement />;
       case 'change-password':
         return <ChangePassword />;
+      case 'manage-users':
+        return <UserManagement />;
       default:
         localStorage.setItem("prev_component", 'currency-management');
         return <CurrencyManagement />;

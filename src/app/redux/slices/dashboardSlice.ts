@@ -46,6 +46,8 @@ function getTitleByDashboard(dashboard: string): string {
       return 'Document Viewer'
     case 'account-statement':
       return 'Account Statement';
+    case 'manage-users':
+      return 'Manage Users';
     case 'change-password':
       return 'Change Password';
     default:
