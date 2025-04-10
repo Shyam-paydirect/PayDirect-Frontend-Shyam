@@ -154,13 +154,12 @@ const OrderPage: React.FC = () => {
     <>
       <ToastContainer />
 
-      <Box sx={{ padding: 4, backgroundColor: '#f0f8ff', minHeight: '100vh' }}>
-        <Typography
-          variant="h4"
-          sx={{ marginBottom: 3, fontSize: { xs: '1.25rem', sm: '1.75rem', md: '2rem' } }}
+      <Box sx={{ padding: 4, minHeight: '100vh' }}>
+        <div
+          className='cardHeading'
         >
           Orders
-        </Typography>
+        </div>
         <TextField
           variant="outlined"
           placeholder="Search by Receiving Party Name"

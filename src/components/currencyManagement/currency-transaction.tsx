@@ -22,9 +22,9 @@ const CurrencyTransactions: React.FC = () => {
     <>
       <div className="trade-payments-parent commonCard">
         <section className="heading">
-          <Typography variant="h5" className="cardHeading">
+          <div className="cardHeading">
             Payment
-          </Typography>
+          </div>
         </section>
         <Divider />
         {/* Trade Payments Buttons */}

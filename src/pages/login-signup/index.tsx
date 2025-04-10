@@ -118,25 +118,19 @@ const LoginSignup: React.FC = () => {
 
   const renderOtpBoxes = () => {
     return (
-      <Box display="flex" justifyContent="center" gap={1}>
+      <Box display="flex" justifyContent="center" gap={0.4}>
         {Array.from({ length: 6 }).map((_, index) => (
-          <TextField
-            key={index}
-            id={`otp-input-${index}`}
-            value={otp[index] || ""}
-            onChange={(e) => handleOtpInput(e, index)}
-            onKeyDown={(e) => handleOtpInput(e, index)}
-            inputProps={{
-              maxLength: 1,
-              style: {
-                textAlign: "center",
-                fontSize: "12px",
-                width: "8px",
-                height: "8px",
-              },
-            }}
-            variant="outlined"
-          />
+          <input 
+          key={index}
+          id={`otp-input-${index}`}
+          type="tel"
+          value={otp[index] || ""}
+          onChange={(e) => handleOtpInput(e, index)}
+          onKeyDown={(e) => handleOtpInput(e, index)}
+          maxLength={1}
+          className='otp-input'
+        />
+        
         ))}
       </Box>
     );
@@ -400,7 +394,8 @@ const LoginSignup: React.FC = () => {
                         ) : (
                           <span style={{ color: 'gray' }}>Resend OTP in {timer}s</span>
                         )}
-                      </div>                      <Button
+                      </div>                      
+                      <Button
                         type="submit"
                         variant="contained"
                         color="primary"

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-// import "./top-navbar.css";
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/app/redux/store';
 import "@/styles/global.css";
@@ -43,24 +42,6 @@ const TopNavbar: React.FC = () => {
     setIsDrawerOpen(open);
   };
 
-
-  const getDashboardTitle = (dashboard: string) => {
-    switch (dashboard) {
-      case 'currency-management':
-        return 'Payments';
-      case 'general-ledger':
-        return 'General Ledger';
-      case 'financial-reporting':
-        return 'Financial Analytics';
-      case 'admin-portal':
-        return 'Admin Portal';
-      case 'account-statement':
-        return 'Account Statement';
-      default:
-        return 'General Ledger';
-    }
-  };
-
   // const [isDarkMode, setIsDarkMode] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
 
@@ -72,7 +53,6 @@ const TopNavbar: React.FC = () => {
   };
 
   const toggleTheme = () => {
-    // setIsDarkMode(!isDarkMode);
     dispatch(toggleDarkMode())
     document.body.classList.toggle('dark', !isDarkMode);
   };
@@ -94,160 +74,142 @@ const TopNavbar: React.FC = () => {
 
   return (
     <>
-     {/* Dynamically Set Page Title */}
-     <Head>
+      {/* Dynamically Set Page Title */}
+      <Head>
         <title>{dashboardTitle}</title>
       </Head>
-    <AppBar
-      position="sticky"
-      sx={{
-        height: '65px',
-        top: 0,
-        zIndex: 10,
-        width: '100%',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        backgroundColor: 'var(--bg-clr-1)',
-        borderBottom: '1px solid #cccc',
-        transition: 'var(--tran-04)',
-        fontFamily: 'Montserrat, sans-serif',
-      }}
-    >
-      <Toolbar disableGutters sx={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 10px 10px 10px', minHeight: '55px' }}>
-        {isSmallScreen && (
-          <IconButton
-            onClick={() => toggleDrawer(true)}
-            sx={{ color: 'var(--body-text-clr)' }}
-          >
-            <Menu sx={{ fontSize: iconSize }} />
-          </IconButton>
-        )}
-        <Typography
-          variant="h6"
-          noWrap
+      <AppBar
+        position="sticky"
+        sx={{
+          height: '65px',
+          top: 0,
+          zIndex: 10,
+          width: '100%',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          backgroundColor: 'var(--bg-clr-1)',
+          borderBottom: '1px solid #cccc',
+          transition: 'var(--tran-04)',
+          fontFamily: 'Montserrat, sans-serif',
+        }}
+      >
+        <Toolbar disableGutters
           sx={{
-            fontFamily: "'Montserrat', sans-serif",
-            fontWeight: 500,
-            fontSize: isSmallScreen ? '16px' : '28px',
-            marginBottom: 0,
+            width: '100%',
             display: 'flex',
+            justifyContent: 'space-between',
             alignItems: 'center',
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            color: 'var(--body-text-clr)',
-            textOverflow: 'ellipsis',
-          }}
-        >
-          {dashboardTitle}
-        </Typography>
-        <Box className="controls" sx={{ display: 'flex', alignItems: 'center' }}>
-          <ul className="control-list" style={{ display: 'flex', margin: 0, padding: 0 }}>
-            {/* Theme Toggle */}
-            {/* <li className="mode">
-              <IconButton
-                onClick={toggleTheme}
-                sx={{
-                  padding: '10px',
-                  margin: isSmallScreen ? '14px 2px' : '14px 5px',
+            padding: '10px 10px 10px 0px',
+            minHeight: '55px'
+          }}>
+          {isSmallScreen && (
+            <IconButton
+              onClick={() => toggleDrawer(true)}
+              sx={{ color: 'var(--body-text-clr)' }}
+            >
+              <Menu sx={{ fontSize: iconSize }} />
+            </IconButton>
+          )}
+          <Typography
+            variant="h6"
+            noWrap
+            sx={{
+              fontFamily: "'Montserrat', sans-serif",
+              fontWeight: 500,
+              fontSize: isSmallScreen ? '14px' : '28px',
+              marginBottom: 0,
+              display: 'flex',
+              alignItems: 'center',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              color: 'var(--body-text-clr)',
+              textOverflow: 'ellipsis',
+            }}
+          >
+            {dashboardTitle}
+          </Typography>
+          <Box className="controls" sx={{ display: 'flex', alignItems: 'center' }}>
+            <ul className="control-list" style={{ display: 'flex', margin: 0, padding: 0 }}>
+              {/* Fullscreen Toggle */}
+              <li>
+                <IconButton
+                  onClick={toggleFullScreen}
+                  sx={{
+                    padding: '10px',
+                    margin: isSmallScreen ? '14px 2px' : '14px 5px',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    borderRadius: '50%',
+                    transition: 'var(--tran-04)',
+                    '&:hover': {
+                      backgroundColor: 'var(--bg-clr-2)',
+                      cursor: 'pointer',
+                    },
+                    color: 'var(--body-text-clr)',
+                    alignSelf: 'center',
+                  }}
+                >
+                  {isFullScreen ? (
+                    <FullscreenExit sx={{ fontSize: iconSize, color: 'var(--text-color)' }} />
+                  ) : (
+                    <Fullscreen sx={{ fontSize: iconSize, color: 'var(--text-color)' }} />
+                  )}
+                </IconButton>
+              </li>
+              {/* Notifications */}
+              <li className="notification">
+                <IconButton
+                  sx={{
+                    padding: '10px',
+                    margin: isSmallScreen ? '14px 2px' : '14px 5px',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    borderRadius: '50%',
+                    transition: 'var(--tran-04)',
+                    '&:hover': {
+                      backgroundColor: 'var(--bg-clr-2)',
+                      cursor: 'pointer',
+                    },
+                    color: 'var(--body-text-clr)',
+                  }}
+                  onClick={() => setModalOpen(true)}
+                >
+                  <Notifications sx={{ fontSize: iconSize, color: 'var(--text-color)' }} />
+                </IconButton>
+              </li>
+              {/* Profile */}
+              <li
+                className="profile"
+                style={{
+                  padding: isSmallScreen ? '0px' : '10px',
                   display: 'flex',
-                  justifyContent: 'center',
                   alignItems: 'center',
-                  borderRadius: '50%',
-                  transition: 'var(--tran-04)',
-                  '&:hover': {
-                    backgroundColor: 'var(--bg-clr-2)',
-                    cursor: 'pointer',
-                  },
-                  alignSelf: 'center',
-                }}
-              >
-                {isDarkMode ? (
-                  <NightlightRound sx={{ fontSize: iconSize, color: 'var(--text-color)' }} />
-                ) : (
-                  <WbSunny sx={{ fontSize: iconSize, color: '#ffcc33' }} />
-                )}
-              </IconButton>
-            </li> */}
-            {/* Fullscreen Toggle */}
-            <li>
-              <IconButton
-                onClick={toggleFullScreen}
-                sx={{
-                  padding: '10px',
-                  margin: isSmallScreen ? '14px 2px' : '14px 5px',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  borderRadius: '50%',
-                  transition: 'var(--tran-04)',
-                  '&:hover': {
-                    backgroundColor: 'var(--bg-clr-2)',
-                    cursor: 'pointer',
-                  },
-                  color: 'var(--body-text-clr)',
-                  alignSelf: 'center',
-                }}
-              >
-                {isFullScreen ? (
-                  <FullscreenExit sx={{ fontSize: iconSize, color: 'var(--text-color)' }} />
-                ) : (
-                  <Fullscreen sx={{ fontSize: iconSize, color: 'var(--text-color)' }} />
-                )}
-              </IconButton>
-            </li>
-            {/* Notifications */}
-            <li className="notification">
-              <IconButton
-                sx={{
-                  padding: '10px',
-                  margin: isSmallScreen ? '14px 2px' : '14px 5px',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  borderRadius: '50%',
-                  transition: 'var(--tran-04)',
-                  '&:hover': {
-                    backgroundColor: 'var(--bg-clr-2)',
-                    cursor: 'pointer',
-                  },
-                  color: 'var(--body-text-clr)',
-                }}
-              >
-                <Notifications sx={{ fontSize: iconSize, color: 'var(--text-color)' }} onClick={() => setModalOpen(true)} />
-              </IconButton>
-            </li>
-            {/* Profile */}
-            <li
-              className="profile"
-              style={{
-                padding: isSmallScreen ? '0px' : '10px',
-                display: 'flex',
-                alignItems: 'center',
-                // marginLeft: '5px',
-                // marginTop: '10px',
-                lineHeight: '20px'
-              }}>
-              <Avatar
-                onClick={handleMenuOpen}
-                alt={userName}
-                src="/assets/fallback-photo.png"
-                sx={{ width: isSmallScreen ? 30 : 35, height: isSmallScreen ? 30 : 35, margin: isSmallScreen ? '6px' : '5px', alignItems: 'center' }}
-              />
-              <UserProfileMenu
-                anchorEl={anchorEl}
-                isMenuOpen={isMenuOpen}
-                handleMenuClose={handleMenuClose}
-              />
-              <NotificationsModal
-                open={modalOpen} 
-                onClose={() => setModalOpen(false)}
-                userId={userId}
-              />
-            </li>
-          </ul>
-        </Box>
-      </Toolbar>
+                  lineHeight: '20px'
+                }}>
+                <Avatar
+                  onClick={handleMenuOpen}
+                  alt={userName}
+                  src="/assets/fallback-photo.png"
+                  sx={{ width: isSmallScreen ? 30 : 35, height: isSmallScreen ? 30 : 35, margin: isSmallScreen ? '6px' : '5px', alignItems: 'center' }}
+                />
+                <UserProfileMenu
+                  anchorEl={anchorEl}
+                  isMenuOpen={isMenuOpen}
+                  handleMenuClose={handleMenuClose}
+                />
+                <NotificationsModal
+                  open={modalOpen}
+                  onClose={() => setModalOpen(false)}
+                  userId={userId}
+                />
+              </li>
+            </ul>
+          </Box>
+        </Toolbar>
+      </AppBar>
       {isSmallScreen &&
         <Drawer
           anchor="left"
@@ -259,10 +221,9 @@ const TopNavbar: React.FC = () => {
             },
           }}
         >
-          <SideNavbar />
+          <SideNavbar onMenuItemClick={() => toggleDrawer(false)} />
         </Drawer>
       }
-    </AppBar>
     </>
   );
 };

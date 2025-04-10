@@ -19,6 +19,7 @@ import { AppDispatch } from "@/app/redux/store";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import { setCurrentDashboard } from "@/app/redux/slices/dashboardSlice";
+import styles from './recent-payments.module.css';
 
 interface CustomJwtPayload {
   username: string;
@@ -61,59 +62,36 @@ const RecentPayments: React.FC = () => {
     }
   };
 
-  const renderStatus = (currentStep: string) => {
-
-    let color = "", backgroundColor = "", status = "";
-    switch (currentStep) {
-      case "1":
-        status = 'Payment Initiated';
-        color = 'rgba(128, 0, 255, 0.8)';
-        backgroundColor = 'rgba(128, 0, 255, 0.05)';
-        break;
-      case "2":
-        status = 'Documents Uploaded';
-        color = 'rgb(0, 157, 255)';
-        backgroundColor = 'rgba(0, 157, 255, 0.05)';
-        break;
-      case "3":
-        status = 'FX Rate Booked';
-        color = 'rgb(8, 118, 0)';
-        backgroundColor = 'rgba(8, 118, 0, 0.05)';
-        break;
-
-      case "4":
-        status = 'Completed';
-        color = 'rgb(17, 255, 0)';
-        backgroundColor = 'rgba(0, 255, 89, 0.05)';
-        break;
-
-      default:
-        status = 'In Progress';
-        color = 'rgb(255, 119, 0)';
-        backgroundColor = 'rgba(255, 187, 0, 0.05)';  // Gray for incomplete steps
-        break;
-
-    }
-
-    return (
-
-      <Box
-        sx={{
-          display: "inline-block",
-          backgroundColor: backgroundColor, // Light purple background
-          color: color, // Text color
-          fontWeight: "600", // Bold text
-          fontSize: "10px", // Font size
-          padding: "4px 12px", // Padding around the text
-          borderRadius: "5px", // Rounded corners
-          textAlign: "center",
-        }}
-      >
-        {status}
-      </Box>
-
-    )
-  };
+  const StatusBox = (currentStep: string) => {
+  let statusText = "", modifier = "";
+  switch (currentStep) {
+    case "1":
+      statusText = 'Payment Initiated';
+      modifier = 'status--payment-initiated';
+      break;
+    case "2":
+      statusText = 'Documents Uploaded';
+      modifier = 'status--documents-uploaded';
+      break;
+    case "3":
+      statusText = 'FX Rate Booked';
+      modifier = 'status--fx-rate-booked';
+      break;
+    case "4":
+      statusText = 'Completed';
+      modifier = 'status--completed';
+      break;
+    default:
+      statusText = 'In Progress';
+      modifier = 'status--in-progress';
+      break;
+  }
+  return (
+    <div className={`${styles.status} ${styles[modifier]}`}>
+      {statusText}
+    </div>
+  );
+};
 
   const renderProgressBar = (statusPayment: string) => {
     const stepPercentage = getStepPercentage(statusPayment);
@@ -154,9 +132,11 @@ const RecentPayments: React.FC = () => {
   return (
     <Card>
       <CardContent>
-        <Typography variant="h4" sx={{ marginBottom: 2 }}>
-          Active Payments
-        </Typography>
+        <section className="heading ">
+          <div className="cardHeading">
+            Active Payments
+          </div>
+        </section>
         <Divider />
         <TableContainer sx={{ maxWidth: "100%", margin: "auto" }}>
           <Table>
@@ -166,7 +146,7 @@ const RecentPayments: React.FC = () => {
                   align="center"
                   sx={{
                     fontWeight: "bold",
-                    fontSize: "16px",
+                    fontSize: "12px",
                     width: "33.33%", // Ensures equal width for all columns
                   }}
                 >
@@ -176,7 +156,7 @@ const RecentPayments: React.FC = () => {
                   align="center"
                   sx={{
                     fontWeight: "bold",
-                    fontSize: "16px",
+                    fontSize: "12px",
                     width: "33.33%",
                   }}
                 >
@@ -186,7 +166,7 @@ const RecentPayments: React.FC = () => {
                   align="center"
                   sx={{
                     fontWeight: "bold",
-                    fontSize: "16px",
+                    fontSize: "12px",
                     width: "33.33%",
                   }}
                 >
@@ -233,11 +213,11 @@ const RecentPayments: React.FC = () => {
                         index % 2 === 0 ? "#fefefe" : "#fafafa")
                       }
                     >
-                      <TableCell align="center" sx={{ width: "33.33%" }}>
+                      <TableCell align="center" sx={{ width: "33.33%", fontSize: '10px' }}>
                         {order.orderId}
                       </TableCell>
                       <TableCell align="center" sx={{ width: "33.33%" }}>
-                        {renderStatus(order.statusPayment)}
+                        {StatusBox(order.statusPayment)}
                       </TableCell>
                       <TableCell align="center" sx={{ width: "33.33%" }}>
                         {renderProgressBar(order.statusPayment)}

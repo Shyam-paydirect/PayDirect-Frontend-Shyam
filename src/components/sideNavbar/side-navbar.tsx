@@ -4,14 +4,18 @@ import { RootState } from '@/app/redux/store';
 import { useSelector, useDispatch } from 'react-redux';
 import { setCurrentDashboard } from '@/app/redux/slices/dashboardSlice';
 import { useMediaQuery, useTheme } from '@mui/material';
-import { Box } from '@mui/material';
 
-const SideNavbar: React.FC = () => {
+interface SideNavbarProps {
+  onMenuItemClick?: () => void;
+}
+
+const SideNavbar: React.FC<SideNavbarProps> = ({ onMenuItemClick }) => {
   const dispatch = useDispatch();
+  // "close" state is used only for desktop mini-sidebar behavior
   const [close, setClose] = useState(false);
 
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
-  const currentDashboard = useSelector((state: RootState) => state.dashboard.currentDashboard); // Track the active menu item
+  const currentDashboard = useSelector((state: RootState) => state.dashboard.currentDashboard);
 
   const toggleSidenav = () => setClose(!close);
   const closeSidenav = () => setClose(true);
@@ -21,27 +25,29 @@ const SideNavbar: React.FC = () => {
 
   const handleMenuClick = (id: string) => {
     dispatch(setCurrentDashboard(id));
-    isSmallScreen && setClose(true); // Close the sidebar on small screens
-    document.body.classList.remove('sidebar-open'); // Remove any overlay effect
+    // If a callback is provided (mobile), call it to close the Drawer.
+    if (onMenuItemClick) {
+      onMenuItemClick();
+    }
   };
 
   const menuItems = [
     { id: 'currency-management', icon: 'ri-copper-diamond-line', text: 'Payments' },
-    // { id: 'general-ledger', icon: 'ri-database-2-line', text: 'General Ledger' },
-    // { id: 'financial-reporting', icon: 'ri-bank-card-2-line', text: 'Financial Analytics' },
     { id: 'order-book', icon: 'ri-book-line', text: 'Order Book' },
     { id: 'accounts', icon: 'ri-user-settings-line', text: 'Accounts' },
   ];
 
   return (
     <div className="nav-body">
+      {/* Render toggle icon only on desktop */}
       {!isSmallScreen && (
         <i
           className={`ri-arrow-left-s-line toggle ${close ? 'closeToggle' : ''}`}
           onClick={toggleSidenav}
         ></i>
       )}
-      <nav className={`sidebar ${close ? 'close' : ''}`}>
+      {/* For mobile, ignore the "close" state and always render full sidebar */}
+      <nav className={`sidebar ${(!isSmallScreen && close) ? 'close' : ''}`}>
         <header className="header">
           {!isSmallScreen && (
             <span className="nav-closer">
@@ -49,7 +55,7 @@ const SideNavbar: React.FC = () => {
             </span>
           )}
           <div className="image-text">
-            {close ? (
+            {(!isSmallScreen && close) ? (
               <span className="image">
                 <img src={isDarkMode ? "/assets/svg/logos/logoDark.svg" : "/assets/svg/logos/logo.svg"} alt="Logo" />
               </span>
@@ -69,11 +75,11 @@ const SideNavbar: React.FC = () => {
               {menuItems.map((item) => (
                 <li
                   key={item.id}
-                  className={`navLink ${currentDashboard === item.id ? 'active' : ''}  mb-5`} // Add active class for the selected item
+                  className={`navLink ${currentDashboard === item.id ? 'active' : ''} mb-5`}
                   onClick={() => handleMenuClick(item.id)}
                 >
                   <i className={`${item.icon} icon`}></i>
-                  <span className={`text navText`}>{item.text}</span>
+                  <span className="text navText">{item.text}</span>
                 </li>
               ))}
             </ul>
