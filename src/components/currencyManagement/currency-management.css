@@ -18,9 +18,9 @@
 
 }
 
-.left-section > *:not(:last-child) {
+/* .left-section > *:not(:last-child) {
   margin-bottom: 60px; /* Add spacing only between components */
-}
+/*} */
 
 .right-section {
   display: flex;
@@ -50,6 +50,7 @@
 
 @media only screen and (max-width: 480px) {
   .currency-management-parent {
+    margin: 10px;
     padding: 5px;
     gap: 10px;
   }

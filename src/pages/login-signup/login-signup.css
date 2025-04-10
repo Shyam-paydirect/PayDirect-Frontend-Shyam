@@ -326,7 +326,7 @@ main.sign-up-mode form.sign-up-form {
   }
 
   .heading {
-    margin: 2rem 0;
+    /* margin: 2rem 0; */
   }
 
   form.sign-up-form {
@@ -386,5 +386,44 @@ main.sign-up-mode form.sign-up-form {
 
   form {
     padding: 1rem 2rem 1.5rem;
+  }
+}
+
+/* Container to keep the OTP inputs in a row */
+.otp-container {
+  display: flex;
+  gap: 10px; /* Adjust gap as needed */
+  justify-content: center;
+  align-items: center;
+  margin: 20px 0; /* Optional vertical spacing */
+}
+
+/* OTP input field styling */
+.otp-input {
+  width: 40px;           /* Normal width */
+  height: 40px;          /* Normal height */
+  font-size: 16px;       /* Readable font size */
+  text-align: center;    /* Center text */
+  border: 1px solid #ccc; /* Standard border */
+  border-radius: 4px;     /* Slightly rounded corners */
+  outline: none;          /* Remove default focus outline */
+  transition: border-color 0.2s ease;
+}
+
+/* Focus state styling for a nice effect */
+.otp-input:focus {
+  border-color: #007bff;
+}
+
+/* Optional: Adjust spacing for smaller screens */
+@media only screen and (max-width: 480px) {
+  .otp-input {
+    width: 30px;
+    height: 30px;
+    font-size: 12px;
+  }
+  
+  .otp-container {
+    gap: 5px;
   }
 }

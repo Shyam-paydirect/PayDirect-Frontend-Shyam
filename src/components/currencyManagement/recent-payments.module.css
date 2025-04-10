@@ -1,0 +1,45 @@
+/* Base status box style */
+.status {
+    display: inline-block;
+    font-weight: 600;
+    font-size: 10px;           /* Default font size */
+    padding: 4px 12px;         /* Padding around text */
+    border-radius: 5px;        /* Rounded corners */
+    text-align: center;
+  }
+  
+  /* Modifier classes for each status */
+  
+  .status--payment-initiated {
+    color: rgba(128, 0, 255, 0.8);
+    background-color: rgba(128, 0, 255, 0.05);
+  }
+  
+  .status--documents-uploaded {
+    color: rgb(0, 157, 255);
+    background-color: rgba(0, 157, 255, 0.05);
+  }
+  
+  .status--fx-rate-booked {
+    color: rgb(8, 118, 0);
+    background-color: rgba(8, 118, 0, 0.05);
+  }
+  
+  .status--completed {
+    color: rgb(17, 255, 0);
+    background-color: rgba(0, 255, 89, 0.05);
+  }
+  
+  .status--in-progress {
+    color: rgb(255, 119, 0);
+    background-color: rgba(255, 187, 0, 0.05);
+  }
+  
+  /* Media query: adjust for mobile screens */
+  @media (max-width: 600px) {
+    .status {
+      font-size: 8px;         /* Smaller font size on mobile */
+      padding: 3px 10px;      /* Adjusted padding */
+    }
+  }
+  
