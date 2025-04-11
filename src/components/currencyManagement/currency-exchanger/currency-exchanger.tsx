@@ -15,6 +15,7 @@ import moment from 'moment';
 import AccessTimeIcon from '@mui/icons-material/AccessTime'; // Import the clock icon
 import { selectSelectedOrderId, updateOrderPaymentStatus } from '@/app/redux/slices/api/orderSlice';
 import { setCurrentDashboard } from '@/app/redux/slices/dashboardSlice';
+import Cookies from 'js-cookie';
 
 interface Currency {
   code: string;
@@ -26,6 +27,8 @@ interface CurrencyExchangerProps {
 }
 
 const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
+
+  const isArtSurgery = Cookies.get('clientId')?.includes('ArtSurgery')
 
   const formatWithCommas = (value: string, format: 'IND' | 'INTL'): string => {
     const numValue = parseFloat(value.replace(/,/g, ''));
@@ -50,7 +53,7 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
   };
 
   const txnAmount = localStorage.getItem('txnAmount') || "1";
-  const ccy = localStorage.getItem('currency') || 'INR'; 
+  const ccy = localStorage.getItem('currency') || (isArtSurgery ? 'EUR' : 'INR'); 
 
   const [base, setBase] = useState<string>(ccy);
   const [target, setTarget] = useState<string>(ccy == 'INR' ? 'USD' : 'INR');
@@ -231,7 +234,7 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
   const handleGetFxRateClick = async () => {
     setErrorMsg("");
     const bodyData = {
-      ccyPair: "USDINR",
+      ccyPair: isArtSurgery ? "EURINR" : "USDINR",
       dealtSide: "BUY",
       txnAmount: baseValue,
       txnCcy: base,
