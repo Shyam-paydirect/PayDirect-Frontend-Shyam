@@ -49,7 +49,7 @@ export const verifyLoginOtp = createAsyncThunk(
   async ({ username, otp }: { username: string; otp: string }, { rejectWithValue }) => {
     try {
       const response = await axios.post(`${liveApi}/users/verifyLoginOtp`, { username, otp });
-      const { token, message, role, merchant_id } = response.data;
+      const { token, message, role, merchant_id, clientId } = response.data;
 
       // Store token in Cookies and localStorage
       Cookies.set('token', token, {
@@ -57,6 +57,7 @@ export const verifyLoginOtp = createAsyncThunk(
         secure: true, // HTTPS only
         sameSite: 'Strict', // Prevent CSRF
       });
+      Cookies.set('clientId', clientId)
       Cookies.set('role', role);
       Cookies.set('merchant_id', merchant_id, {
         expires: 4 / 24, // 4 hours

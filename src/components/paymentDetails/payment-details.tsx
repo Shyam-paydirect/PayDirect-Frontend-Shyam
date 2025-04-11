@@ -39,6 +39,7 @@ interface CustomJwtPayload {
 }
 
 const PaymentDetails: React.FC = () => {
+    const isArtSurgery = Cookies.get('clientId')?.includes('ArtSurgery')
     const dispatch = useDispatch<AppDispatch>();
 
     const [isLoading, setIsLoading] = useState(false);
@@ -46,7 +47,7 @@ const PaymentDetails: React.FC = () => {
     const [otpTransactionId, setOtpTransactionId] = useState<string>("");
 
     const [remittanceAmount, setRemittanceAmount] = useState('');
-    const [currency, setCurrency] = useState('USD');
+    const [currency, setCurrency] = useState(isArtSurgery ? 'EUR' : 'USD');
     const [dateOfTransfer, setDateOfTransfer] = useState(moment().format("YYYY-MM-DD"));
     const [invoiceNumber, setInvoiceNumber] = useState('');
     const [purposeCode, setPurposeCode] = useState('');
@@ -329,6 +330,7 @@ const PaymentDetails: React.FC = () => {
                                         >
                                             <MenuItem value="INR">INR</MenuItem>
                                             <MenuItem value="USD">USD</MenuItem>
+                                            {isArtSurgery && <MenuItem value="EUR">EUR</MenuItem>}
                                         </Select>
                                     </FormControl>
                                 </Grid>
