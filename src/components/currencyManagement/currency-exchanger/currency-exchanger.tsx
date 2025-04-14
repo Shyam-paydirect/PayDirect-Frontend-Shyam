@@ -56,7 +56,7 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
   const ccy = localStorage.getItem('currency') || (isArtSurgery ? 'EUR' : 'INR'); 
 
   const [base, setBase] = useState<string>(ccy);
-  const [target, setTarget] = useState<string>(ccy == 'INR' ? 'USD' : 'INR');
+  const [target, setTarget] = useState<string>(ccy == 'INR' ? (isArtSurgery ? 'EUR' : 'USD') : 'INR');
   const [baseValue, setBaseValue] = useState<string>(book? txnAmount : "1");
   
   const formatted = base === 'INR'
@@ -81,7 +81,7 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
     { code: "USD", name: "United States Dollar" },
     { code: "INR", name: "Indian Rupee" },
     { code: "EUR", name: "Euro" },
-    { code: "GBP", name: "British Pound" },
+    // { code: "GBP", name: "British Pound" },
   ];
 
   const orderID = useSelector(selectSelectedOrderId) || "";
@@ -403,7 +403,9 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
                   }}
                 >
                   {/* {currencies.map((currency) => ( */}
-                  <MenuItem
+                  {
+                    book ? 
+                    <MenuItem
                     // key={currency.code}
                     // value={currency.code}
                     value={base}
@@ -428,7 +430,32 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
                         <Typography>{currency.code}</Typography> */}
                     </Box>
                   </MenuItem>
-                  {/* ))}  */}
+                    :
+                  currencies.map((currency) => (
+                    <MenuItem
+                      key={currency.code}
+                      value={currency.code}
+                      sx={{
+                        backgroundColor: "#fff", // Keep white for items
+                        "&:hover": {
+                          backgroundColor: "#f5f5f5", // Slight highlight on hover
+                        },
+                        "&.Mui-selected": {
+                          backgroundColor: "#e0e0e0", // Highlight selected item
+                          fontWeight: "bold", // Bold for the selected item
+                        },
+                      }}
+                    >
+                      <Box display="flex" alignItems="center" gap={1}>
+                        <Avatar
+                          src={getFlagUrl(currency.code)}
+                          sx={{ width: 24, height: 24 }}
+                        />
+                        <Typography>{currency.code}</Typography>
+                      </Box>
+                    </MenuItem>
+                  ))
+                  }
                 </Select>
                 <Input
                   type="text"
