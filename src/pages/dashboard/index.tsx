@@ -12,6 +12,8 @@ import "@/styles/global.css";
 import AccountStatement from '@/components/account-statement/account-statement';
 import ChangePassword from '@/components/change-password/change-password';
 import UserManagement from '@/components/manage-users/manage-users';
+import { getClientCurrency } from '@/app/redux/slices/api/ccyPairSlice';
+import { AppDispatch } from '@/app/redux/store';
 
 // Dynamically import all components with ssr: false
 const SideNavbar = dynamic(() => import('@/components/sideNavbar/side-navbar'), { ssr: false });
@@ -37,7 +39,7 @@ const Main: React.FC = () => {
     }
   }, [router]);
 
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const dashboardTitle = useSelector((state: RootState) => state.dashboard.currentDashboard);
   const previousDashboard = localStorage.getItem('prev_component') || 'currency-management';
   const currentDashboard = localStorage.getItem('component') || '';
