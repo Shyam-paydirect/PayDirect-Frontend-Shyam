@@ -16,6 +16,8 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime'; // Import the clock
 import { selectSelectedOrderId, updateOrderPaymentStatus } from '@/app/redux/slices/api/orderSlice';
 import { setCurrentDashboard } from '@/app/redux/slices/dashboardSlice';
 import Cookies from 'js-cookie';
+import { getClientCurrency } from '@/app/redux/slices/api/ccyPairSlice';
+import { RootState } from '@/app/redux/store';
 
 interface Currency {
   code: string;
@@ -53,16 +55,16 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
   };
 
   const txnAmount = localStorage.getItem('txnAmount') || "1";
-  const ccy = localStorage.getItem('currency') || (isArtSurgery ? 'EUR' : 'INR'); 
+  const ccy = localStorage.getItem('currency') || (isArtSurgery ? 'EUR' : 'INR');
 
   const [base, setBase] = useState<string>(ccy);
   const [target, setTarget] = useState<string>(ccy == 'INR' ? (isArtSurgery ? 'EUR' : 'USD') : 'INR');
-  const [baseValue, setBaseValue] = useState<string>(book? txnAmount : "1");
-  
+  const [baseValue, setBaseValue] = useState<string>(book ? txnAmount : "1");
+
   const formatted = base === 'INR'
-        ? formatWithCommas(txnAmount.replace(/,/g, ''), 'IND')
-        : formatWithCommas(txnAmount.replace(/,/g, ''), 'INTL');
-        
+    ? formatWithCommas(txnAmount.replace(/,/g, ''), 'IND')
+    : formatWithCommas(txnAmount.replace(/,/g, ''), 'INTL');
+
   const [formattedBaseValue, setFormattedBaseValue] = useState<string>(book ? formatted : '1');
   const [targetValue, setTargetValue] = useState<string>("0");
   const [formattedTargetValue, setFormattedTargetValue] = useState<string>("0");
@@ -81,16 +83,20 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
     { code: "USD", name: "United States Dollar" },
     { code: "INR", name: "Indian Rupee" },
     { code: "EUR", name: "Euro" },
-    // { code: "GBP", name: "British Pound" },
+    { code: "GBP", name: "British Pound" },
   ];
 
   const orderID = useSelector(selectSelectedOrderId) || "";
 
-  const filteredCurrencies = currencies.filter(
-    (currency) =>
-      currency.code.toLowerCase().includes(searchKeyword.toLowerCase()) ||
-      currency.name.toLowerCase().includes(searchKeyword.toLowerCase())
-  );
+  const { data, loading } = useSelector((state: RootState) => state.ccyPair)
+
+  const sendingCurrencies = loading ? currencies : currencies.filter(currency => 
+    data?.sending_currencies.includes(currency.code)
+  )
+
+  const receivingCurrencies = loading ? currencies : currencies.filter(currency =>
+    data?.receiving_currencies.includes(currency.code)
+  )
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -106,8 +112,7 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
 
       const hours = istTime.getHours();
       const minutes = istTime.getMinutes();
-      const day = istTime.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
-      console.log(hours, minutes, day, "THISHSIHS");
+      const day = istTime.getDay();
 
       // Enable button only from Monday to Friday (day 1-5), between 9:00 AM and 3:30 PM IST
       if (
@@ -137,7 +142,15 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
     return () => clearInterval(interval);
   }, []);
 
-  useEffect(() => {}, [base, target]);
+  useEffect(() => { }, [base, target]);
+
+
+  const clientId = Cookies.get("clientId") || ""
+
+  useEffect(() => {
+    dispatch(getClientCurrency(clientId))
+  }, [])
+
 
   const handleOpen = (isBase: boolean) => {
     setOpen(true);
@@ -183,12 +196,12 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
       const targetVal =
         target == "INR"
           ? (
-              Math.round(result?.data?.rate * parseFloat(baseValue) * 100) / 100
-            ).toFixed(2)
+            Math.round(result?.data?.rate * parseFloat(baseValue) * 100) / 100
+          ).toFixed(2)
           : (
-              Math.round((parseFloat(baseValue) * 100) / result?.data?.rate) /
-              100
-            ).toFixed(2);
+            Math.round((parseFloat(baseValue) * 100) / result?.data?.rate) /
+            100
+          ).toFixed(2);
       setTargetValue(`${targetVal}`);
       const formatted =
         target === "INR"
@@ -203,8 +216,8 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
         typeof error === "string"
           ? error
           : error instanceof Error
-          ? error.message
-          : "An unknown error occurred";
+            ? error.message
+            : "An unknown error occurred";
 
       setErrorMsg(errorMessage);
     }
@@ -224,8 +237,8 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
         typeof error === "string"
           ? error
           : error instanceof Error
-          ? error.message
-          : "An unknown error occurred";
+            ? error.message
+            : "An unknown error occurred";
 
       setErrorMsg(errorMessage);
     }
@@ -234,7 +247,7 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
   const handleGetFxRateClick = async () => {
     setErrorMsg("");
     const bodyData = {
-      ccyPair: isArtSurgery ? "EURINR" : "USDINR",
+      ccyPair: base+target,
       dealtSide: "BUY",
       txnAmount: baseValue,
       txnCcy: base,
@@ -296,20 +309,20 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
       const response = await dispatch(bookFxRate(bodyData)).unwrap();
       toast.success(response)
       localStorage.setItem("prev_component", 'fx-rate-booker')
-       dispatch(updateOrderPaymentStatus({
-                              orderId: orderID,
-                              statusPayment: '3'
-                          }))
+      dispatch(updateOrderPaymentStatus({
+        orderId: orderID,
+        statusPayment: '3'
+      }))
       dispatch(setCurrentDashboard('track-payments'))
-      
+
     }
     catch (error) {
       const errorMessage =
         typeof error === "string"
           ? error
           : error instanceof Error
-          ? error.message
-          : "An unknown error occurred";
+            ? error.message
+            : "An unknown error occurred";
       toast.dismiss();
       // toast.error(errorMessage)
       setErrorMsg(errorMessage);
@@ -404,57 +417,57 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
                 >
                   {/* {currencies.map((currency) => ( */}
                   {
-                    book ? 
-                    <MenuItem
-                    // key={currency.code}
-                    // value={currency.code}
-                    value={base}
-                    sx={{
-                      backgroundColor: "#fff", // Keep white for items
-                      "&:hover": {
-                        backgroundColor: "#f5f5f5", // Slight highlight on hover
-                      },
-                      "&.Mui-selected": {
-                        backgroundColor: "#e0e0e0", // Highlight selected item
-                        fontWeight: "bold", // Bold for the selected item
-                      },
-                    }}
-                  >
-                    <Box display="flex" alignItems="center" gap={1}>
-                      <Avatar
-                        src={getFlagUrl(base)}
-                        sx={{ width: 24, height: 24 }}
-                      />
-                      <Typography>{base}</Typography>
-                      {/* <Avatar src={getFlagUrl(currency.code)} sx={{ width: 24, height: 24 }} />
+                    book ?
+                      <MenuItem
+                        // key={currency.code}
+                        // value={currency.code}
+                        value={base}
+                        sx={{
+                          backgroundColor: "#fff", // Keep white for items
+                          "&:hover": {
+                            backgroundColor: "#f5f5f5", // Slight highlight on hover
+                          },
+                          "&.Mui-selected": {
+                            backgroundColor: "#e0e0e0", // Highlight selected item
+                            fontWeight: "bold", // Bold for the selected item
+                          },
+                        }}
+                      >
+                        <Box display="flex" alignItems="center" gap={1}>
+                          <Avatar
+                            src={getFlagUrl(base)}
+                            sx={{ width: 24, height: 24 }}
+                          />
+                          <Typography>{base}</Typography>
+                          {/* <Avatar src={getFlagUrl(currency.code)} sx={{ width: 24, height: 24 }} />
                         <Typography>{currency.code}</Typography> */}
-                    </Box>
-                  </MenuItem>
-                    :
-                  currencies.map((currency) => (
-                    <MenuItem
-                      key={currency.code}
-                      value={currency.code}
-                      sx={{
-                        backgroundColor: "#fff", // Keep white for items
-                        "&:hover": {
-                          backgroundColor: "#f5f5f5", // Slight highlight on hover
-                        },
-                        "&.Mui-selected": {
-                          backgroundColor: "#e0e0e0", // Highlight selected item
-                          fontWeight: "bold", // Bold for the selected item
-                        },
-                      }}
-                    >
-                      <Box display="flex" alignItems="center" gap={1}>
-                        <Avatar
-                          src={getFlagUrl(currency.code)}
-                          sx={{ width: 24, height: 24 }}
-                        />
-                        <Typography>{currency.code}</Typography>
-                      </Box>
-                    </MenuItem>
-                  ))
+                        </Box>
+                      </MenuItem>
+                      :
+                      sendingCurrencies.map((currency) => (
+                        <MenuItem
+                          key={currency.code}
+                          value={currency.code}
+                          sx={{
+                            backgroundColor: "#fff", // Keep white for items
+                            "&:hover": {
+                              backgroundColor: "#f5f5f5", // Slight highlight on hover
+                            },
+                            "&.Mui-selected": {
+                              backgroundColor: "#e0e0e0", // Highlight selected item
+                              fontWeight: "bold", // Bold for the selected item
+                            },
+                          }}
+                        >
+                          <Box display="flex" alignItems="center" gap={1}>
+                            <Avatar
+                              src={getFlagUrl(currency.code)}
+                              sx={{ width: 24, height: 24 }}
+                            />
+                            <Typography>{currency.code}</Typography>
+                          </Box>
+                        </MenuItem>
+                      ))
                   }
                 </Select>
                 <Input
@@ -597,7 +610,7 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
                     },
                   }}
                 >
-                  {currencies.map((currency) => (
+                  {receivingCurrencies.map((currency) => (
                     <MenuItem
                       key={currency.code}
                       value={currency.code}
@@ -654,62 +667,19 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
                 </span>
                 <span className="rate-reason">@ PayDirect rate per USD</span>
               </li>
-              {/* <li className="rate-detail">
-              <span className="rate">
-                <i className="ri-equal-line sign"></i>
-                {loading ? <span className='skeleton'>₹ 000000</span> : <>₹ 836829.24</>}
-              </span>
-              <span className="rate-reason">FX Amount</span>
-            </li>
-            <li className="rate-detail">
-              <span className="rate">
-                <i className="ri-add-line sign"></i>
-                {loading ? <span className='skeleton'>₹ 000000</span> : <>₹ 500</>}
-              </span>
-              <span className="rate-reason">Approx SWIFT Charges</span>
-            </li>
-            <li className="rate-detail">
-              <span className="rate">
-                <i className="ri-add-line sign"></i>
-                {loading ? <span className='skeleton'>₹ 000000</span> : <>₹ 0.00</>}
-              </span>
-              <span className="rate-reason">Approx Transaction Charges</span>
-            </li>
-            <li className="rate-detail">
-              <span className="rate">
-                <i className="ri-add-line sign"></i>
-                {loading ? <span className='skeleton'>₹ 000000</span> : <>₹ 0.00</>}
-              </span>
-              <span className="rate-reason">Approx Correspondent Bank Charges</span>
-            </li>
-            <li className="rate-detail">
-              <span className="rate">
-                <i className="ri-add-line sign"></i>
-                {loading ? <span className='skeleton'>₹ 000000</span> : <>₹ 240.64</>}
-              </span>
-              <span className="rate-reason">GST</span>
-            </li> */}
-              {/* <li className="rate-detail">
-                <span className="rate">
-                  <i className="ri-add-line sign"></i>₹ 2,000.00
-                </span>
-                <span className="rate-reason">
-                  Service Charge <span className="gst">(incl. GST)</span>
-                </span>
-              </li> */}
             </ul>
             <div className="final-charge-parent">
               <Typography className="final-charge-label totalPayment rate">
                 <i className="ri-equal-line sign"></i>₹{" "}
                 {target == "INR"
                   ? formatWithCommas(
-                      String(parseFloat(targetValue)),
-                      "IND"
-                    )
+                    String(parseFloat(targetValue)),
+                    "IND"
+                  )
                   : formatWithCommas(
-                      String(parseFloat(baseValue)),
-                      "IND"
-                    )}
+                    String(parseFloat(baseValue)),
+                    "IND"
+                  )}
               </Typography>
               <Typography className="final-charge-label">
                 FX Amount

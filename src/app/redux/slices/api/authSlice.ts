@@ -108,6 +108,9 @@ const authSlice = createSlice({
       state.token = null;
       state.merchantDetails = null;
       Cookies.remove('token'); // Clear token from storage
+      Cookies.remove('role')
+      Cookies.remove('clientId')
+      Cookies.remove('merchant_id')
       localStorage.removeItem('token'); // Also clear token from localStorage
       state.status = 'idle';
     },
