@@ -1,9 +1,9 @@
 // Import necessary modules
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Box, Tooltip, Typography, TextField, Button, Grid, IconButton, List, ListItem, ListItemText, CircularProgress, Card, CardContent } from '@mui/material';
+import { Box, Tooltip, Typography, TextField, Button, Grid, IconButton, List, ListItem, ListItemText, CircularProgress, Card, CardContent, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { Add, Delete } from '@mui/icons-material';
-import { createAccount, fetchAccounts, searchAccounts } from '@/app/redux/slices/api/accountsSlice';
+import { createAccount, fetchAccounts, searchAccounts, countryCodeList } from '@/app/redux/slices/api/accountsSlice';
 import { RootState } from '@/app/redux/store';
 import { AppDispatch } from '@/app/redux/store';
 import Cookies from 'js-cookie';
@@ -41,9 +41,16 @@ const ContactDetails: React.FC = () => {
       { address: "" },
     ],
     branchCode: "",
-    micrCode: "",
+    countryCode: "",
     selfAccount: 0,
   });
+
+  useEffect(() => {
+    dispatch(countryCodeList())
+  }, [])
+
+  const { countryCodes } = useSelector((state: RootState) => state.accounts)
+
 
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -94,7 +101,7 @@ const ContactDetails: React.FC = () => {
         { address: "" },
       ],
       branchCode: "",
-      micrCode: "",
+      countryCode: "",
       selfAccount: 0,
     });
     dispatch(fetchAccounts(`${userId}`)); // Refresh the contact list
@@ -112,7 +119,7 @@ const ContactDetails: React.FC = () => {
   };
 
   return (
-    <Box padding={3} sx={{ backgroundColor: "#f5f5f5", minHeight: "100vh" }}>
+    <Box padding={3} sx={{ minHeight: "100vh" }}>
       <Typography variant="h4" gutterBottom sx={{ textAlign: "center", marginBottom: 3 }}>
         Manage Your Contacts
       </Typography>
@@ -153,14 +160,6 @@ const ContactDetails: React.FC = () => {
                 fullWidth
                 value={newContact.IFSC}
                 onChange={(e) => setNewContact({ ...newContact, IFSC: e.target.value })}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                label="UPI ID"
-                fullWidth
-                value={newContact.UPI_ID}
-                onChange={(e) => setNewContact({ ...newContact, UPI_ID: e.target.value })}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -215,12 +214,24 @@ const ContactDetails: React.FC = () => {
               />
             </Grid>
             <Grid item xs={12} sm={6}>
-              <TextField
-                label="MICR Code"
-                fullWidth
-                value={newContact.micrCode}
-                onChange={(e) => setNewContact({ ...newContact, micrCode: e.target.value })}
-              />
+              <FormControl fullWidth>
+                <InputLabel>
+                  Country Code
+                </InputLabel>
+                <Select
+                  label="Country Code"
+                  fullWidth
+                  value={newContact.countryCode}
+                  onChange={(e) => setNewContact({ ...newContact, countryCode: e.target.value })}
+                >
+                  {countryCodes.map(code => (
+                    <MenuItem key={code} value={code}>
+                      {code}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
             </Grid>
           </Grid>
           <Button

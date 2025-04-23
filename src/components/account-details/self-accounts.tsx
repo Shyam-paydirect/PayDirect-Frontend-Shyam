@@ -1,9 +1,9 @@
 // Import necessary modules
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Box, Typography, TextField, Button, Grid, IconButton, List, ListItem, ListItemText, CircularProgress, Card, CardContent } from '@mui/material';
+import { Box, Typography, TextField, Button, Grid, IconButton, List, ListItem, ListItemText, CircularProgress, Card, CardContent, FormControl, Select, MenuItem, InputLabel } from '@mui/material';
 import { Add, Delete } from '@mui/icons-material';
-import { createAccount, fetchAccounts } from '@/app/redux/slices/api/accountsSlice';
+import { createAccount, fetchAccounts, countryCodeList } from '@/app/redux/slices/api/accountsSlice';
 import { RootState } from '@/app/redux/store';
 import { AppDispatch } from '@/app/redux/store';
 import Cookies from 'js-cookie';
@@ -40,9 +40,15 @@ const AccountDetails: React.FC = () => {
       { address: "" },
     ],
     branchCode: "",
-    micrCode: "",
+    countryCode: "",
     selfAccount: 1
   });
+
+  useEffect(() => {
+    dispatch(countryCodeList())
+  }, [])
+
+  const { countryCodes } = useSelector((state: RootState) => state.accounts)
 
   const addressRegex = /^[a-zA-Z0-9\s,-]+$/; // Allows letters, numbers, spaces, commas, and hyphens
 
@@ -91,7 +97,7 @@ const AccountDetails: React.FC = () => {
         { address: "" },
       ],
       branchCode: "",
-      micrCode: "",
+      countryCode: "",
       selfAccount: 1
 
     });
@@ -99,7 +105,7 @@ const AccountDetails: React.FC = () => {
   };
 
   return (
-    <Box padding={3} sx={{ backgroundColor: "#f5f5f5", minHeight: "100vh" }}>
+    <Box padding={3} sx={{ minHeight: "100vh" }}>
       <Typography variant="h4" gutterBottom sx={{ textAlign: "center", marginBottom: 3 }}>
         Manage Your Accounts
       </Typography>
@@ -142,14 +148,14 @@ const AccountDetails: React.FC = () => {
                 onChange={(e) => setNewAccount({ ...newAccount, IFSC: e.target.value })}
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            {/* <Grid item xs={12} sm={6}>
               <TextField
-                label="UPI ID"
+                label="Country Code"
                 fullWidth
                 value={newAccount.UPI_ID}
                 onChange={(e) => setNewAccount({ ...newAccount, UPI_ID: e.target.value })}
               />
-            </Grid>
+            </Grid> */}
             <Grid item xs={12} sm={6}>
               <TextField
                 label="Bank Name"
@@ -196,12 +202,24 @@ const AccountDetails: React.FC = () => {
               />
             </Grid>
             <Grid item xs={12} sm={6}>
-              <TextField
-                label="MICR Code"
-                fullWidth
-                value={newAccount.micrCode}
-                onChange={(e) => setNewAccount({ ...newAccount, micrCode: e.target.value })}
-              />
+              <FormControl fullWidth>
+                <InputLabel>
+                  Country Code
+                </InputLabel>
+                <Select
+                  label="Country Code"
+                  fullWidth
+                  value={newAccount.countryCode}
+                  onChange={(e) => setNewAccount({ ...newAccount, countryCode: e.target.value })}
+                >
+                  {countryCodes.map(code => (
+                    <MenuItem key={code} value={code}>
+                      {code}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
             </Grid>
           </Grid>
           <Button

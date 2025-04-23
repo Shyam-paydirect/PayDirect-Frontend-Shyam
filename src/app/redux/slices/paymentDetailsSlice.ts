@@ -17,7 +17,8 @@ interface PaymentDetailsState {
     country: string;
     beneficiaryName: string;
     beneficiaryAccountNumber: string;
-    micrCode: string;
+    senderPartyCountryCode: string;
+    receivingPartyCountryCode: string;
     senderName: string;
     senderAccNo: string;
     senderSwiftBic: string;
@@ -41,7 +42,8 @@ const initialState: PaymentDetailsState = {
     country: '',
     beneficiaryName: '',
     beneficiaryAccountNumber: '',
-    micrCode: '',
+    senderPartyCountryCode: '',
+    receivingPartyCountryCode: '',
     senderName: '',
     senderAccNo: '',
     senderSwiftBic: ''
@@ -75,7 +77,8 @@ const paymentDetailsSlice = createSlice({
         country: '',
         beneficiaryName: '',
         beneficiaryAccountNumber: '',
-        micrCode: '',
+        senderPartyCountryCode: '',
+        receivingPartyCountryCode: '',
         senderName: '',
         senderAccNo: '',
         senderSwiftBic: ''

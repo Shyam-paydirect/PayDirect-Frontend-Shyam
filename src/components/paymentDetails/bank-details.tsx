@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
     Box,
     Grid,
@@ -8,13 +8,18 @@ import {
     Modal,
     useMediaQuery,
     useTheme,
+    Select,
+    MenuItem,
+    FormControl,
+    InputLabel
 } from "@mui/material";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { saveBankDetails } from "@/app/redux/slices/paymentDetailsSlice";
 import AccountSelectorModal from "./fetch-bank"; // Import the selector modal
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
-import { createAccount } from "@/app/redux/slices/api/accountsSlice";
+import { countryCodeList, createAccount } from "@/app/redux/slices/api/accountsSlice";
+import { RootState } from "@/app/redux/store";
 import { AppDispatch } from "@/app/redux/store";
 
 interface CustomJwtPayload {
@@ -45,6 +50,10 @@ const BankDetails: React.FC<BankDetailsProps> = ({
     const theme = useTheme();
     const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
+    useEffect(() => {
+        dispat(countryCodeList())
+    }, [])
+
     const wideFields = ['beneficiaryAccountNumber', 'beneficiaryBank', 'bankAddress', 'beneficiaryName']
 
     const [bankDetails, setBankDetails] = useState({
@@ -55,17 +64,20 @@ const BankDetails: React.FC<BankDetailsProps> = ({
         city: "",
         state: "",
         country: "",
-        micrCode: "",
+        receivingPartyCountryCode: "",
         beneficiaryName: "",
         beneficiaryAccountNumber: "",
         senderName: '',
         senderAccNo: '',
-        senderSwiftBic: ''
+        senderSwiftBic: '',
+        senderPartyCountryCode: "",
     });
 
     const [selfDetails, setSelfDetails] = useState({
 
     })
+
+    const { countryCodes } = useSelector((state: RootState) => state.accounts)
 
     const [modalOpen, setModalOpen] = useState(false);
     const [accountType, setAccountType] = useState<"self" | "beneficiary">("self");
@@ -76,7 +88,8 @@ const BankDetails: React.FC<BankDetailsProps> = ({
             ...prev,
             senderName: account.name,
             senderAccNo: account.accountNo,
-            senderSwiftBic: account.swiftBic
+            senderSwiftBic: account.swiftBic,
+            senderPartyCountryCode: account.countryCode || "",
         }))
     }
 
@@ -92,7 +105,7 @@ const BankDetails: React.FC<BankDetailsProps> = ({
             country: account.beneficiaryAddresses?.[2]?.address || "",
             beneficiaryName: account.name || "",
             beneficiaryAccountNumber: account.accountNo || "",
-            micrCode: account.micrCode || "",
+            receivingPartyCountryCode: account.countryCode || "",
         }));
     };
 
@@ -119,6 +132,22 @@ const BankDetails: React.FC<BankDetailsProps> = ({
         (["bankAddress", "city", "state", "country"] as Array<keyof typeof bankDetails>).forEach((field) => {
             if (bankDetails[field] && !addressRegex.test(bankDetails[field])) {
                 newErrors[field] = `${field.replace(/([A-Z])/g, " $1")} contains invalid characters.`;
+            }
+        });
+
+        const nameRegex = /^[A-Za-z\s]+$/;
+        (["senderName", "beneficiaryName", "beneficiaryBank"] as Array<keyof typeof bankDetails>).forEach((field) => {
+            const val = bankDetails[field];
+            if (val) {
+                if (val.length > 35) {
+                    newErrors[field] = `${field
+                        .replace(/([A-Z])/g, " $1")
+                        .replace(/^./, str => str.toUpperCase())} cannot exceed 35 characters.`;
+                } else if (!nameRegex.test(val)) {
+                    newErrors[field] = `${field
+                        .replace(/([A-Z])/g, " $1")
+                        .replace(/^./, str => str.toUpperCase())} can only contain letters and spaces.`;
+                }
             }
         });
 
@@ -159,7 +188,7 @@ const BankDetails: React.FC<BankDetailsProps> = ({
                     { address: bankDetails.country },
                 ],
                 branchCode: "",
-                micrCode: bankDetails.micrCode,
+                countryCode: bankDetails.receivingPartyCountryCode,
                 selfAccount: 0,
             })
         );
@@ -224,24 +253,53 @@ const BankDetails: React.FC<BankDetailsProps> = ({
                         </Button>
                     </Grid>
                     {Object.entries(bankDetails).map(([key, value]) => (
-                        key !== "swiftCode" && (
-                            <Grid item xs={wideFields.includes(key) ? 12 : 6} key={key}>
-                                <TextField
-                                    fullWidth
-                                    label={key
-                                        .replace(/([A-Z])/g, " $1")
-                                        .replace(/^./, (str) => str.toUpperCase())}
-                                    value={value}
-                                    onChange={(e) =>
-                                        setBankDetails((prev) => ({
-                                            ...prev,
-                                            [key]: e.target.value,
-                                        }))
-                                    }
-                                    error={!!errors[key]}
-                                    helperText={errors[key]}
-                                />
-                            </Grid>
+                        key !== "swiftCode" &&
+                        (
+                            key.includes('CountryCode') ?
+                                <Grid item xs={wideFields.includes(key) ? 12 : 6} key={key}>
+                                    <FormControl fullWidth>
+                                        <InputLabel id={`${key}-label`}>
+                                            {key
+                                                .replace(/([A-Z])/g, " $1")
+                                                .replace(/^./, str => str.toUpperCase())
+                                            }
+                                        </InputLabel>
+                                        <Select
+                                            labelId={`${key}-label`}
+                                            value={value || ''}
+                                            label={key
+                                                .replace(/([A-Z])/g, " $1")
+                                                .replace(/^./, (str) => str.toUpperCase())}
+                                            onChange={e =>
+                                                setBankDetails(prev => ({ ...prev, [key]: e.target.value }))
+                                            }
+                                        >
+                                            {countryCodes.map(code => (
+                                                <MenuItem key={code} value={code}>
+                                                    {code}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
+                                </Grid>
+                                :
+                                <Grid item xs={wideFields.includes(key) ? 12 : 6} key={key}>
+                                    <TextField
+                                        fullWidth
+                                        label={key
+                                            .replace(/([A-Z])/g, " $1")
+                                            .replace(/^./, (str) => str.toUpperCase())}
+                                        value={value}
+                                        onChange={(e) =>
+                                            setBankDetails((prev) => ({
+                                                ...prev,
+                                                [key]: e.target.value,
+                                            }))
+                                        }
+                                        error={!!errors[key]}
+                                        helperText={errors[key]}
+                                    />
+                                </Grid>
                         )
                     ))}
                 </Grid>

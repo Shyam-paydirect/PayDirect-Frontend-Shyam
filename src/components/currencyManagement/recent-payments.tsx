@@ -63,35 +63,35 @@ const RecentPayments: React.FC = () => {
   };
 
   const StatusBox = (currentStep: string) => {
-  let statusText = "", modifier = "";
-  switch (currentStep) {
-    case "1":
-      statusText = 'Payment Initiated';
-      modifier = 'status--payment-initiated';
-      break;
-    case "2":
-      statusText = 'Documents Uploaded';
-      modifier = 'status--documents-uploaded';
-      break;
-    case "3":
-      statusText = 'FX Rate Booked';
-      modifier = 'status--fx-rate-booked';
-      break;
-    case "4":
-      statusText = 'Completed';
-      modifier = 'status--completed';
-      break;
-    default:
-      statusText = 'In Progress';
-      modifier = 'status--in-progress';
-      break;
-  }
-  return (
-    <div className={`${styles.status} ${styles[modifier]}`}>
-      {statusText}
-    </div>
-  );
-};
+    let statusText = "", modifier = "";
+    switch (currentStep) {
+      case "1":
+        statusText = 'Payment Initiated';
+        modifier = 'status--payment-initiated';
+        break;
+      case "2":
+        statusText = 'Documents Uploaded';
+        modifier = 'status--documents-uploaded';
+        break;
+      case "3":
+        statusText = 'FX Rate Booked';
+        modifier = 'status--fx-rate-booked';
+        break;
+      case "4":
+        statusText = 'Completed';
+        modifier = 'status--completed';
+        break;
+      default:
+        statusText = 'In Progress';
+        modifier = 'status--in-progress';
+        break;
+    }
+    return (
+      <div className={`${styles.status} ${styles[modifier]}`}>
+        {statusText}
+      </div>
+    );
+  };
 
   const renderProgressBar = (statusPayment: string) => {
     const stepPercentage = getStepPercentage(statusPayment);
@@ -130,114 +130,124 @@ const RecentPayments: React.FC = () => {
   };
 
   return (
-    <Card>
-      <CardContent>
-        <section className="heading ">
-          <div className="cardHeading">
-            Active Payments
-          </div>
-        </section>
-        <Divider />
-        <TableContainer sx={{ maxWidth: "100%", margin: "auto" }}>
-          <Table>
-            <TableHead>
-              <TableRow sx={{ backgroundColor: "#f9f9f9" }}>
-                <TableCell
-                  align="center"
-                  sx={{
-                    fontWeight: "bold",
-                    fontSize: "12px",
-                    width: "33.33%", // Ensures equal width for all columns
-                  }}
-                >
-                  Order ID
-                </TableCell>
-                <TableCell
-                  align="center"
-                  sx={{
-                    fontWeight: "bold",
-                    fontSize: "12px",
-                    width: "33.33%",
-                  }}
-                >
-                  Status
-                </TableCell>
-                <TableCell
-                  align="center"
-                  sx={{
-                    fontWeight: "bold",
-                    fontSize: "12px",
-                    width: "33.33%",
-                  }}
-                >
-                  Progress
+    <div className="trade-payments-parent commonCard">
+
+      <section className="heading ">
+        <div className="cardHeading">
+          Active Payments
+        </div>
+      </section>
+      <Divider />
+      <TableContainer 
+       sx={{
+         maxWidth: "100%",
+         margin: "auto",
+         maxHeight: 5 * 48 + 56,    // approx row height (48px) × 5 rows + header height (56px)
+         overflowY: "auto"
+       }}
+      >
+        <Table>
+          <TableHead>
+            <TableRow sx={{ backgroundColor: `var(--accent-clr-1)` }}>
+              <TableCell
+                align="center"
+                sx={{
+                  fontWeight: "bold",
+                  fontSize: "12px",
+                  width: "33.33%", // Ensures equal width for all columns
+                  color: `var(--white)`
+                }}
+              >
+                Order ID
+              </TableCell>
+              <TableCell
+                align="center"
+                sx={{
+                  fontWeight: "bold",
+                  fontSize: "12px",
+                  width: "33.33%",
+                  color: `var(--white)`
+                }}
+              >
+                Status
+              </TableCell>
+              <TableCell
+                align="center"
+                sx={{
+                  fontWeight: "bold",
+                  fontSize: "12px",
+                  width: "33.33%",
+                  color: `var(--white)`
+                }}
+              >
+                Progress
+              </TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={3} align="center">
+                  <Typography align="center">Loading...</Typography>
                 </TableCell>
               </TableRow>
-            </TableHead>
-            <TableBody>
-              {loading ? (
-                <TableRow>
-                  <TableCell colSpan={3} align="center">
-                    <Typography align="center">Loading...</Typography>
-                  </TableCell>
-                </TableRow>
-              ) : error ? (
-                <TableRow>
-                  <TableCell colSpan={3} align="center">
-                    <Typography align="center" color="error">
-                      Error fetching data
-                    </Typography>
-                  </TableCell>
-                </TableRow>
-              ) : filteredData?.length > 0 ? (
-                filteredData
-                  ?.sort((a, b) => {
-                    const dateA = new Date(a.createdAt).getTime();
-                    const dateB = new Date(b.createdAt).getTime();
-                    return dateB - dateA;
-                  })
-                  .map((order, index) => (
-                    <TableRow
-                      key={order.id}
-                      style={{
-                        cursor: "pointer",
-                        transition: "background-color 0.2s ease-in-out",
-                        backgroundColor: index % 2 === 0 ? "#fefefe" : "#fafafa", // Alternating row colors
-                      }}
-                      onClick={() => handleRowClick(order.orderId, order.statusPayment)}
-                      onMouseEnter={(e) =>
-                        (e.currentTarget.style.backgroundColor = "#f0f0f0")
-                      }
-                      onMouseLeave={(e) =>
-                      (e.currentTarget.style.backgroundColor =
-                        index % 2 === 0 ? "#fefefe" : "#fafafa")
-                      }
-                    >
-                      <TableCell align="center" sx={{ width: "33.33%", fontSize: '10px' }}>
-                        {order.orderId}
-                      </TableCell>
-                      <TableCell align="center" sx={{ width: "33.33%" }}>
-                        {StatusBox(order.statusPayment)}
-                      </TableCell>
-                      <TableCell align="center" sx={{ width: "33.33%" }}>
-                        {renderProgressBar(order.statusPayment)}
-                      </TableCell>
-                    </TableRow>
-                  ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={3} align="center">
-                    <Typography align="center">No Records Found</Typography>
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
+            ) : error ? (
+              <TableRow>
+                <TableCell colSpan={3} align="center">
+                  <Typography align="center" color="error">
+                    Error fetching data
+                  </Typography>
+                </TableCell>
+              </TableRow>
+            ) : filteredData?.length > 0 ? (
+              filteredData
+                ?.sort((a, b) => {
+                  const dateA = new Date(a.createdAt).getTime();
+                  const dateB = new Date(b.createdAt).getTime();
+                  return dateB - dateA;
+                })
+                .map((order, index) => (
+                  <TableRow
+                    key={order.id}
+                    style={{
+                      cursor: "pointer",
+                      transition: "background-color 0.2s ease-in-out",
+                      backgroundColor: index % 2 === 0 ? "#fefefe" : "#fafafa", // Alternating row colors
+                    }}
+                    onClick={() => handleRowClick(order.orderId, order.statusPayment)}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.backgroundColor = "#f0f0f0")
+                    }
+                    onMouseLeave={(e) =>
+                    (e.currentTarget.style.backgroundColor =
+                      index % 2 === 0 ? "#fefefe" : "#fafafa")
+                    }
+                  >
+                    <TableCell align="center" sx={{ width: "33.33%", fontSize: '10px' }}>
+                      {order.orderId}
+                    </TableCell>
+                    <TableCell align="center" sx={{ width: "33.33%" }}>
+                      {StatusBox(order.statusPayment)}
+                    </TableCell>
+                    <TableCell align="center" sx={{ width: "33.33%" }}>
+                      {renderProgressBar(order.statusPayment)}
+                    </TableCell>
+                  </TableRow>
+                ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={3} align="center">
+                  <Typography align="center">No Records Found</Typography>
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <section className="heading ">
+      </section>
 
-
-      </CardContent>
-    </Card>
+    </div>
   );
 };
 
