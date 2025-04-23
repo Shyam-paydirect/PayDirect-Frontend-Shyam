@@ -6,6 +6,7 @@ import axios from "axios";
 const CREATE_ACCOUNT_API = `${stagingApi}/account/create`;
 const FETCH_ACCOUNTS_API = `${stagingApi}/account/all`;
 const SEARCH_ACCOUNTS_API = `${stagingApi}/account/search`;
+const COUNTRY_CODE_API = `${stagingApi}/account/countryCodeList`;
 
 // Define the initial state
 interface Account {
@@ -19,7 +20,7 @@ interface Account {
   bankAddress: string;
   beneficiaryAddresses: { address: string }[];
   branchCode: string;
-  micrCode: string;
+  countryCode?: string;
   createdAt?: string;
   updatedAt?: string;
   selfAccount?: number;
@@ -27,12 +28,14 @@ interface Account {
 
 interface AccountState {
   accounts: Account[];
+  countryCodes: [];
   loading: boolean;
   error: string | null;
 }
 
 const initialState: AccountState = {
   accounts: [],
+  countryCodes: [],
   loading: false,
   error: null,
 };
@@ -79,7 +82,6 @@ export const searchAccounts = createAsyncThunk(
   "accounts/searchAccounts",
   async ({ name, userId }: { name: string; userId: string }, { rejectWithValue }) => {
     try {
-      console.log("nnnn", name, userId);
       const response = await axios.get(
         `${SEARCH_ACCOUNTS_API}?name=${name}&userId=${userId}`,
         {
@@ -97,6 +99,28 @@ export const searchAccounts = createAsyncThunk(
     }
   }
 );
+
+export const countryCodeList = createAsyncThunk(
+  "accounts/countryCodeList",
+  async ( __, {rejectWithValue}) => {
+    try {
+      const response = await axios.get(
+        `${COUNTRY_CODE_API}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      )
+      return response.data.data || []
+    }
+    catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || error.message || 'Failed to fetch country codes'
+      );
+    }
+  }
+)
 
 // Create the accounts slice
 const accountsSlice = createSlice({
@@ -151,7 +175,23 @@ const accountsSlice = createSlice({
           action.payload && typeof action.payload === "object"
             ? (action.payload as any).message
             : (action.payload as string);
-      });
+      })
+      // Country Code Cases
+      .addCase(countryCodeList.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(countryCodeList.fulfilled, (state, action) => {
+        state.loading = false;
+        state.countryCodes = action.payload;
+      })
+      .addCase(countryCodeList.rejected, (state, action) => {
+        state.loading = false;
+        state.error =
+          action.payload && typeof action.payload === "object"
+            ? (action.payload as any).message
+            : (action.payload as string);
+      })
   },
 });
 

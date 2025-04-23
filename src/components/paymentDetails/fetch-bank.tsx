@@ -62,7 +62,7 @@ const AccountSelectorModal: React.FC<AccountSelectorModalProps> = ({
     }
   };
 
-  const filteredAccounts = accounts.filter((account: any) => {
+  const filteredAccounts = accounts?.filter((account: any) => {
     return accountType === "self"
       ? account.selfAccount == 1
       : account.selfAccount == 0;
