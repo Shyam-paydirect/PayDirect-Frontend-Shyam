@@ -121,13 +121,13 @@ const ContactDetails: React.FC = () => {
   return (
     <Box padding={3} sx={{ minHeight: "100vh" }}>
       <Typography variant="h4" gutterBottom sx={{ textAlign: "center", marginBottom: 3 }}>
-        Manage Your Contacts
+        Manage Your Beneficiaries
       </Typography>
 
       {/* Add New Contact */}
       <Card sx={{ marginBottom: 5, boxShadow: "0 2px 10px rgba(0,0,0,0.1)" }}>
         <CardContent>
-          <Typography variant="h5" sx={{ marginBottom: 2 }}>Add New Contact</Typography>
+          <Typography variant="h5" sx={{ marginBottom: 2 }}>Add Beneficiary Account Details</Typography>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>
               <TextField
@@ -249,7 +249,7 @@ const ContactDetails: React.FC = () => {
       <Card sx={{ boxShadow: "0 2px 10px rgba(0,0,0,0.1)" }}>
         <CardContent>
           <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ marginBottom: 2 }}>
-            <Typography variant="h5">Your Contacts</Typography>
+            <Typography variant="h5">Your Beneficiaries</Typography>
             <TextField
               label="Search by Beneficiary Name"
               value={searchQuery}
