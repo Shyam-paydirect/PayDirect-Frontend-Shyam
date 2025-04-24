@@ -100,7 +100,7 @@ const Accounts: React.FC = () => {
                   </Box>
                 </CardMedia>
                 <CardContent>
-                  <Typography variant="h6">Contact Details</Typography>
+                  <Typography variant="h6">Beneficiary Details</Typography>
                 </CardContent>
               </CardActionArea>
             </Card>

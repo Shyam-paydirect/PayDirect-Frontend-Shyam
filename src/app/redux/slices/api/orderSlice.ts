@@ -44,6 +44,7 @@ export interface Order {
   receivingPartyAccountNo: string | null;
   createdAt: string;
   updatedAt: string;
+  bookedFxRate? : string;
 }
 
 // Define the response type

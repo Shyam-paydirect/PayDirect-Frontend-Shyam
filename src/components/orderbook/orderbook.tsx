@@ -439,8 +439,19 @@ const OrderPage: React.FC = () => {
                           {order.paymentMode}
                         </Typography>
                       </Box>
+                      {
+                        order?.bookedFxRate &&
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: { xs: '0.8rem', sm: '0.9rem', md: '1rem' } }}>
+                          <Typography variant="subtitle2" color="textSecondary" sx={{ fontWeight: 500, flex: 1, fontSize: { xs: '0.8rem', sm: '0.9rem', md: '1rem' } }}>
+                            Booked FX Rate:
+                          </Typography>
+                          <Typography variant="body1" sx={{ fontWeight: 500, flex: { xs: 2, sm: 3, md: 4 }, textAlign: 'left', fontSize: { xs: '0.8rem', sm: '0.9rem', md: '1rem' } }}>
+                            {order.bookedFxRate}
+                          </Typography>
+                        </Box>
+                      }
                       <Typography
-                        sx={{ position: 'absolute', right: 50, top: 55, fontWeight: 600, fontSize: { xs: '0.8rem', sm: '0.9rem', md: '1rem' }, color: getStatusColor(order.txnStatus), flex: 1 }}
+                        sx={{ position: 'absolute', right: 40, top: 55, fontWeight: 600, fontSize: { xs: '0.8rem', sm: '0.9rem', md: '1rem' }, color: getStatusColor(order.txnStatus), flex: 1 }}
                       >
                         {order.txnStatus}
                       </Typography>

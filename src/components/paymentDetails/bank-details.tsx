@@ -136,7 +136,7 @@ const BankDetails: React.FC<BankDetailsProps> = ({
         });
 
         const nameRegex = /^[A-Za-z\s]+$/;
-        (["senderName", "beneficiaryName", "beneficiaryBank"] as Array<keyof typeof bankDetails>).forEach((field) => {
+        (["senderName", "beneficiaryName", "beneficiaryBank", "bankAddress"] as Array<keyof typeof bankDetails>).forEach((field) => {
             const val = bankDetails[field];
             if (val) {
                 if (val.length > 35) {
@@ -256,13 +256,13 @@ const BankDetails: React.FC<BankDetailsProps> = ({
                         key !== "swiftCode" &&
                         (
                             key.includes('CountryCode') ?
-                                <Grid item xs={wideFields.includes(key) ? 12 : 6} key={key}>
+                            <Grid item xs={wideFields.includes(key) ? 12 : 6} key={key}>
                                     <FormControl fullWidth>
                                         <InputLabel id={`${key}-label`}>
                                             {key
                                                 .replace(/([A-Z])/g, " $1")
-                                                .replace(/^./, str => str.toUpperCase())
-                                            }
+                                      .replace(/^./, str => str.toUpperCase())
+                                    }
                                         </InputLabel>
                                         <Select
                                             labelId={`${key}-label`}
@@ -280,9 +280,9 @@ const BankDetails: React.FC<BankDetailsProps> = ({
                                                 </MenuItem>
                                             ))}
                                         </Select>
-                                    </FormControl>
-                                </Grid>
-                                :
+                            </FormControl>
+                          </Grid>
+                          :
                                 <Grid item xs={wideFields.includes(key) ? 12 : 6} key={key}>
                                     <TextField
                                         fullWidth
