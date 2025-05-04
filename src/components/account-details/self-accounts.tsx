@@ -2,12 +2,14 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Box, Typography, TextField, Button, Grid, IconButton, List, ListItem, ListItemText, CircularProgress, Card, CardContent, FormControl, Select, MenuItem, InputLabel } from '@mui/material';
-import { Add, Delete } from '@mui/icons-material';
-import { createAccount, fetchAccounts, countryCodeList } from '@/app/redux/slices/api/accountsSlice';
+import { Add, Delete, Edit } from '@mui/icons-material';
+import { createAccount, fetchAccounts } from '@/app/redux/slices/api/accountsSlice';
 import { RootState } from '@/app/redux/store';
 import { AppDispatch } from '@/app/redux/store';
 import Cookies from 'js-cookie';
 import { jwtDecode } from 'jwt-decode';
+import CountryCodeDropdown from '@/pages/autocomplete';
+import { toast, ToastContainer } from 'react-toastify';
 
 interface CustomJwtPayload {
   username: string;
@@ -17,6 +19,11 @@ interface CustomJwtPayload {
 const AccountDetails: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { accounts, loading, error } = useSelector((state: RootState) => state.accounts);
+  const { countryCodes } = useSelector((state: RootState) => state.countryCode)
+  const codes = countryCodes.map(c => ({
+    name: c.name,
+    code: c.code
+  }))
   const token = Cookies.get('token') || "";
 
   let decodedToken: CustomJwtPayload | null = null; // Initialize with null
@@ -44,11 +51,11 @@ const AccountDetails: React.FC = () => {
     selfAccount: 1
   });
 
-  useEffect(() => {
-    dispatch(countryCodeList())
-  }, [])
+  // useEffect(() => {
+  //   dispatch(countryCodeList())
+  // }, [])
 
-  const { countryCodes } = useSelector((state: RootState) => state.accounts)
+  // const { countryCodes } = useSelector((state: RootState) => state.accounts)
 
   const addressRegex = /^[a-zA-Z0-9\s,-]+$/; // Allows letters, numbers, spaces, commas, and hyphens
 
@@ -81,127 +88,145 @@ const AccountDetails: React.FC = () => {
   }, [dispatch, userId]);
 
   const handleAddAccount = async () => {
-    await dispatch(createAccount(newAccount));
-    setNewAccount({
-      userId: `${userId}`,
-      name: "",
-      accountNo: "",
-      swiftBic: "",
-      IFSC: "",
-      UPI_ID: "",
-      bankName: "",
-      bankAddress: "",
-      beneficiaryAddresses: [
-        { address: "" },
-        { address: "" },
-        { address: "" },
-      ],
-      branchCode: "",
-      countryCode: "",
-      selfAccount: 1
+    try {
+      const response = await dispatch(createAccount(newAccount)).unwrap();
+      console.log("response", response)
+      setNewAccount({
+        userId: `${userId}`,
+        name: "",
+        accountNo: "",
+        swiftBic: "",
+        IFSC: "",
+        UPI_ID: "",
+        bankName: "",
+        bankAddress: "",
+        beneficiaryAddresses: [
+          { address: "" },
+          { address: "" },
+          { address: "" },
+        ],
+        branchCode: "",
+        countryCode: "",
+        selfAccount: 1
 
-    });
-    await dispatch(fetchAccounts(`${userId}`)); // Refresh the account list
+      });
+      await dispatch(fetchAccounts(`${userId}`)); // Refresh the account list
+    }
+    catch (error: any) {
+      toast.error(error)
+    }
   };
 
   return (
-    <Box padding={3} sx={{ minHeight: "100vh" }}>
-      <Typography variant="h4" gutterBottom sx={{ textAlign: "center", marginBottom: 3 }}>
-        Manage Your Accounts
-      </Typography>
+    <>
+    <ToastContainer />
+      <Box padding={3} sx={{ minHeight: "100vh" }}>
+        <Typography variant="h4" gutterBottom sx={{ textAlign: "center", marginBottom: 3 }}>
+          Manage Your Accounts
+        </Typography>
 
-      {/* Add New Account */}
-      <Card sx={{ marginBottom: 5, boxShadow: "0 2px 10px rgba(0,0,0,0.1)" }}>
-        <CardContent>
-          <Typography variant="h5" sx={{ marginBottom: 2 }}>Add New Account</Typography>
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                label="Name"
-                fullWidth
-                value={newAccount.name}
-                onChange={(e) => setNewAccount({ ...newAccount, name: e.target.value })}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                label="Account Number"
-                fullWidth
-                value={newAccount.accountNo}
-                onChange={(e) => setNewAccount({ ...newAccount, accountNo: e.target.value })}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                label="SWIFT BIC"
-                fullWidth
-                value={newAccount.swiftBic}
-                // disabled
-                onChange={(e) => setNewAccount({ ...newAccount, swiftBic: e.target.value })}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                label="IFSC"
-                fullWidth
-                value={newAccount.IFSC}
-                onChange={(e) => setNewAccount({ ...newAccount, IFSC: e.target.value })}
-              />
-            </Grid>
-            {/* <Grid item xs={12} sm={6}>
-              <TextField
-                label="Country Code"
-                fullWidth
-                value={newAccount.UPI_ID}
-                onChange={(e) => setNewAccount({ ...newAccount, UPI_ID: e.target.value })}
-              />
-            </Grid> */}
-            <Grid item xs={12} sm={6}>
-              <TextField
-                label="Bank Name"
-                fullWidth
-                value={newAccount.bankName}
-                onChange={(e) => setNewAccount({ ...newAccount, bankName: e.target.value })}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                label="Bank Address"
-                fullWidth
-                value={newAccount.bankAddress}
-                onChange={(e) => handleInputChange("bankAddress", e.target.value)}
-                error={!!errors.bankAddress}
-                helperText={errors.bankAddress} />
-            </Grid>
-            <Grid item xs={12}>
-              <Typography variant="subtitle1">Beneficiary Addresses</Typography>
-              <Grid container spacing={1}>
-                {newAccount.beneficiaryAddresses.map((address, index) => (
-                  <Grid item xs={12} sm={4} key={index}>
-                    <TextField
-                      label={`Address ${index + 1}`}
-                      fullWidth
-                      value={address.address}
-                      onChange={(e) => {
-                        const validValue = e.target.value.replace(/[^a-zA-Z0-9\s,-]/g, ""); // Allow letters, numbers, space, comma, and hyphen
-                        const updatedAddresses = [...newAccount.beneficiaryAddresses];
-                        updatedAddresses[index].address = validValue;
-                        setNewAccount({ ...newAccount, beneficiaryAddresses: updatedAddresses });
-                      }}
-                    />
-                  </Grid>
-                ))}
+        {/* Add New Account */}
+        <Card sx={{ marginBottom: 5, boxShadow: "0 2px 10px rgba(0,0,0,0.1)" }}>
+          <CardContent>
+            <Typography variant="h5" sx={{ marginBottom: 2 }}>Add Own Account</Typography>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="Name"
+                  fullWidth
+                  value={newAccount.name}
+                  onChange={(e) => setNewAccount({ ...newAccount, name: e.target.value })}
+                />
               </Grid>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                label="Branch Code"
-                fullWidth
-                value={newAccount.branchCode}
-                onChange={(e) => setNewAccount({ ...newAccount, branchCode: e.target.value })}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="Account Number"
+                  fullWidth
+                  value={newAccount.accountNo}
+                  onChange={(e) => setNewAccount({ ...newAccount, accountNo: e.target.value })}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="SWIFT BIC"
+                  fullWidth
+                  value={newAccount.swiftBic}
+                  // disabled
+                  onChange={(e) => setNewAccount({ ...newAccount, swiftBic: e.target.value })}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="IFSC"
+                  fullWidth
+                  value={newAccount.IFSC}
+                  onChange={(e) => setNewAccount({ ...newAccount, IFSC: e.target.value })}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <CountryCodeDropdown
+                  value={newAccount.countryCode}
+                  // onSearch={name => dispat(countryCodeList(name))}
+                  onSelect={opt => {
+                    if (opt) {
+                      setNewAccount(prev => ({
+                        ...prev,
+                        countryCode: opt.code,
+                        country: opt.name
+                      }));
+                    }
+                  }
+                  }
+                  options={codes}
+                  title={'Country Code'}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="Bank Name"
+                  fullWidth
+                  value={newAccount.bankName}
+                  onChange={(e) => setNewAccount({ ...newAccount, bankName: e.target.value })}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  label="Bank Address"
+                  fullWidth
+                  value={newAccount.bankAddress}
+                  onChange={(e) => handleInputChange("bankAddress", e.target.value)}
+                  error={!!errors.bankAddress}
+                  helperText={errors.bankAddress} />
+              </Grid>
+              {/* <Grid item xs={12}>
+                <Typography variant="subtitle1">Beneficiary Addresses</Typography>
+                <Grid container spacing={1}>
+                  {newAccount.beneficiaryAddresses.map((address, index) => (
+                    <Grid item xs={12} sm={4} key={index}>
+                      <TextField
+                        label={`Address ${index + 1}`}
+                        fullWidth
+                        value={address.address}
+                        onChange={(e) => {
+                          const validValue = e.target.value.replace(/[^a-zA-Z0-9\s,-]/g, ""); // Allow letters, numbers, space, comma, and hyphen
+                          const updatedAddresses = [...newAccount.beneficiaryAddresses];
+                          updatedAddresses[index].address = validValue;
+                          setNewAccount({ ...newAccount, beneficiaryAddresses: updatedAddresses });
+                        }}
+                      />
+                    </Grid>
+                  ))}
+                </Grid>
+              </Grid> */}
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="Branch Code"
+                  fullWidth
+                  value={newAccount.branchCode}
+                  onChange={(e) => setNewAccount({ ...newAccount, branchCode: e.target.value })}
+                />
+              </Grid>
+              {/* <Grid item xs={12} sm={6}>
               <FormControl fullWidth>
                 <InputLabel>
                   Country Code
@@ -220,55 +245,54 @@ const AccountDetails: React.FC = () => {
                 </Select>
               </FormControl>
 
+            </Grid> */}
             </Grid>
-          </Grid>
-          <Button
-            variant="contained"
-            startIcon={<Add />}
-            onClick={handleAddAccount}
-            sx={{ marginTop: 2 }}
-          >
-            Add Account
-          </Button>
-        </CardContent>
-      </Card>
+            <Button
+              variant="contained"
+              startIcon={<Add />}
+              onClick={handleAddAccount}
+              sx={{ marginTop: 2 }}
+            >
+              Add Account
+            </Button>
+          </CardContent>
+        </Card>
 
-      {/* List of Accounts */}
-      <Card sx={{ boxShadow: "0 2px 10px rgba(0,0,0,0.1)" }}>
-        <CardContent>
-          <Typography variant="h5" sx={{ marginBottom: 2 }}>Your Accounts</Typography>
-          {loading ? (
-            <CircularProgress />
-          ) : error ? (
-            <Typography color="error">{error}</Typography>
-          ) : (
-            <List>
-              {accounts
-                ?.filter((account: any) => account.selfAccount == 1) // Filter accounts with selfAccount == 1
-                .map((account: any, index: number) => (
-                  <ListItem
-                    key={index}
-                    sx={{
-                      borderBottom: "1px solid #e0e0e0",
-                      paddingBottom: 1,
-                      marginBottom: 1,
-                    }}
-                  >
-                    <ListItemText
-                      primary={`${account.name} - ${account.bankName}`}
-                      secondary={`Account Number: ${account.accountNo}`}
-                    />
-                    {/* <IconButton edge="end" color="error"> */}
-                    {/* <Delete /> */}
-                    {/* </IconButton> */}
-                  </ListItem>
-                ))}
+        {/* List of Accounts */}
+        <Card sx={{ boxShadow: "0 2px 10px rgba(0,0,0,0.1)" }}>
+          <CardContent>
+            <Typography variant="h5" sx={{ marginBottom: 2 }}>Your Accounts</Typography>
+            {loading ? (
+              <CircularProgress />
+            ): (
+              <List>
+                {accounts
+                  ?.filter((account: any) => account.selfAccount == 1) // Filter accounts with selfAccount == 1
+                  .map((account: any, index: number) => (
+                    <ListItem
+                      key={index}
+                      sx={{
+                        borderBottom: "1px solid #e0e0e0",
+                        paddingBottom: 1,
+                        marginBottom: 1,
+                      }}
+                    >
+                      <ListItemText
+                        primary={`${account.name} - ${account.bankName}`}
+                        secondary={`Account Number: ${account.accountNo}`}
+                      />
+                      {/* <IconButton edge="end">
+                        <Edit />
+                      </IconButton> */}
+                    </ListItem>
+                  ))}
 
-            </List>
-          )}
-        </CardContent>
-      </Card>
-    </Box>
+              </List>
+            )}
+          </CardContent>
+        </Card>
+      </Box>
+    </>
   );
 };
 

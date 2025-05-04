@@ -118,6 +118,7 @@ const TopNavbar: React.FC = () => {
               fontFamily: "'Montserrat', sans-serif",
               fontWeight: 500,
               fontSize: isSmallScreen ? '14px' : '28px',
+              paddingLeft: isSmallScreen ? '20px' : "0px",
               marginBottom: 0,
               display: 'flex',
               alignItems: 'center',

@@ -231,3 +231,13 @@ hr {
   background-color: var(--bg-clr-2);
 }
 
+ .btn-edit {
+    background-color: #E3EFFD;
+    border: none;
+    border-radius: 50%;
+    padding: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

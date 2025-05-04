@@ -1,0 +1,106 @@
+/* Autocomplete.module.css */
+.autocomplete {
+    position: relative;
+    width: 100%;
+  }
+  
+  .input {
+    width: 100%;
+    padding: 16.5px 14px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    /* remove right:0; */
+  
+    /* let it grow to fit its content, but at least match input width */
+    min-width: 100%;
+    width: fit-content;
+  
+    background: #fff;
+    border: 1px solid #ccc;
+    max-height: 200px;
+    overflow-y: auto;
+    margin: 4px 0 0;
+    padding: 0;
+    list-style: none;
+    z-index: 1000;
+  }
+  
+  .option {
+    padding: 8px;
+    cursor: pointer;
+  }
+  
+  .option:hover {
+    background: #f0f0f0;
+  }
+  
+  .inputwithcode {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    overflow: hidden;
+    width: 100%;
+  }
+  
+  /* The country-code segment */
+  .codePrefix {
+    padding: 0 8px;
+    /* background-color: #f5f5f5; */
+    font-size: 1rem;
+    white-space: nowrap;
+  }
+  
+  /* Vertical divider between code and input */
+  .divider {
+    width: 1px;
+    height: 60%;
+    background-color: #ccc;
+  }
+  
+  /* The text field itself */
+  .textInput {
+    flex: 1;
+    border: none;
+    padding: 0.75rem 0.5rem 0.25rem; /* top padding makes room for the label */
+    font-size: 1rem;
+    outline: none;
+  }  
+
+  .floatingLabel {
+    position: absolute;
+    left: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%) scale(1);
+    transform-origin: top left;
+    transition: all 0.2s ease-out;
+    pointer-events: none;
+    background: white;
+    padding: 0 0.25rem;
+    font-size: 1rem;
+    color: #777;
+  }
+  
+  .floatingLabel.active {
+    top: 0;
+    transform: translateY(-50%) scale(0.75);
+    color: #333;
+  }
+
+  .inputError {
+    border-color: #d32f2f; /* MUI’s error color */
+  }
+  
+  /* helper text styling, like MUI’s FormHelperText */
+  .helperText {
+    margin: 4px 0 0 0;
+    font-size: 0.75rem;
+    color: #d32f2f;
+  }

@@ -3,12 +3,13 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Box, Tooltip, Typography, TextField, Button, Grid, IconButton, List, ListItem, ListItemText, CircularProgress, Card, CardContent, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { Add, Delete } from '@mui/icons-material';
-import { createAccount, fetchAccounts, searchAccounts, countryCodeList } from '@/app/redux/slices/api/accountsSlice';
+import { createAccount, fetchAccounts, searchAccounts } from '@/app/redux/slices/api/accountsSlice';
 import { RootState } from '@/app/redux/store';
 import { AppDispatch } from '@/app/redux/store';
 import Cookies from 'js-cookie';
 import { jwtDecode } from 'jwt-decode';
 import InfoIcon from '@mui/icons-material/Info';
+import CountryCodeDropdown from '@/pages/autocomplete';
 
 interface CustomJwtPayload {
   username: string;
@@ -19,6 +20,11 @@ const ContactDetails: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { accounts, loading, error } = useSelector((state: RootState) => state.accounts);
   const token = Cookies.get('token') || "";
+  const { countryCodes } = useSelector((state: RootState) => state.countryCode)
+    const codes = countryCodes.map(c => ({
+      name: c.name,
+      code: c.code
+    }))
 
   let decodedToken: CustomJwtPayload | null = null; // Initialize with null
 
@@ -45,11 +51,11 @@ const ContactDetails: React.FC = () => {
     selfAccount: 0,
   });
 
-  useEffect(() => {
-    dispatch(countryCodeList())
-  }, [])
+  // useEffect(() => {
+  //   dispatch(countryCodeList())
+  // }, [])
 
-  const { countryCodes } = useSelector((state: RootState) => state.accounts)
+  // const { countryCodes } = useSelector((state: RootState) => state.accounts)
 
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -214,25 +220,23 @@ const ContactDetails: React.FC = () => {
               />
             </Grid>
             <Grid item xs={12} sm={6}>
-              <FormControl fullWidth>
-                <InputLabel>
-                  Country Code
-                </InputLabel>
-                <Select
-                  label="Country Code"
-                  fullWidth
+                <CountryCodeDropdown
                   value={newContact.countryCode}
-                  onChange={(e) => setNewContact({ ...newContact, countryCode: e.target.value })}
-                >
-                  {countryCodes.map(code => (
-                    <MenuItem key={code} value={code}>
-                      {code}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-
-            </Grid>
+                  // onSearch={name => dispat(countryCodeList(name))}
+                  onSelect={opt => {
+                    if (opt) {
+                      setNewContact(prev => ({
+                        ...prev,
+                        countryCode: opt.code,
+                        country: opt.name
+                      }));
+                    }
+                  }
+                  }
+                  options={codes}
+                  title={'Country Code'}
+                />
+              </Grid>
           </Grid>
           <Button
             variant="contained"

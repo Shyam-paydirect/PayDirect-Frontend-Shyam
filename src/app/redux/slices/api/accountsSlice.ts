@@ -6,7 +6,7 @@ import axios from "axios";
 const CREATE_ACCOUNT_API = `${stagingApi}/account/create`;
 const FETCH_ACCOUNTS_API = `${stagingApi}/account/all`;
 const SEARCH_ACCOUNTS_API = `${stagingApi}/account/search`;
-const COUNTRY_CODE_API = `${stagingApi}/account/countryCodeList`;
+const UPDATE_ACCOUNTS_API = `${stagingApi}/account/update`
 
 // Define the initial state
 interface Account {
@@ -28,14 +28,14 @@ interface Account {
 
 interface AccountState {
   accounts: Account[];
-  countryCodes: [];
+  // countryCodes: string[];
   loading: boolean;
   error: string | null;
 }
 
 const initialState: AccountState = {
   accounts: [],
-  countryCodes: [],
+  // countryCodes: [],
   loading: false,
   error: null,
 };
@@ -53,8 +53,9 @@ export const createAccount = createAsyncThunk(
       // Fetch updated account list after creating the account
       dispatch(fetchAccounts(accountData.userId));
     } catch (error: any) {
+      console.log("errrorrrrr", error)
       if (error.response && error.response.data) {
-        return rejectWithValue(error.response.data);
+        return rejectWithValue(error.response.data.details);
       }
       return rejectWithValue(error.message);
     }
@@ -99,28 +100,6 @@ export const searchAccounts = createAsyncThunk(
     }
   }
 );
-
-export const countryCodeList = createAsyncThunk(
-  "accounts/countryCodeList",
-  async ( __, {rejectWithValue}) => {
-    try {
-      const response = await axios.get(
-        `${COUNTRY_CODE_API}`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      )
-      return response.data.data || []
-    }
-    catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message || error.message || 'Failed to fetch country codes'
-      );
-    }
-  }
-)
 
 // Create the accounts slice
 const accountsSlice = createSlice({
@@ -170,22 +149,6 @@ const accountsSlice = createSlice({
         state.accounts = action.payload; // Update accounts with search results
       })
       .addCase(searchAccounts.rejected, (state, action) => {
-        state.loading = false;
-        state.error =
-          action.payload && typeof action.payload === "object"
-            ? (action.payload as any).message
-            : (action.payload as string);
-      })
-      // Country Code Cases
-      .addCase(countryCodeList.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(countryCodeList.fulfilled, (state, action) => {
-        state.loading = false;
-        state.countryCodes = action.payload;
-      })
-      .addCase(countryCodeList.rejected, (state, action) => {
         state.loading = false;
         state.error =
           action.payload && typeof action.payload === "object"
