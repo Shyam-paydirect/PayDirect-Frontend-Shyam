@@ -22,6 +22,7 @@ interface PaymentDetailsState {
     senderName: string;
     senderAccNo: string;
     senderSwiftBic: string;
+    correspondentBankCharges: string;
   };
 }
 
@@ -46,7 +47,8 @@ const initialState: PaymentDetailsState = {
     receivingPartyCountryCode: '',
     senderName: '',
     senderAccNo: '',
-    senderSwiftBic: ''
+    senderSwiftBic: '',
+    correspondentBankCharges: ''
   },
 };
 
@@ -81,7 +83,8 @@ const paymentDetailsSlice = createSlice({
         receivingPartyCountryCode: '',
         senderName: '',
         senderAccNo: '',
-        senderSwiftBic: ''
+        senderSwiftBic: '',
+        correspondentBankCharges: ''
       };
     },
   },

@@ -11,16 +11,19 @@ import {
     Select,
     MenuItem,
     FormControl,
-    InputLabel
+    InputLabel,
+    FormHelperText
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { saveBankDetails } from "@/app/redux/slices/paymentDetailsSlice";
 import AccountSelectorModal from "./fetch-bank"; // Import the selector modal
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
-import { countryCodeList, createAccount } from "@/app/redux/slices/api/accountsSlice";
+import { createAccount } from "@/app/redux/slices/api/accountsSlice";
+import { countryCodeList } from "@/app/redux/slices/api/countryCodeSlice";
 import { RootState } from "@/app/redux/store";
 import { AppDispatch } from "@/app/redux/store";
+import CountryCodeDropdown from "@/pages/autocomplete";
 
 interface CustomJwtPayload {
     username: string;
@@ -50,11 +53,7 @@ const BankDetails: React.FC<BankDetailsProps> = ({
     const theme = useTheme();
     const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
-    useEffect(() => {
-        dispat(countryCodeList())
-    }, [])
-
-    const wideFields = ['beneficiaryAccountNumber', 'beneficiaryBank', 'bankAddress', 'beneficiaryName']
+    const wideFields = ['beneficiaryAccountNumber', 'beneficiaryBank', 'bankAddress', 'beneficiaryName', 'correspondentBankCharges', 'senderSwiftBic', 'receivingPartyCountryCode', 'senderPartyCountryCode']
 
     const [bankDetails, setBankDetails] = useState({
         swiftCode: "",
@@ -71,13 +70,18 @@ const BankDetails: React.FC<BankDetailsProps> = ({
         senderAccNo: '',
         senderSwiftBic: '',
         senderPartyCountryCode: "",
+        correspondentBankCharges: ""
     });
 
-    const [selfDetails, setSelfDetails] = useState({
+    useEffect(() => {
+        dispat(countryCodeList(""));
+    }, [dispat])
 
-    })
-
-    const { countryCodes } = useSelector((state: RootState) => state.accounts)
+    const { countryCodes } = useSelector((state: RootState) => state.countryCode)
+    const codes = countryCodes.map(c => ({
+        name: c.name,
+        code: c.code
+    }))
 
     const [modalOpen, setModalOpen] = useState(false);
     const [accountType, setAccountType] = useState<"self" | "beneficiary">("self");
@@ -253,53 +257,87 @@ const BankDetails: React.FC<BankDetailsProps> = ({
                         </Button>
                     </Grid>
                     {Object.entries(bankDetails).map(([key, value]) => (
-                        key !== "swiftCode" &&
+                        key !== "swiftCode" && key != "country" &&
                         (
                             key.includes('CountryCode') ?
-                            <Grid item xs={wideFields.includes(key) ? 12 : 6} key={key}>
-                                    <FormControl fullWidth>
-                                        <InputLabel id={`${key}-label`}>
-                                            {key
-                                                .replace(/([A-Z])/g, " $1")
-                                      .replace(/^./, str => str.toUpperCase())
-                                    }
-                                        </InputLabel>
-                                        <Select
-                                            labelId={`${key}-label`}
-                                            value={value || ''}
+                                <Grid item xs={wideFields.includes(key) ? 12 : 6} key={key}>
+                                    <CountryCodeDropdown
+                                        value={key == 'receivingPartyCountryCode' ? bankDetails.receivingPartyCountryCode : bankDetails.senderPartyCountryCode}
+                                        // onSearch={name => dispat(countryCodeList(name))}
+                                        onSelect={opt => {
+                                            if (key === 'receivingPartyCountryCode') {
+                                                // beneficiary dropdown
+                                                if (opt) {
+                                                    setBankDetails(prev => ({
+                                                        ...prev,
+                                                        receivingPartyCountryCode: opt.code,
+                                                        country: opt.name
+                                                    }));
+                                                }
+                                            } else {
+                                                // sender dropdown
+                                                if (opt) {
+                                                    setBankDetails(prev => ({
+                                                        ...prev,
+                                                        senderPartyCountryCode: opt.code,
+                                                    }));
+                                                }
+                                            }
+                                        }
+                                        }
+                                        options={codes}
+                                        error={!!errors[key]}
+                                        helperText={errors[key]}
+                                        title={key == 'receivingPartyCountryCode' ? 'Country Code - Beneficiary' : 'Country Code - Sender'}
+                                    />
+                                </Grid>
+                                :
+                                (key === 'correspondentBankCharges') ?
+
+                                    <Grid item xs={12} key={key}>
+                                        <FormControl fullWidth error={!!errors[key]}>
+                                            <InputLabel id={`${key}-label`}>
+                                                Correspondent Bank Charges
+                                            </InputLabel>
+                                            <Select
+                                                labelId={`${key}-label`}
+                                                id={key}
+                                                value={value}
+                                                label="Correspondent Bank Charges"
+                                                onChange={e =>
+                                                    setBankDetails(prev => ({
+                                                        ...prev,
+                                                        [key]: e.target.value as string
+                                                    }))
+                                                }
+                                            >
+                                                <MenuItem value="CRED">Paid by beneficiary</MenuItem>
+                                                <MenuItem value="DEBT">Paid by Sender</MenuItem>
+                                                <MenuItem value="SHA">Shared by both parties</MenuItem>
+                                            </Select>
+                                            {errors[key] && (
+                                                <FormHelperText>{errors[key]}</FormHelperText>
+                                            )}
+                                        </FormControl>
+                                    </Grid>
+                                    :
+                                    <Grid item xs={wideFields.includes(key) ? 12 : 6} key={key}>
+                                        <TextField
+                                            fullWidth
                                             label={key
                                                 .replace(/([A-Z])/g, " $1")
                                                 .replace(/^./, (str) => str.toUpperCase())}
-                                            onChange={e =>
-                                                setBankDetails(prev => ({ ...prev, [key]: e.target.value }))
+                                            value={value}
+                                            onChange={(e) =>
+                                                setBankDetails((prev) => ({
+                                                    ...prev,
+                                                    [key]: e.target.value,
+                                                }))
                                             }
-                                        >
-                                            {countryCodes.map(code => (
-                                                <MenuItem key={code} value={code}>
-                                                    {code}
-                                                </MenuItem>
-                                            ))}
-                                        </Select>
-                            </FormControl>
-                          </Grid>
-                          :
-                                <Grid item xs={wideFields.includes(key) ? 12 : 6} key={key}>
-                                    <TextField
-                                        fullWidth
-                                        label={key
-                                            .replace(/([A-Z])/g, " $1")
-                                            .replace(/^./, (str) => str.toUpperCase())}
-                                        value={value}
-                                        onChange={(e) =>
-                                            setBankDetails((prev) => ({
-                                                ...prev,
-                                                [key]: e.target.value,
-                                            }))
-                                        }
-                                        error={!!errors[key]}
-                                        helperText={errors[key]}
-                                    />
-                                </Grid>
+                                            error={!!errors[key]}
+                                            helperText={errors[key]}
+                                        />
+                                    </Grid>
                         )
                     ))}
                 </Grid>

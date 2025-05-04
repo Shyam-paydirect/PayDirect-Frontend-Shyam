@@ -141,7 +141,7 @@ const PaymentDetails: React.FC = () => {
         txnCcy: currency,
         debitAccountAmount: remittanceAmount,
         purposeOfPayment: purposeCode,
-        chargeBearer: "DEBT",
+        chargeBearer: bankDetails.correspondentBankCharges,
         senderParty: {
             name: bankDetails.senderName,
             accountNo: bankDetails.senderAccNo,
@@ -229,7 +229,8 @@ const PaymentDetails: React.FC = () => {
                 receivingPartyCountryCode: '',
                 senderName: '',
                 senderAccNo: '',
-                senderSwiftBic: ''
+                senderSwiftBic: '',
+                correspondentBankCharges: ''
             };
             dispatch(saveBankDetails(initialBankData));
 
