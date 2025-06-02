@@ -126,9 +126,9 @@ const BankDetails: React.FC<BankDetailsProps> = ({
         // Validate Beneficiary Account Number
         if (
             bankDetails.beneficiaryAccountNumber &&
-            !/^\d{9,18}$/.test(bankDetails.beneficiaryAccountNumber)
+            !/^\d{9,34}$/.test(bankDetails.beneficiaryAccountNumber)
         ) {
-            newErrors.beneficiaryAccountNumber = "Account Number must be 9-18 digits.";
+            newErrors.beneficiaryAccountNumber = "Account Number must be 9-34 digits.";
         }
 
         const addressRegex = /^[a-zA-Z0-9\s,.-]+$/;
