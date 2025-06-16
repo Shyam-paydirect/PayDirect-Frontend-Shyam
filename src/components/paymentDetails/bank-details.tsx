@@ -126,9 +126,9 @@ const BankDetails: React.FC<BankDetailsProps> = ({
         // Validate Beneficiary Account Number
         if (
             bankDetails.beneficiaryAccountNumber &&
-            !/^\d{9,34}$/.test(bankDetails.beneficiaryAccountNumber)
+            !/^\d{9,35}$/.test(bankDetails.beneficiaryAccountNumber)
         ) {
-            newErrors.beneficiaryAccountNumber = "Account Number must be 9-34 digits.";
+            newErrors.beneficiaryAccountNumber = "Account Number must be 9-35 digits.";
         }
 
         const addressRegex = /^[a-zA-Z0-9\s,.-]+$/;
@@ -140,7 +140,7 @@ const BankDetails: React.FC<BankDetailsProps> = ({
         });
 
         const nameRegex = /^[A-Za-z\s]+$/;
-        (["senderName", "beneficiaryName", "beneficiaryBank", "bankAddress"] as Array<keyof typeof bankDetails>).forEach((field) => {
+        (["senderName", "beneficiaryName", "beneficiaryBank", "bankAddress", "city", "state"] as Array<keyof typeof bankDetails>).forEach((field) => {
             const val = bankDetails[field];
             if (val) {
                 if (val.length > 35) {
@@ -327,7 +327,9 @@ const BankDetails: React.FC<BankDetailsProps> = ({
                                             label={key
                                                 .replace(/([A-Z])/g, " $1")
                                                 .replace(/^./, (str) => str.toUpperCase())}
-                                            value={value}
+                                            value={["senderName", "beneficiaryName", "beneficiaryBank", "bankAddress", "city", "state"].includes(key)
+                                                ? value.slice(0, 35)
+                                                : value}
                                             onChange={(e) =>
                                                 setBankDetails((prev) => ({
                                                     ...prev,
