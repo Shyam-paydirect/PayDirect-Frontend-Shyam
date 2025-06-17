@@ -143,11 +143,7 @@ const BankDetails: React.FC<BankDetailsProps> = ({
         (["senderName", "beneficiaryName", "beneficiaryBank", "bankAddress", "city", "state"] as Array<keyof typeof bankDetails>).forEach((field) => {
             const val = bankDetails[field];
             if (val) {
-                if (val.length > 35) {
-                    newErrors[field] = `${field
-                        .replace(/([A-Z])/g, " $1")
-                        .replace(/^./, str => str.toUpperCase())} cannot exceed 35 characters.`;
-                } else if (!nameRegex.test(val)) {
+                if (!nameRegex.test(val)) {
                     newErrors[field] = `${field
                         .replace(/([A-Z])/g, " $1")
                         .replace(/^./, str => str.toUpperCase())} can only contain letters and spaces.`;
@@ -327,9 +323,7 @@ const BankDetails: React.FC<BankDetailsProps> = ({
                                             label={key
                                                 .replace(/([A-Z])/g, " $1")
                                                 .replace(/^./, (str) => str.toUpperCase())}
-                                            value={["senderName", "beneficiaryName", "beneficiaryBank", "bankAddress", "city", "state"].includes(key)
-                                                ? value.slice(0, 35)
-                                                : value}
+                                            value={value}
                                             onChange={(e) =>
                                                 setBankDetails((prev) => ({
                                                     ...prev,
