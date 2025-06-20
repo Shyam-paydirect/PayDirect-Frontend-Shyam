@@ -29,7 +29,7 @@ export const uploadFiles = createAsyncThunk(
 
       formData.append('custRefId', custRefId);
       formData.append('customerId', customerId);
-      formData.append('clientId', clientId);
+      formData.append('customerName', clientId);
       files.forEach((file) => formData.append('files', file));
 
       const response = await axios.post(`${docsApi}/documents/upload`, formData, {
