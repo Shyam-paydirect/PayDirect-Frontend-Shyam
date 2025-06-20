@@ -1,6 +1,7 @@
 import { docsApi } from '@/constants';
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
+import Cookies from 'js-cookie';
 
 interface FileUploadState {
   files: File[];
@@ -20,8 +21,15 @@ export const uploadFiles = createAsyncThunk(
   async ({ files, custRefId, customerId }: { files: File[]; custRefId: string, customerId: string }, { rejectWithValue }) => {
     try {
       const formData = new FormData();
+      const clientId = Cookies.get('clientId');
+      
+      if (!clientId) {
+        throw new Error('Client ID not found');
+      }
+
       formData.append('custRefId', custRefId);
       formData.append('customerId', customerId);
+      formData.append('clientId', clientId);
       files.forEach((file) => formData.append('files', file));
 
       const response = await axios.post(`${docsApi}/documents/upload`, formData, {
