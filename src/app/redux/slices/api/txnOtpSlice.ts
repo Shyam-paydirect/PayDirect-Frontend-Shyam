@@ -41,7 +41,6 @@ export const sendOtp = createAsyncThunk(
             });
             return response.data;
         } catch (error: any) {
-            console.log("WHAT the FUCKKKK", error)
             return thunkAPI.rejectWithValue(error.response ? error.response.data.message : error.data.message);
         }
     }
