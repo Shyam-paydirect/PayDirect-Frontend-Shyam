@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import { liveApi, updateStagingApi } from '@/constants';
+import { liveApi } from '@/constants';
 
 interface AuthState {
   token: string | null;
@@ -57,9 +57,7 @@ export const verifyLoginOtp = createAsyncThunk(
         secure: true, // HTTPS only
         sameSite: 'Strict', // Prevent CSRF
       });
-      Cookies.set('clientId', clientId);
-      // Update stagingApi based on the new clientId
-      updateStagingApi();
+      Cookies.set('clientId', clientId)
       Cookies.set('role', role);
       Cookies.set('merchant_id', merchant_id, {
         expires: 4 / 24, // 4 hours
