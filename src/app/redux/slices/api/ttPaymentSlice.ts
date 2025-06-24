@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
-import { stagingApi } from '@/constants';
+import { getStagingApi } from '@/constants';
 import Cookies from 'js-cookie';
 
 interface PaymentState {
@@ -25,7 +25,7 @@ export const submitPayment = createAsyncThunk(
   async (paymentData: any, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
-      const response = await axios.post(`${stagingApi}/ttPayment`, paymentData, {
+      const response = await axios.post(`${getStagingApi()}/ttPayment`, paymentData, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
@@ -33,7 +33,7 @@ export const submitPayment = createAsyncThunk(
       });
       return response.data;
     } catch (err: any) {
-      return rejectWithValue(err.response ? err.response.data.message : err.data.message  );
+      return rejectWithValue(err.response ? err.response.data.message : err.data.message);
     }
   }
 );
@@ -43,7 +43,7 @@ export const fetchPaymentStatus = createAsyncThunk(
   'payment/fetchPaymentStatus',
   async (requestData: { customerRef: string }, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${stagingApi}/statusPayment`, requestData, {
+      const response = await axios.post(`${getStagingApi()}/statusPayment`, requestData, {
         headers: {
           'Content-Type': 'application/json',
         },

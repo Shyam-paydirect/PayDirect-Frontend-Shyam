@@ -180,6 +180,7 @@ const PaymentDetails: React.FC = () => {
 
         try {
             const response = await dispatch(submitPayment(paymentData)).unwrap();
+            console.log("responseee===>", response)
             const orderData: CreateOrderRequest = {
                 userId: userId,
                 txnAmount: remittanceAmount,
@@ -192,10 +193,10 @@ const PaymentDetails: React.FC = () => {
                 responseType: response?.data?.txnResponses[0]?.responseType,
                 txnStatus: response?.data?.txnResponses[0]?.txnStatus,
                 txnStatusDescription: response?.data?.txnResponses[0]?.txnStatusDescription,
-                sendingPartyName: "Articulus Surgery",
-                sendingPartyAccountNo: "8151210000004565",
-                receivingPartyName: bankDetails.beneficiaryName,
-                receivingPartyAccountNo: bankDetails.beneficiaryAccountNumber
+                sendingPartyName: bankDetails?.senderName,
+                sendingPartyAccountNo: bankDetails?.senderAccNo,
+                receivingPartyName: bankDetails?.beneficiaryName,
+                receivingPartyAccountNo: bankDetails?.beneficiaryAccountNumber
             }
             await handleOrderCreation(orderData);
             localStorage.setItem('txnAmount', remittanceAmount);
@@ -448,7 +449,7 @@ const PaymentDetails: React.FC = () => {
                 <BankDetails openModal={openModal} handleCloseModal={handleCloseModal} />
                 <OTPDialog
                     open={isDialogOpen}
-                    onClose={() => setIsDialogOpen(false)}
+                    // onClose={() => setIsDialogOpen(false)}
                     transactionId={otpTransactionId}
                     onConfirm={handleConfirmOTP}
                 />

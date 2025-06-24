@@ -1,4 +1,4 @@
-import { liveApi, stagingApi } from "@/constants";
+import { liveApi, getStagingApi } from "@/constants";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
@@ -30,33 +30,25 @@ interface UserDetailsResponse {
 
 // Async Thunks for API calls
 export const sendOtp = createAsyncThunk(
-    "otp/sendOtp",
-    async ({ transactionId, userId, phoneNumber, email }: SendOtpPayload, thunkAPI) => {
+    'txnOtp/sendOtp',
+    async (payload: SendOtpPayload, { rejectWithValue }) => {
         try {
-            const response = await axios.post(`${stagingApi}/transaction/sendOtp`, {
-                transactionId,
-                userId,
-                phoneNumber,
-                email,
-            });
+            const response = await axios.post(`${getStagingApi()}/transaction/sendOtp`, payload);
             return response.data;
         } catch (error: any) {
-            return thunkAPI.rejectWithValue(error.response ? error.response.data.message : error.data.message);
+            return rejectWithValue(error.response?.data || error.message);
         }
     }
 );
 
 export const verifyOtp = createAsyncThunk(
-    "otp/verifyOtp",
-    async ({ transactionId, otp }: VerifyOtpPayload, thunkAPI) => {
+    'txnOtp/verifyOtp',
+    async (payload: VerifyOtpPayload, { rejectWithValue }) => {
         try {
-            const response = await axios.post(`${stagingApi}/transaction/verifyOtp`, {
-                transactionId,
-                otp,
-            });
+            const response = await axios.post(`${getStagingApi()}/transaction/verifyOtp`, payload);
             return response.data;
         } catch (error: any) {
-            return thunkAPI.rejectWithValue(error.response ? error.response.data.message : error.data.message);
+            return rejectWithValue(error.response?.data || error.message);
         }
     }
 );

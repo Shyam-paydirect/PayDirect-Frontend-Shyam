@@ -1,9 +1,6 @@
 import axios from "axios";
-
-import { stagingApi } from "@/constants";
+import { getStagingApi } from "@/constants";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-
-const COUNTRY_CODE_API = `${stagingApi}/account/countryCodeList`;
 
 export interface CountryOption {
     id: number;
@@ -11,7 +8,7 @@ export interface CountryOption {
     code: string;
     createdAt: string;
     updatedAt: string;
-  }
+}
 
 interface CountryCodeState {
     countryCodes: CountryOption[];
@@ -33,7 +30,7 @@ CountryOption[], string, { rejectValue: string }
     async (_, { rejectWithValue }) => {
         try {
             const response = await axios.get(
-                `${COUNTRY_CODE_API}`,
+                `${getStagingApi()}/account/countryCodeList`,
                 {
                     headers: {
                         "Content-Type": "application/json",
