@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
-import { stagingApi } from '@/constants';
+import { getStagingApi } from '@/constants';
 
 // Define the type for the client currency resource
 export interface ClientCurrency {
@@ -34,7 +34,7 @@ export const getClientCurrency = createAsyncThunk<
   'clientCurrency/getClientCurrency',
   async (clientId, { rejectWithValue }) => {
     try {
-      const response = await axios.get<ClientCurrencyState>(`${stagingApi}/clientCurrency/${clientId}`);
+      const response = await axios.get<ClientCurrencyState>(`${getStagingApi()}/clientCurrency/${clientId}`);
       if (response.data.errorCode !== 0) {
         return rejectWithValue(response.data.message || "Error fetching client currency");
       }
@@ -56,7 +56,7 @@ export const updateClientCurrency = createAsyncThunk<
   'clientCurrency/updateClientCurrency',
   async ({ clientId, data }, { rejectWithValue }) => {
     try {
-      const response = await axios.put<ClientCurrency>(`${stagingApi}/clientCurrency/${clientId}`, data, {
+      const response = await axios.put<ClientCurrency>(`${getStagingApi()}/clientCurrency/${clientId}`, data, {
         headers: { 'Content-Type': 'application/json' },
       });
       return response.data;
@@ -75,7 +75,7 @@ export const addClientCurrency = createAsyncThunk<
   'clientCurrency/addClientCurrency',
   async (clientData, { rejectWithValue }) => {
     try {
-      const response = await axios.post<ClientCurrency>(`${stagingApi}/clientCurrency`, clientData, {
+      const response = await axios.post<ClientCurrency>(`${getStagingApi()}/clientCurrency`, clientData, {
         headers: { 'Content-Type': 'application/json' },
       });
       return response.data;

@@ -84,8 +84,12 @@ const DocumentUploads: React.FC = () => {
                 custRefId: currOrderId || "",
                 isFinal: "Y"
             }
-            await dispatch(uploadApprovedDoc(body))
-            await dispatch(setCurrentDashboard('fx-rate-booker'))
+            const response = await dispatch(uploadApprovedDoc(body)).unwrap();
+            // Only navigate if upload was successful
+            if (response) {
+                await dispatch(setCurrentDashboard('fx-rate-booker'));
+                toast.success("Documents approved successfully");
+            }
         }
         catch (error) {
             const errorMessage =
@@ -94,7 +98,7 @@ const DocumentUploads: React.FC = () => {
                     : error instanceof Error
                         ? error.message
                         : "An unknown error occurred";
-            toast.error(errorMessage)
+            toast.error(errorMessage);
         }
     }
 

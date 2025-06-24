@@ -3,7 +3,7 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 
 // Import the base URL
-import { stagingApi } from '@/constants';
+import { getStagingApi } from '@/constants';
 
 interface UploadDocState {
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
@@ -35,7 +35,7 @@ export const uploadApprovedDoc = createAsyncThunk(
     try {
       const token = getAuthToken();
       const response = await axios.post(
-        `${stagingApi}/uploadApprovedDoc`, // Use the base URL from `stagingApi`
+        `${getStagingApi()}/uploadApprovedDoc`, // Use the base URL from getStagingApi()
         {
           custRefId,
           isFinal,

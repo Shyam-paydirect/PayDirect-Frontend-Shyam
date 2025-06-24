@@ -16,12 +16,12 @@ import { toast } from "react-toastify";
 
 interface OTPDialogProps {
     open: boolean;
-    onClose: () => void;
+    // onClose: () => void;
     transactionId: string;
     onConfirm: () => void;
 }
 
-const OTPDialog: React.FC<OTPDialogProps> = ({ open, onClose, transactionId, onConfirm }) => {
+const OTPDialog: React.FC<OTPDialogProps> = ({ open, transactionId, onConfirm }) => {
     const dispatch = useDispatch<AppDispatch>();
     const [otp, setOtp] = useState<string>("");
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -50,7 +50,12 @@ const OTPDialog: React.FC<OTPDialogProps> = ({ open, onClose, transactionId, onC
     };
 
     return (
-        <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+        <Dialog 
+            open={open} 
+            maxWidth="sm" 
+            fullWidth
+            disableEscapeKeyDown
+        >
             <DialogTitle>Enter OTP</DialogTitle>
             <DialogContent>
                 <Typography variant="body1" gutterBottom>
@@ -67,9 +72,6 @@ const OTPDialog: React.FC<OTPDialogProps> = ({ open, onClose, transactionId, onC
                 />
             </DialogContent>
             <DialogActions>
-                <Button onClick={onClose} color="secondary" disabled={isSubmitting}>
-                    Cancel
-                </Button>
                 <Button
                     onClick={handleConfirm}
                     color="primary"

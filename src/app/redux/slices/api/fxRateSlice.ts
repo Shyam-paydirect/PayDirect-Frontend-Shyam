@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
-import { stagingApi } from '@/constants';
+import { getStagingApi } from '@/constants';
 import Cookies from 'js-cookie';
 
 interface FxRateState {
@@ -24,7 +24,7 @@ export const fetchFxRate = createAsyncThunk(
     async (bodyData: any, { rejectWithValue }) => {
         try {
             const token = getAuthToken();
-            const response = await axios.post(`${stagingApi}/fxrate/spot-rate`, bodyData,{
+            const response = await axios.post(`${getStagingApi()}/fxrate/spot-rate`, bodyData,{
                 headers: {
                   Authorization: `Bearer ${token}`,
                 },
@@ -41,7 +41,7 @@ export const bookFxRate = createAsyncThunk(
     async (bodyData: any, { rejectWithValue }) => {
         try {
             const token = getAuthToken();
-            const response = await axios.post(`${stagingApi}/fxrate/forward-rate`, bodyData, {
+            const response = await axios.post(`${getStagingApi()}/fxrate/forward-rate`, bodyData, {
                 headers: {
                   'Content-Type': 'application/json',
                   Authorization: `Bearer ${token}`,
@@ -58,7 +58,7 @@ export const fetchCcyRate = createAsyncThunk(
     'fxRate/fetchCcyRate',
     async (_, { rejectWithValue }) => {
         try {
-            const response = await axios.get(`${stagingApi}/ccy/USDINR`);
+            const response = await axios.get(`${getStagingApi()}/ccy/USDINR`);
             return response.data;
         } catch (err: any) {
             return rejectWithValue(err.response?.data?.error || err?.message || 'Failed to fetch currency rate');
@@ -70,7 +70,7 @@ export const updateCcyRate = createAsyncThunk(
     'fxRate/updateCcyRate',
     async (bodyData: { rate: number }, { rejectWithValue }) => {
         try {
-            const response = await axios.put(`${stagingApi}/ccy/USDINR`, bodyData, {
+            const response = await axios.put(`${getStagingApi()}/ccy/USDINR`, bodyData, {
                 headers: { 'Content-Type': 'application/json' },
             });
             return response.data;

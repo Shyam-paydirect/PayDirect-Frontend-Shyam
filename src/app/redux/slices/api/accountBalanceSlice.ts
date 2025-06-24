@@ -1,4 +1,4 @@
-import { stagingApi } from '@/constants';
+import { getStagingApi } from '@/constants';
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import Cookies from 'js-cookie';
@@ -30,7 +30,7 @@ export const fetchBalanceEnquiry = createAsyncThunk(
         Authorization: `Bearer ${token}`,
       },
     };
-    const url = `${stagingApi}/balanceEnquiry`;
+    const url = `${getStagingApi()}/balanceEnquiry`;
     try {
       const response = await axios.post(url, accountDetails, config);
       return response.data;
@@ -53,7 +53,7 @@ export const fetchAccountStatement = createAsyncThunk(
         Authorization: `Bearer ${token}`,
       },
     };
-    const url = `${stagingApi}/accountStatement`;
+    const url = `${getStagingApi()}/accountStatement`;
     try {
       const response = await axios.post(url, accountStatementDetails, config);
       return response.data;

@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { RootState } from '@/app/redux/store';
-import { stagingApi } from '@/constants';
+import { getStagingApi } from '@/constants';
 
 // Define the request type
 export interface CreateOrderRequest {
@@ -76,7 +76,7 @@ export const createOrder = createAsyncThunk(
   'orders/createOrder',
   async (orderData: CreateOrderRequest, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${stagingApi}/orders/create`, orderData, {
+      const response = await axios.post(`${getStagingApi()}/orders/create`, orderData, {
         headers: {
           'Content-Type': 'application/json',
         },
@@ -93,7 +93,7 @@ export const fetchAllOrders = createAsyncThunk(
   'orders/fetchAllOrders',
   async (userID: string, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${stagingApi}/orders/all?userId=${userID}`);
+      const response = await axios.get(`${getStagingApi()}/orders/all?userId=${userID}`);
       return response.data as { data: Order[] };
     } catch (error: any) {
       return rejectWithValue(error.response?.data || 'Something went wrong');
@@ -110,7 +110,7 @@ export const updateOrderPaymentStatus = createAsyncThunk(
   ) => {
     try {
       const response = await axios.put(
-        `${stagingApi}/updateStatusPayment`,
+        `${getStagingApi()}/updateStatusPayment`,
         {
           orderId,
           statusPayment,
