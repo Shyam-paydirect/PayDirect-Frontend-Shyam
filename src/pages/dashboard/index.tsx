@@ -27,6 +27,7 @@ const DocumentUploads = dynamic(() => import('@/components/documents-upload/docu
 const DocumentViewer = dynamic(() => import('@/components/documents-upload/document-viewer'), { ssr: false });
 const FxRateBooker = dynamic(() => import('@/components/fx-rate-booking'), { ssr: false });
 const TrackPayments = dynamic(() => import('@/components/track-payment'), { ssr: false });
+const RequestLetter = dynamic(() => import('@/components/request-letter/request-letter'), { ssr: false });
 
 const Main: React.FC = () => {
   const router = useRouter();
@@ -74,6 +75,8 @@ const Main: React.FC = () => {
         return <ChangePassword />;
       case 'manage-users':
         return <UserManagement />;
+      case 'request-letter':
+        return <RequestLetter />;
       default:
         localStorage.setItem("prev_component", 'currency-management');
         return <CurrencyManagement />;
@@ -92,23 +95,29 @@ const Main: React.FC = () => {
               style={{
                 display: "flex",
                 alignItems: "center",
-                backgroundColor: "#f5f5f5",
-                border: "1px solid #ccc",
+                background: "white",
                 borderRadius: "5px",
-                padding: "8px 12px",
+                padding: "12px",
                 fontSize: "14px",
                 cursor: "pointer",
-                marginLeft: '8px',
+                marginLeft: '20px',
                 boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
               }}
-              onClick={() => dispatch(setCurrentDashboard(previousDashboard))}
+              onClick={() => {
+                // If current dashboard is documentUpload, go to currencyManagement
+                if (currentDashboard === 'document-uploads') {
+                  dispatch(setCurrentDashboard('currency-management'));
+                } else {
+                  dispatch(setCurrentDashboard(previousDashboard));
+                }
+              }}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
-                style={{ width: "16px", height: "16px", marginRight: "8px" }}
+                style={{ width: "20px", height: "20px" }}
               >
                 <path
                   strokeLinecap="round"
@@ -117,7 +126,6 @@ const Main: React.FC = () => {
                   d="M15 19l-7-7 7-7"
                 />
               </svg>
-              Back
             </button>
           )}
         </div>

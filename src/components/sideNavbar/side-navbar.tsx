@@ -4,6 +4,7 @@ import { RootState } from '@/app/redux/store';
 import { useSelector, useDispatch } from 'react-redux';
 import { setCurrentDashboard } from '@/app/redux/slices/dashboardSlice';
 import { useMediaQuery, useTheme } from '@mui/material';
+import Cookies from 'js-cookie';
 
 interface SideNavbarProps {
   onMenuItemClick?: () => void;
@@ -34,8 +35,12 @@ const SideNavbar: React.FC<SideNavbarProps> = ({ onMenuItemClick }) => {
   const menuItems = [
     { id: 'currency-management', icon: 'ri-copper-diamond-line', text: 'Payments' },
     { id: 'order-book', icon: 'ri-book-line', text: 'Order Book' },
-    { id: 'accounts', icon: 'ri-user-settings-line', text: 'Accounts' },
+    { id: 'accounts', icon: 'ri-user-settings-line', text: 'Accounts' }
   ];
+
+  if(Cookies.get('clientId')?.includes('UAT')){
+    menuItems.push({ id: 'request-letter', icon: 'ri-draft-line', text: 'Generate Request Letter' });
+  }
 
   return (
     <div className="nav-body">
