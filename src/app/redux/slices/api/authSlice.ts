@@ -53,14 +53,14 @@ export const verifyLoginOtp = createAsyncThunk(
 
       // Store token in Cookies and localStorage
       Cookies.set('token', token, {
-        expires: 4 / 24, // 4 hours
+        expires: 1 / 24, // 1 hour
         secure: true, // HTTPS only
         sameSite: 'Strict', // Prevent CSRF
       });
       Cookies.set('clientId', clientId)
       Cookies.set('role', role);
       Cookies.set('merchant_id', merchant_id, {
-        expires: 4 / 24, // 4 hours
+        expires: 1 / 24, // 1 hour
         secure: true, // HTTPS only
         sameSite: 'Strict', // Prevent CSRF
       });

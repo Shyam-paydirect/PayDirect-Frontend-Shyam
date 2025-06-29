@@ -1,4 +1,4 @@
-import { stagingApi } from "@/constants";
+import { getStagingApi } from "@/constants";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios, { AxiosError } from "axios";
 
@@ -47,7 +47,7 @@ export const fetchUserNotifications = createAsyncThunk<
   async (userId, { rejectWithValue }) => {
     try {
       const response = await axios.get<UserNotificationResponse>(
-        `${stagingApi}/userNotification?userId=${userId}`,
+        `${getStagingApi()}/userNotification?userId=${userId}`,
         {}
       );
       if (response.data.errorCode !== 0) {

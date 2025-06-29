@@ -17,6 +17,7 @@ import userNotificationReducer from './slices/api/notificationSlice'
 import userManagementReducer from './slices/api/userManagementSlice'
 import ccyPairReducer from './slices/api/ccyPairSlice'
 import countryCodeReducer from './slices/api/countryCodeSlice';
+import requestLetterReducer from './slices/api/requestLetterSlice';
 
 export const store = configureStore({
   reducer: {
@@ -37,7 +38,8 @@ export const store = configureStore({
     userNotification: userNotificationReducer,
     userManagement: userManagementReducer,
     ccyPair: ccyPairReducer,
-    countryCode: countryCodeReducer
+    countryCode: countryCodeReducer,
+    requestLetter: requestLetterReducer
   },
 });
 

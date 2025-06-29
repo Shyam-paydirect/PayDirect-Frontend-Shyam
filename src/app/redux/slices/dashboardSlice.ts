@@ -50,6 +50,8 @@ function getTitleByDashboard(dashboard: string): string {
       return 'Manage Users';
     case 'change-password':
       return 'Change Password';
+    case 'request-letter':
+      return 'Request Letter';
     default:
       return 'Payments';
   }
