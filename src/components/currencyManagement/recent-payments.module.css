@@ -16,6 +16,11 @@
   }
   
   .status--documents-uploaded {
+    color: rgb(255, 119, 0);
+    background-color: rgba(0, 157, 255, 0.05);
+  }
+
+  .status--fx-booking-required {
     color: rgb(0, 157, 255);
     background-color: rgba(0, 157, 255, 0.05);
   }
@@ -42,4 +47,41 @@
       padding: 3px 10px;      /* Adjusted padding */
     }
   }
+
+@keyframes glowingProgress {
+  0% {
+    box-shadow: 0 0 5px #2196f3,
+                0 0 10px #2196f3;
+    background-color: #2196f3;
+    opacity: 1;
+  }
+  50% {
+    box-shadow: 0 0 8px #64b5f6,
+                0 0 15px #64b5f6;
+    background-color: #64b5f6;
+    opacity: 0.9;
+  }
+  100% {
+    box-shadow: 0 0 5px #2196f3,
+                0 0 10px #2196f3;
+    background-color: #2196f3;
+    opacity: 1;
+  }
+}
+
+.maxProgress {
+  position: relative;
+  z-index: 1;
+  animation: glowingProgress 1.5s ease-in-out infinite;
+  animation-delay: 0.5s;
+  border-radius: 4px;
+  overflow: visible !important;
+}
+
+/* Container for max progress to ensure glow is visible */
+.progressContainer {
+  position: relative;
+  overflow: visible !important;
+  z-index: 0;
+}
   
