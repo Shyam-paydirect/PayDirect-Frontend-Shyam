@@ -44,7 +44,23 @@ const RecentPayments: React.FC = () => {
   }, [dispatch, userId]);
 
   const getStepPercentage = (statusPayment: string) => {
-    return (Number(statusPayment) / 4) * 100; // Assuming 4 total steps
+    // Map the status to the correct progress percentage
+    switch (statusPayment) {
+      case "1":
+        return 20; // First step
+      case "2":
+        return 40; // Second step
+      case "6":
+        return 60; // Third step
+      case "5":
+        return 60; // Third step (FX Booking Required)
+      case "3":
+        return 80; // Fourth step
+      case "4":
+        return 100; // Final step
+      default:
+        return 0;
+    }
   };
 
   const getStepColor = (currentStep: string) => {
@@ -53,13 +69,40 @@ const RecentPayments: React.FC = () => {
         return "#f44336"; // Red
       case "2":
         return "#ff9800"; // Orange
+      case "6":
+        return "#ff9800"; // Orange
+      case "5":
+        return "#2196f3"; // Blue for FX booking notification
       case "3":
-        return "#ffeb3b"; // Yellow
+        return "#4caf50"; // Green
       case "4":
-        return "#8bc34a"; // Green (optional if all steps complete)
+        return "#388e3c"; // Dark Green for completion
       default:
         return "#e0e0e0"; // Gray for incomplete steps
     }
+  };
+
+  const renderProgressBar = (statusPayment: string) => {
+    const stepPercentage = getStepPercentage(statusPayment);
+    const stepColor = getStepColor(statusPayment);
+    const isMaxLevel = statusPayment === "5";
+
+    return (
+      <div className={`relative ${styles.progressContainer}`}>
+        <div className="progress w-full bg-gray-200 rounded-md h-4" style={{ overflow: 'visible' }}>
+          <div 
+            className={`progress-bar progress-bar-striped ${isMaxLevel ? styles.maxProgress : ''}`}
+            style={{
+              width: `${stepPercentage}%`,
+              backgroundColor: isMaxLevel ? undefined : stepColor,
+              height: '100%',
+              borderRadius: '4px',
+              minWidth: '20px', // Ensure small percentages still show rounded corners
+            }}
+          ></div>
+        </div>
+      </div>
+    );
   };
 
   const StatusBox = (currentStep: string) => {
@@ -73,12 +116,20 @@ const RecentPayments: React.FC = () => {
         statusText = 'Documents Uploaded';
         modifier = 'status--documents-uploaded';
         break;
+      case "6":
+        statusText = 'Documents Uploaded';
+        modifier = 'status--documents-uploaded';
+        break;
+      case "5":
+        statusText = 'FX Booking Required';
+        modifier = 'status--fx-booking-required';
+        break;
       case "3":
         statusText = 'FX Rate Booked';
         modifier = 'status--fx-rate-booked';
         break;
       case "4":
-        statusText = 'Completed';
+        statusText = 'Payment Completed';
         modifier = 'status--completed';
         break;
       default:
@@ -93,22 +144,6 @@ const RecentPayments: React.FC = () => {
     );
   };
 
-  const renderProgressBar = (statusPayment: string) => {
-    const stepPercentage = getStepPercentage(statusPayment);
-    const stepColor = getStepColor(statusPayment);
-
-    return (
-      <div className="progress w-full bg-gray-200 rounded-md h-4 overflow-hidden">
-        <div className="progress-bar progress-bar-striped w-[10%]"
-          style={{
-            width: `${stepPercentage}%`,
-            backgroundColor: stepColor,
-          }}
-        ></div>
-      </div>
-    );
-  };
-
   const handleRowClick = (orderId: string, statusPayment: string) => {
     dispatch(setSelectedOrderId(orderId));
     switch (statusPayment) {
@@ -116,6 +151,12 @@ const RecentPayments: React.FC = () => {
         dispatch(setCurrentDashboard("document-uploads"));
         break;
       case "2":
+        dispatch(setCurrentDashboard("document-uploads"));
+        break;
+      case "6":
+        dispatch(setCurrentDashboard("document-uploads"));
+        break;
+      case "5":
         dispatch(setCurrentDashboard("document-uploads"));
         break;
       case "3":

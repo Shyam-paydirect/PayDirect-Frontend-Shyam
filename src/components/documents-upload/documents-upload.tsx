@@ -38,7 +38,8 @@ const DocumentUploads: React.FC = () => {
     const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
     const currOrderId = useSelector(selectSelectedOrderId);
     const [allApproved, setAllApproved] = useState(false);
-
+    const [allInProgress, setAllInProgress] = useState(false);
+    const [statusPayment, setStatusPayment] = useState('');
     const [uploadedFiles, setUploadedFiles] = useState<{ [key: number]: File[] }>({});
     const [preUploadedDocs, setPreUploadedDocs] = useState<{ [key: number]: any[] }>({});
     const token = Cookies.get("token") || "";
@@ -57,9 +58,11 @@ const DocumentUploads: React.FC = () => {
             if (!currOrderId) return;
             try {
                 const response = await dispatch(fetchDocuments(currOrderId)).unwrap();
+                setStatusPayment(response.statusPayment);
                 const fetchedDocs = response.allDocs || [];
                 console.log('fetch', fetchedDocs.every((doc: any) => doc.status === 'approved'));
                 setAllApproved(fetchedDocs.length > 0 && fetchedDocs.every((doc: any) => doc.status === 'approved'));
+                setAllInProgress(fetchedDocs.length > 0 && fetchedDocs.every((doc: any) => doc.status === 'in progress'));
 
                 const mappedDocs: { [key: number]: any[] } = {};
                 fetchedDocs.forEach((doc: any, index: number) => {
@@ -85,10 +88,14 @@ const DocumentUploads: React.FC = () => {
                 isFinal: "Y"
             }
             const response = await dispatch(uploadApprovedDoc(body)).unwrap();
+            const response2 = await dispatch(updateOrderPaymentStatus({
+                orderId: currOrderId || "",
+                statusPayment: '6'
+            })).unwrap();
             // Only navigate if upload was successful
-            if (response) {
-                await dispatch(setCurrentDashboard('fx-rate-booker'));
-                toast.success("Documents approved successfully");
+            if (response && response2) {
+                toast.success("Please wait for final approval");
+                await dispatch(setCurrentDashboard('currency-management'));
             }
         }
         catch (error) {
@@ -100,6 +107,10 @@ const DocumentUploads: React.FC = () => {
                         : "An unknown error occurred";
             toast.error(errorMessage);
         }
+    }
+
+    const handleBookFXRate = async () => {
+        dispatch(setCurrentDashboard('fx-rate-booker'));
     }
 
     const handleFileChange = (index: number) => {
@@ -282,7 +293,7 @@ const DocumentUploads: React.FC = () => {
                                                     </Box>
 
                                                     {/* Approved Status (Outside Box) */}
-                                                    <Box className={file.status == 'approved' ? "status-sale status capitalize" : "status-charges status capitalize"}>
+                                                    <Box className={file.status == 'in progress' ? "status-pending status capitalize" : file.status == 'approved' ? "status-sale status capitalize" : "status-charges status capitalize"}>
                                                         {file.status}
                                                     </Box>
                                                 </Box>
@@ -317,6 +328,7 @@ const DocumentUploads: React.FC = () => {
                     <Button
                         variant="contained"
                         color="success"
+                        disabled={allApproved || allInProgress}
                         onClick={handleUploadAll}
                         sx={{ width: "100%", marginTop: 2 }}
                     >
@@ -324,9 +336,22 @@ const DocumentUploads: React.FC = () => {
                     </Button>
                     <Button
                         variant="contained"
-                        disabled={!allApproved}
+                        disabled={!allInProgress || statusPayment == '6'}
                         color="success"
                         onClick={handleNext}
+                        sx={{
+                            background: allInProgress ? "rgb(0, 129, 19)" : "gray",
+                            cursor: allInProgress ? "pointer" : "not-allowed",
+                            width: "100%", marginTop: 2
+                        }}
+                    >
+                        {"Submit Documents"}
+                    </Button>
+                    <Button
+                        variant="contained"
+                        disabled={!allApproved}
+                        color="success"
+                        onClick={handleBookFXRate}
                         sx={{
                             background: allApproved ? "rgb(0, 129, 19)" : "gray",
                             cursor: allApproved ? "pointer" : "not-allowed",

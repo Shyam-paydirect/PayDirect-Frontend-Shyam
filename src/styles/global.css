@@ -37,6 +37,7 @@
 
   /* Status Colors  */
   --sale-clr: 78 191 37;
+  --pending-clr: 255 190 51;
   --refund-clr: 160 31 240;
   --charges-clr: 251 16 61;
   --dues-clr: 255 87 51;
@@ -175,6 +176,11 @@ hr {
 .status-sale {
   color: rgb(var(--sale-clr));
   background-color: rgb(var(--sale-clr) / .1);
+}
+
+.status-pending {
+  color: rgb(var(--pending-clr));
+  background-color: rgb(var(--pending-clr) / .1);
 }
 
 .status-refund {
