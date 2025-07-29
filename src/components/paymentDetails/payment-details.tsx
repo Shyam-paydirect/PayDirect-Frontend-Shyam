@@ -199,7 +199,6 @@ const PaymentDetails: React.FC = () => {
                 receivingPartyAccountNo: bankDetails?.beneficiaryAccountNumber
             }
             await handleOrderCreation(orderData);
-            localStorage.setItem('txnAmount', remittanceAmount);
             localStorage.setItem('currency', currency);
             toast.success("TT Payment Initiated")
 
@@ -337,6 +336,7 @@ const PaymentDetails: React.FC = () => {
                                             <MenuItem value="INR">INR</MenuItem>
                                             <MenuItem value="USD">USD</MenuItem>
                                             {isArtSurgery && <MenuItem value="EUR">EUR</MenuItem>}
+                                            {isArtSurgery && <MenuItem value="GBP">GBP</MenuItem>}
                                         </Select>
                                     </FormControl>
                                 </Grid>

@@ -13,7 +13,7 @@ import type { AppDispatch } from '@/app/redux/store';
 import { toast, ToastContainer } from 'react-toastify';
 import moment from 'moment';
 import AccessTimeIcon from '@mui/icons-material/AccessTime'; // Import the clock icon
-import { selectSelectedOrderId, updateOrderPaymentStatus } from '@/app/redux/slices/api/orderSlice';
+import { selectSelectedOrderId, updateOrderPaymentStatus, fetchTransactionAmount, selectCurrentTransactionAmount } from '@/app/redux/slices/api/orderSlice';
 import { setCurrentDashboard } from '@/app/redux/slices/dashboardSlice';
 import Cookies from 'js-cookie';
 import { getClientCurrency } from '@/app/redux/slices/api/ccyPairSlice';
@@ -54,7 +54,9 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
     return decimalPart ? `${formattedInteger}.${decimalPart}` : formattedInteger;
   };
 
-  const txnAmount = localStorage.getItem('txnAmount') || "1";
+  // Get orderId and transaction data from Redux
+  const orderID = useSelector(selectSelectedOrderId) || "";
+  const txnAmount = useSelector(selectCurrentTransactionAmount) || "1";
   const ccy = localStorage.getItem('currency') || (isArtSurgery ? 'EUR' : 'INR');
 
   const [base, setBase] = useState<string>(ccy);
@@ -85,8 +87,6 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
     { code: "EUR", name: "Euro" },
     { code: "GBP", name: "British Pound" },
   ];
-
-  const orderID = useSelector(selectSelectedOrderId) || "";
 
   const { data, loading } = useSelector((state: RootState) => state.ccyPair)
 
@@ -150,6 +150,24 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
   useEffect(() => {
     dispatch(getClientCurrency(clientId))
   }, [])
+
+  // Fetch transaction amount when orderID changes
+  useEffect(() => {
+    if (orderID && book) {
+      dispatch(fetchTransactionAmount(orderID));
+    }
+  }, [orderID, book, dispatch]);
+
+  // Update baseValue when txnAmount changes (after API response)
+  useEffect(() => {
+    if (book && txnAmount && txnAmount !== "1") {
+      setBaseValue(txnAmount);
+      const formatted = base === 'INR'
+        ? formatWithCommas(txnAmount.replace(/,/g, ''), 'IND')
+        : formatWithCommas(txnAmount.replace(/,/g, ''), 'INTL');
+      setFormattedBaseValue(formatted);
+    }
+  }, [txnAmount, book, base]);
 
 
   const handleOpen = (isBase: boolean) => {
@@ -417,33 +435,33 @@ const CurrencyExchanger: React.FC<CurrencyExchangerProps> = ({ book }) => {
                 >
                   {/* {currencies.map((currency) => ( */}
                   {
-                    book ?
-                      <MenuItem
-                        // key={currency.code}
-                        // value={currency.code}
-                        value={base}
-                        sx={{
-                          backgroundColor: "#fff", // Keep white for items
-                          "&:hover": {
-                            backgroundColor: "#f5f5f5", // Slight highlight on hover
-                          },
-                          "&.Mui-selected": {
-                            backgroundColor: "#e0e0e0", // Highlight selected item
-                            fontWeight: "bold", // Bold for the selected item
-                          },
-                        }}
-                      >
-                        <Box display="flex" alignItems="center" gap={1}>
-                          <Avatar
-                            src={getFlagUrl(base)}
-                            sx={{ width: 24, height: 24 }}
-                          />
-                          <Typography>{base}</Typography>
-                          {/* <Avatar src={getFlagUrl(currency.code)} sx={{ width: 24, height: 24 }} />
-                        <Typography>{currency.code}</Typography> */}
-                        </Box>
-                      </MenuItem>
-                      :
+                    // book ?
+                    //   <MenuItem
+                    //     // key={currency.code}
+                    //     // value={currency.code}
+                    //     value={base}
+                    //     sx={{
+                    //       backgroundColor: "#fff", // Keep white for items
+                    //       "&:hover": {
+                    //         backgroundColor: "#f5f5f5", // Slight highlight on hover
+                    //       },
+                    //       "&.Mui-selected": {
+                    //         backgroundColor: "#e0e0e0", // Highlight selected item
+                    //         fontWeight: "bold", // Bold for the selected item
+                    //       },
+                    //     }}
+                    //   >
+                    //     <Box display="flex" alignItems="center" gap={1}>
+                    //       <Avatar
+                    //         src={getFlagUrl(base)}
+                    //         sx={{ width: 24, height: 24 }}
+                    //       />
+                    //       <Typography>{base}</Typography>
+                    //       {/* <Avatar src={getFlagUrl(currency.code)} sx={{ width: 24, height: 24 }} />
+                    //     <Typography>{currency.code}</Typography> */}
+                    //     </Box>
+                    //   </MenuItem>
+                    //   :
                       sendingCurrencies.map((currency) => (
                         <MenuItem
                           key={currency.code}

@@ -97,7 +97,6 @@ const OrderPage: React.FC = () => {
       toast.warn("Please upload Documents first");
     }
     else {
-      localStorage.setItem('txnAmount', txnAmount)
       localStorage.setItem("prev_component", 'order-book')
       dispatch(setCurrentDashboard('document-uploads'));
       dispatch(setSelectedOrderId(id));
