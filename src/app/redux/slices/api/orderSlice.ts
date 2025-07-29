@@ -61,6 +61,8 @@ interface OrderState {
   response: CreateOrderResponse | null;
   orders: { data: Order[] } | null;
   selectedOrderId: string | null; // Added for storing the selected order ID
+  currentTransactionAmount: string | null; // Added for storing current transaction amount
+  currentTransactionCurrency: string | null; // Added for storing current transaction currency
 }
 
 const initialState: OrderState = {
@@ -69,6 +71,8 @@ const initialState: OrderState = {
   response: null,
   orders: null,
   selectedOrderId: null, // Initialize with null
+  currentTransactionAmount: null, // Initialize with null
+  currentTransactionCurrency: null, // Initialize with null
 };
 
 // Async thunk for creating an order
@@ -128,6 +132,21 @@ export const updateOrderPaymentStatus = createAsyncThunk(
   }
 );
 
+// Async thunk for fetching transaction amount by orderId
+export const fetchTransactionAmount = createAsyncThunk(
+  'orders/fetchTransactionAmount',
+  async (orderId: string, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(
+        `${getStagingApi()}/orders/transactionAmount/${orderId}?customerReference=${orderId}`
+      );
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || 'Something went wrong');
+    }
+  }
+);
+
 // Create the slice
 const orderSlice = createSlice({
   name: 'orders',
@@ -135,6 +154,14 @@ const orderSlice = createSlice({
   reducers: {
     setSelectedOrderId: (state, action: PayloadAction<string>) => {
       state.selectedOrderId = action.payload;
+    },
+    setTransactionData: (state, action: PayloadAction<{ amount: string; currency: string }>) => {
+      state.currentTransactionAmount = action.payload.amount;
+      state.currentTransactionCurrency = action.payload.currency;
+    },
+    clearTransactionData: (state) => {
+      state.currentTransactionAmount = null;
+      state.currentTransactionCurrency = null;
     },
   },
   extraReducers: (builder) => {
@@ -175,13 +202,29 @@ const orderSlice = createSlice({
       .addCase(updateOrderPaymentStatus.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+      })
+      .addCase(fetchTransactionAmount.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchTransactionAmount.fulfilled, (state, action) => {
+        state.loading = false;
+        // Extract txnAmount from the API response structure
+        if (action.payload && action.payload.data && action.payload.data.length > 0) {
+          state.currentTransactionAmount = action.payload.data[0].txnAmount || null;
+        }
+      })
+      .addCase(fetchTransactionAmount.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
       });
   },
 });
 
-export const { setSelectedOrderId } = orderSlice.actions;
+export const { setSelectedOrderId, setTransactionData, clearTransactionData } = orderSlice.actions;
 
 export const selectOrderState = (state: RootState) => state.orders;
 export const selectSelectedOrderId = (state: RootState) => state.orders.selectedOrderId; // Selector for selectedOrderId
+export const selectCurrentTransactionAmount = (state: RootState) => state.orders.currentTransactionAmount;
 
 export default orderSlice.reducer;
