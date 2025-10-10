@@ -26,6 +26,7 @@ const RequestLetter = dynamic(() => import('@/components/request-letter/request-
 const AccountStatement = dynamic(() => import('@/components/account-statement/account-statement'), { ssr: false });
 const ChangePassword = dynamic(() => import('@/components/change-password/change-password'), { ssr: false });
 const UserManagement = dynamic(() => import('@/components/manage-users/manage-users'), { ssr: false });
+const BalanceTransactionsPage = dynamic(() => import('@/components/BalanceTransactions/BalanceTransactionsPage'), { ssr: false });
 
 // Import your combined BalanceDashboard
 const BalanceDashboard = dynamic(() => import('@/components/Balances/BalanceDashboard'), { ssr: false });
@@ -48,42 +49,45 @@ const Main: React.FC = () => {
   const mainDashboards = ['currency-management', 'financial-reporting', 'order-book', 'accounts'];
 
   const renderDashboard = () => {
-    if (!isClient) return <div></div>; // Prevent SSR mismatch
+  if (!isClient) return <div></div>; // Prevent SSR mismatch
 
-    switch (dashboardTitle) {
-      case 'currency-management':
-        return <CurrencyManagement />;
-      case 'financial-reporting':
-        return <FinancialReporting />;
-      case 'order-book':
-        return <OrderPaymentComponent />;
-      case 'payment-details':
-        return <PaymentDetails />;
-      case 'accounts':
-        return <Accounts />;
-      case 'fx-rate-booker':
-        return <FxRateBooker />;
-      case 'track-payments':
-        return <TrackPayments />;
-      case 'document-uploads':
-        return <DocumentUploads />;
-      case 'document-viewer':
-        return <DocumentViewer />;
-      case 'account-statement':
-        return <AccountStatement />;
-      case 'change-password':
-        return <ChangePassword />;
-      case 'manage-users':
-        return <UserManagement />;
-      case 'request-letter':
-        return <RequestLetter />;
-      case 'balances-dashboard': // ✅ Your combined dashboard
-        return <BalanceDashboard />;
-      default:
-        localStorage.setItem("prev_component", 'currency-management');
-        return <CurrencyManagement />;
-    }
-  };
+  switch (dashboardTitle) {
+    case 'currency-management':
+      return <CurrencyManagement />;
+    case 'financial-reporting':
+      return <FinancialReporting />;
+    case 'order-book':
+      return <OrderPaymentComponent />;
+    case 'payment-details':
+      return <PaymentDetails />;
+    case 'accounts':
+      return <Accounts />;
+    case 'fx-rate-booker':
+      return <FxRateBooker />;
+    case 'track-payments':
+      return <TrackPayments />;
+    case 'document-uploads':
+      return <DocumentUploads />;
+    case 'document-viewer':
+      return <DocumentViewer />;
+    case 'account-statement':
+      return <AccountStatement />;
+    case 'change-password':
+      return <ChangePassword />;
+    case 'manage-users':
+      return <UserManagement />;
+    case 'request-letter':
+      return <RequestLetter />;
+    case 'balances-dashboard':
+      return <BalanceDashboard />;
+    case 'balance-transactions': // ✅ Add this
+      return <BalanceTransactionsPage />;
+    default:
+      localStorage.setItem("prev_component", 'currency-management');
+      return <CurrencyManagement />;
+  }
+};
+
 
   return (
     <div className="app-container">

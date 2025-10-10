@@ -34,18 +34,20 @@ const SideNavbar: React.FC<SideNavbarProps> = ({ onMenuItemClick }) => {
 
   // Sidebar menu items
   // Sidebar menu items
+// Sidebar menu items
 const menuItems = [
   { id: 'currency-management', icon: 'ri-copper-diamond-line', text: 'Payments' },
   { id: 'order-book', icon: 'ri-book-line', text: 'Order Book' },
   { id: 'accounts', icon: 'ri-user-settings-line', text: 'Accounts' },
-  { id: 'balances-dashboard', icon: 'ri-bank-card-line', text: 'Balances' } // ✅ updated ID
+  { id: 'balances-dashboard', icon: 'ri-bank-card-line', text: 'Balances' },
+  { id: 'balance-transactions', icon: 'ri-exchange-line', text: 'Balance Transactions' } // ✅ New Tab
 ];
 
+// Conditionally add Request Letter tab
+if (Cookies.get('clientId')?.includes('UAT')) {
+  menuItems.push({ id: 'request-letter', icon: 'ri-draft-line', text: 'Generate Request Letter' });
+}
 
-  // Conditionally add Request Letter tab
-  if (Cookies.get('clientId')?.includes('UAT')) {
-    menuItems.push({ id: 'request-letter', icon: 'ri-draft-line', text: 'Generate Request Letter' });
-  }
 
   return (
     <div className="nav-body">
