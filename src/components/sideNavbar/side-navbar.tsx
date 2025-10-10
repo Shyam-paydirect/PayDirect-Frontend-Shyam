@@ -39,8 +39,10 @@ const menuItems = [
   { id: 'accounts', icon: 'ri-user-settings-line', text: 'Accounts' },
   { id: 'balances-dashboard', icon: 'ri-bank-card-line', text: 'Balances' },
   { id: 'balance-transactions', icon: 'ri-exchange-line', text: 'Balance Transactions' },
-  { id: 'deposits-dashboard', icon: 'ri-money-dollar-circle-line', text: 'Deposits' }
+  { id: 'deposits-dashboard', icon: 'ri-money-dollar-circle-line', text: 'Deposits' },
+  { id: 'exchange-rates', icon: 'ri-repeat-line', text: 'Exchange Rates' } // ✅ New Tab
 ];
+
 
 // Conditionally add Request Letter tab only if it’s not already in the array
 if (Cookies.get('clientId')?.includes('UAT') && !menuItems.some(item => item.id === 'request-letter')) {
