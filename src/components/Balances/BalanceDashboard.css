@@ -1,0 +1,643 @@
+/* ============================================
+   FILE: src/features/balances/styles/balances.css
+   Main stylesheet for Balances Dashboard
+   ============================================ */
+
+/* Base Dashboard Styles */
+.balances-dashboard {
+  min-height: 100vh;
+  background-color: #f9fafb;
+}
+
+/* ============================================
+   HEADER STYLES
+   ============================================ */
+
+.dashboard-header {
+  background-color: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 1rem 1.5rem;
+}
+
+.dashboard-header__container {
+  max-width: 80rem;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dashboard-header__left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.dashboard-header__logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dashboard-header__logo-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  background-color: #2563eb;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dashboard-header__logo-text {
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 1.25rem;
+}
+
+.dashboard-header__brand {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.dashboard-header__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-left: 1rem;
+}
+
+.dashboard-header__right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Mode Badge */
+.mode-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.mode-badge--live {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+
+.mode-badge--test {
+  background-color: #fef9c3;
+  color: #a16207;
+}
+
+/* Refresh Button */
+.refresh-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #2563eb;
+  color: #ffffff;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.refresh-button:hover {
+  background-color: #1d4ed8;
+}
+
+.refresh-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.refresh-button__icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.refresh-button__icon--spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ============================================
+   SUMMARY CARDS STYLES
+   ============================================ */
+
+.summary-cards-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+@media (min-width: 768px) {
+  .summary-cards-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .summary-cards-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+.summary-card {
+  background-color: #ffffff;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  border: 1px solid #e5e7eb;
+  padding: 1.25rem;
+  transition: box-shadow 0.2s;
+}
+
+.summary-card:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.summary-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.summary-card__icon-wrapper {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.summary-card__icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #ffffff;
+}
+
+/* Color variants */
+.summary-card__icon-wrapper--green {
+  background-color: #22c55e;
+}
+
+.summary-card__icon-wrapper--orange {
+  background-color: #f97316;
+}
+
+.summary-card__icon-wrapper--blue {
+  background-color: #3b82f6;
+}
+
+.summary-card__icon-wrapper--gray {
+  background-color: #6b7280;
+}
+
+.summary-card__icon-wrapper--purple {
+  background-color: #a855f7;
+}
+
+.summary-card__amount {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 0.25rem;
+}
+
+.summary-card__label {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+/* ============================================
+   AGGREGATE BALANCE WIDGET STYLES
+   ============================================ */
+
+.aggregate-widget {
+  background: linear-gradient(to right, #6366f1, #9333ea);
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  color: #ffffff;
+}
+
+.aggregate-widget__header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.aggregate-widget__icon {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.aggregate-widget__title {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.aggregate-widget__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .aggregate-widget__grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.aggregate-widget__card {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  backdrop-filter: blur(8px);
+}
+
+.aggregate-widget__card-label {
+  font-size: 0.875rem;
+  opacity: 0.9;
+  margin-bottom: 0.25rem;
+}
+
+.aggregate-widget__card-amount {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+/* ============================================
+   BALANCE TABLE STYLES
+   ============================================ */
+
+.balance-table-container {
+  background-color: #ffffff;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+}
+
+.balance-table__header {
+  padding: 1rem 1.5rem;
+  background-color: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.balance-table__title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.balance-table__wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch; /* smooth scrolling on iOS */
+}
+
+.balance-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: auto;   /* let columns adapt */
+  min-width: 650px;     /* ensures it doesn’t shrink too much on mobile */
+}
+
+.balance-table__head {
+  background-color: #312e81;
+  color: #ffffff;
+}
+
+.balance-table__head th,
+.balance-table__body td {
+  padding: 1rem 1.5rem;
+  font-size: 0.875rem;
+  vertical-align: middle;
+  white-space: nowrap;  /* keeps content on one line */
+}
+
+.balance-table__head th {
+  text-align: left;
+}
+
+.balance-table__head th:not(:first-child),
+.balance-table__body td:not(:first-child) {
+  text-align: right;
+}
+
+.balance-table__body tr {
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.balance-table__body tr:hover {
+  background-color: #f9fafb;
+}
+
+.balance-table__body tr:nth-child(even) {
+  background-color: #f9fafb;
+}
+
+.balance-table__body tr:nth-child(even):hover {
+  background-color: #f3f4f6;
+}
+
+.balance-table__currency {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.balance-table__currency-flag {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.balance-table__currency-code {
+  font-weight: 600;
+  color: #111827;
+}
+
+.balance-table__amount {
+  font-weight: 600;
+}
+
+.balance-table__amount--available {
+  color: #059669;
+}
+
+.balance-table__amount--pending {
+  color: #ea580c;
+}
+
+.balance-table__amount--processing {
+  color: #2563eb;
+}
+
+.balance-table__amount--payout {
+  color: #6b7280;
+}
+
+.balance-table__amount--fee {
+  color: #9333ea;
+}
+
+
+
+/* ============================================
+   EMPTY STATE STYLES
+   ============================================ */
+
+.empty-state {
+  padding: 3rem;
+  text-align: center;
+}
+
+.empty-state__icon {
+  font-size: 3rem;
+  color: #9ca3af;
+  margin-bottom: 1rem;
+}
+
+.empty-state__title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #4b5563;
+  margin-bottom: 0.5rem;
+}
+
+.empty-state__description {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+/* ============================================
+   LOADING STATE STYLES
+   ============================================ */
+
+.loading-state {
+  min-height: 100vh;
+  background-color: #f9fafb;
+  padding: 1.5rem;
+}
+
+.loading-state__container {
+  max-width: 80rem;
+  margin: 0 auto;
+}
+
+.loading-skeleton {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.loading-skeleton__title {
+  height: 2rem;
+  background-color: #e5e7eb;
+  border-radius: 0.25rem;
+  width: 25%;
+  margin-bottom: 1.5rem;
+}
+
+.loading-skeleton__cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+@media (min-width: 768px) {
+  .loading-skeleton__cards {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .loading-skeleton__cards {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+.loading-skeleton__card {
+  height: 8rem;
+  background-color: #e5e7eb;
+  border-radius: 0.5rem;
+}
+
+.loading-skeleton__table {
+  background-color: #ffffff;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  height: 24rem;
+}
+
+/* ============================================
+   ERROR STATE STYLES
+   ============================================ */
+
+.error-state {
+  min-height: 100vh;
+  background-color: #f9fafb;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.error-state__card {
+  background-color: #ffffff;
+  border-radius: 0.5rem;
+  padding: 2rem;
+  max-width: 28rem;
+  text-align: center;
+}
+
+.error-state__icon {
+  font-size: 3rem;
+  color: #ef4444;
+  margin-bottom: 1rem;
+}
+
+.error-state__title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 0.5rem;
+}
+
+.error-state__description {
+  color: #6b7280;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+}
+
+.error-state__button {
+  background-color: #2563eb;
+  color: #ffffff;
+  padding: 0.5rem 1.5rem;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.error-state__button:hover {
+  background-color: #1d4ed8;
+}
+
+/* ============================================
+   FOOTER STYLES
+   ============================================ */
+
+.dashboard-footer {
+  margin-top: 1.5rem;
+  text-align: center;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+/* ============================================
+   MAIN CONTAINER
+   ============================================ */
+
+.dashboard-main {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+/* ============================================
+   RESPONSIVE UTILITIES
+   ============================================ */
+
+@media (max-width: 768px) {
+  .dashboard-header__title {
+    font-size: 1.25rem;
+  }
+
+  .dashboard-main {
+    padding: 1rem;
+  }
+
+  .summary-card__amount {
+    font-size: 1.25rem;
+  }
+
+  .balance-table__head th,
+  .balance-table__body td {
+    padding: 0.75rem;
+    font-size: 0.875rem;
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Focus styles for accessibility */
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+
+@media print {
+  .dashboard-header__right,
+  .refresh-button {
+    display: none;
+  }
+
+  .balance-table-container {
+    box-shadow: none;
+    border: 1px solid #000;
+  }
+
+  .aggregate-widget {
+    background: #f3f4f6;
+    color: #000;
+  }
+}

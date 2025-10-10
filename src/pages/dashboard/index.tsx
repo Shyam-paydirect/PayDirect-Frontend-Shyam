@@ -5,17 +5,12 @@ import React, { useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/router';
 import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '@/app/redux/store';
+import { RootState, AppDispatch } from '@/app/redux/store';
 import { setCurrentDashboard } from '@/app/redux/slices/dashboardSlice';
 import "./main.css";
 import "@/styles/global.css";
-import AccountStatement from '@/components/account-statement/account-statement';
-import ChangePassword from '@/components/change-password/change-password';
-import UserManagement from '@/components/manage-users/manage-users';
-import { getClientCurrency } from '@/app/redux/slices/api/ccyPairSlice';
-import { AppDispatch } from '@/app/redux/store';
 
-// Dynamically import all components with ssr: false
+// Dynamically import components with SSR disabled
 const SideNavbar = dynamic(() => import('@/components/sideNavbar/side-navbar'), { ssr: false });
 const TopNavbar = dynamic(() => import('@/components/top-navbar'), { ssr: false });
 const CurrencyManagement = dynamic(() => import('@/components/currencyManagement/currency-management'), { ssr: false });
@@ -28,9 +23,16 @@ const DocumentViewer = dynamic(() => import('@/components/documents-upload/docum
 const FxRateBooker = dynamic(() => import('@/components/fx-rate-booking'), { ssr: false });
 const TrackPayments = dynamic(() => import('@/components/track-payment'), { ssr: false });
 const RequestLetter = dynamic(() => import('@/components/request-letter/request-letter'), { ssr: false });
+const AccountStatement = dynamic(() => import('@/components/account-statement/account-statement'), { ssr: false });
+const ChangePassword = dynamic(() => import('@/components/change-password/change-password'), { ssr: false });
+const UserManagement = dynamic(() => import('@/components/manage-users/manage-users'), { ssr: false });
+
+// Import your combined BalanceDashboard
+const BalanceDashboard = dynamic(() => import('@/components/Balances/BalanceDashboard'), { ssr: false });
 
 const Main: React.FC = () => {
   const router = useRouter();
+  const dispatch = useDispatch<AppDispatch>();
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
@@ -40,16 +42,14 @@ const Main: React.FC = () => {
     }
   }, [router]);
 
-  const dispatch = useDispatch<AppDispatch>();
   const dashboardTitle = useSelector((state: RootState) => state.dashboard.currentDashboard);
   const previousDashboard = localStorage.getItem('prev_component') || 'currency-management';
   const currentDashboard = localStorage.getItem('component') || '';
   const mainDashboards = ['currency-management', 'financial-reporting', 'order-book', 'accounts'];
 
   const renderDashboard = () => {
-    if (!isClient) {
-      return <div></div>; // Prevent SSR rendering mismatch
-    }
+    if (!isClient) return <div></div>; // Prevent SSR mismatch
+
     switch (dashboardTitle) {
       case 'currency-management':
         return <CurrencyManagement />;
@@ -77,6 +77,8 @@ const Main: React.FC = () => {
         return <UserManagement />;
       case 'request-letter':
         return <RequestLetter />;
+      case 'balances-dashboard': // ✅ Your combined dashboard
+        return <BalanceDashboard />;
       default:
         localStorage.setItem("prev_component", 'currency-management');
         return <CurrencyManagement />;
@@ -88,6 +90,8 @@ const Main: React.FC = () => {
       <SideNavbar />
       <div className="content">
         <TopNavbar />
+
+        {/* Back Button */}
         <div className="back-button-container" style={{ margin: "20px 0" }}>
           {!mainDashboards.includes(currentDashboard) && (
             <button
@@ -104,7 +108,6 @@ const Main: React.FC = () => {
                 boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
               }}
               onClick={() => {
-                // If current dashboard is documentUpload, go to currencyManagement
                 if (currentDashboard === 'document-uploads') {
                   dispatch(setCurrentDashboard('currency-management'));
                 } else {
@@ -129,6 +132,8 @@ const Main: React.FC = () => {
             </button>
           )}
         </div>
+
+        {/* Main Dashboard Content */}
         <div className="dashboard-content">
           {renderDashboard()}
         </div>
@@ -137,4 +142,5 @@ const Main: React.FC = () => {
   );
 };
 
-export default dynamic(() => Promise.resolve(Main), { ssr: false }); // Disable SSR for Main
+// Disable SSR for this Main component
+export default dynamic(() => Promise.resolve(Main), { ssr: false });
