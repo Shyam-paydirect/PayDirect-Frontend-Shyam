@@ -31,6 +31,7 @@ const DepositsDashboard = dynamic(() => import('@/components/Deposits/DepositsDa
 const ExchangeRatesDashboard = dynamic(() => import('@/components/ExchangeRates/ExchangeRatesDashboard'), { ssr: false });
 // Import your combined BalanceDashboard
 const BalanceDashboard = dynamic(() => import('@/components/Balances/BalanceDashboard'), { ssr: false });
+const PayoutsDashboard = dynamic(() => import('@/components/Payouts/PayoutsDashboard'), { ssr: false });
 
 const Main: React.FC = () => {
   const router = useRouter();
@@ -87,6 +88,8 @@ const Main: React.FC = () => {
       return <DepositsDashboard />;
     case 'exchange-rates':
       return <ExchangeRatesDashboard />;
+    case 'payouts-dashboard':
+      return <PayoutsDashboard />;
     default:
       localStorage.setItem("prev_component", 'currency-management');
       return <CurrencyManagement />;

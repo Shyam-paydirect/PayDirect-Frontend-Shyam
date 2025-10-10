@@ -40,7 +40,8 @@ const menuItems = [
   { id: 'balances-dashboard', icon: 'ri-bank-card-line', text: 'Balances' },
   { id: 'balance-transactions', icon: 'ri-exchange-line', text: 'Balance Transactions' },
   { id: 'deposits-dashboard', icon: 'ri-money-dollar-circle-line', text: 'Deposits' },
-  { id: 'exchange-rates', icon: 'ri-repeat-line', text: 'Exchange Rates' } // ✅ New Tab
+  { id: 'exchange-rates', icon: 'ri-repeat-line', text: 'Exchange Rates' },
+  { id: 'payouts-dashboard', icon: 'ri-wallet-line', text: 'Payouts Dashboard' } // ✅ New Tab
 ];
 
 
