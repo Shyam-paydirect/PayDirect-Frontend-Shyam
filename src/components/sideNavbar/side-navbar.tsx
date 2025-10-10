@@ -32,21 +32,21 @@ const SideNavbar: React.FC<SideNavbarProps> = ({ onMenuItemClick }) => {
     }
   };
 
-  // Sidebar menu items
-  // Sidebar menu items
-// Sidebar menu items
+ // Sidebar menu items
 const menuItems = [
   { id: 'currency-management', icon: 'ri-copper-diamond-line', text: 'Payments' },
   { id: 'order-book', icon: 'ri-book-line', text: 'Order Book' },
   { id: 'accounts', icon: 'ri-user-settings-line', text: 'Accounts' },
   { id: 'balances-dashboard', icon: 'ri-bank-card-line', text: 'Balances' },
-  { id: 'balance-transactions', icon: 'ri-exchange-line', text: 'Balance Transactions' } // ✅ New Tab
+  { id: 'balance-transactions', icon: 'ri-exchange-line', text: 'Balance Transactions' },
+  { id: 'deposits-dashboard', icon: 'ri-money-dollar-circle-line', text: 'Deposits' }
 ];
 
-// Conditionally add Request Letter tab
-if (Cookies.get('clientId')?.includes('UAT')) {
+// Conditionally add Request Letter tab only if it’s not already in the array
+if (Cookies.get('clientId')?.includes('UAT') && !menuItems.some(item => item.id === 'request-letter')) {
   menuItems.push({ id: 'request-letter', icon: 'ri-draft-line', text: 'Generate Request Letter' });
 }
+
 
 
   return (

@@ -27,6 +27,7 @@ const AccountStatement = dynamic(() => import('@/components/account-statement/ac
 const ChangePassword = dynamic(() => import('@/components/change-password/change-password'), { ssr: false });
 const UserManagement = dynamic(() => import('@/components/manage-users/manage-users'), { ssr: false });
 const BalanceTransactionsPage = dynamic(() => import('@/components/BalanceTransactions/BalanceTransactionsPage'), { ssr: false });
+const DepositsDashboard = dynamic(() => import('@/components/Deposits/DepositsDashboard'), { ssr: false });
 
 // Import your combined BalanceDashboard
 const BalanceDashboard = dynamic(() => import('@/components/Balances/BalanceDashboard'), { ssr: false });
@@ -82,6 +83,8 @@ const Main: React.FC = () => {
       return <BalanceDashboard />;
     case 'balance-transactions': // ✅ Add this
       return <BalanceTransactionsPage />;
+    case 'deposits-dashboard':
+      return <DepositsDashboard />;
     default:
       localStorage.setItem("prev_component", 'currency-management');
       return <CurrencyManagement />;
