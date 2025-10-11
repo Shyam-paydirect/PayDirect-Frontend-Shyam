@@ -1,163 +1,452 @@
 import React, { useState, useMemo } from "react";
-import DashboardHeader from "./components/header/Header";
-import SummaryCards from "./components/summary/SummaryCards";
-import SearchAndFilters from "./components/filters/SearchAndFilters";
-import PaginationControls from "./components/pagination/PaginationControls";
-import type { Filters } from "./components/filters/FilterPanel";
+import { 
+  Box, 
+  Typography, 
+  Card, 
+  CardContent, 
+  Grid, 
+  Button, 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableContainer, 
+  TableHead, 
+  TableRow, 
+  Paper, 
+  Chip,
+  TextField,
+  InputAdornment,
+  CircularProgress,
+  Select,
+  MenuItem,
+  FormControl
+} from '@mui/material';
+import { 
+  Search, 
+  Refresh,
+  KeyboardArrowDown
+} from '@mui/icons-material';
 import "./PayoutsDashboard.css";
 
 type Payout = {
-  id: number;
-  currency: "USD" | "EUR" | "INR" | "GBP";
-  amount: number;
-  status: "Completed" | "Pending" | "Failed";
-  date: string;
-  paymentMethod: string;
-  descriptor: string;
+  id: string;
+  initiatedOn: string;
+  payoutReference: string;
+  grossPayout: number;
+  grossPayoutCurrency: string;
+  settledAmount: number;
+  settledAmountCurrency: string;
+  status: "Settled" | "Pending" | "Failed";
+  expectedOn: string;
 };
 
 const dummyPayouts: Payout[] = [
-  { id: 1, currency: "USD", amount: 1200, status: "Completed", date: "2025-09-20", paymentMethod: "Bank Transfer", descriptor: "Salary" },
-  { id: 2, currency: "EUR", amount: 800, status: "Pending", date: "2025-09-25", paymentMethod: "PayPal", descriptor: "Invoice #123" },
-  { id: 3, currency: "INR", amount: 60000, status: "Completed", date: "2025-10-01", paymentMethod: "Bank Transfer", descriptor: "Freelance" },
-  { id: 4, currency: "GBP", amount: 400, status: "Failed", date: "2025-10-02", paymentMethod: "Stripe", descriptor: "Refund" },
-  { id: 5, currency: "USD", amount: 500, status: "Completed", date: "2025-09-28", paymentMethod: "Bank Transfer", descriptor: "Bonus" },
-  { id: 6, currency: "EUR", amount: 950, status: "Completed", date: "2025-10-03", paymentMethod: "PayPal", descriptor: "Invoice #124" },
-  { id: 7, currency: "INR", amount: 15000, status: "Pending", date: "2025-10-04", paymentMethod: "Bank Transfer", descriptor: "Project Payment" },
-  { id: 8, currency: "USD", amount: 700, status: "Failed", date: "2025-10-05", paymentMethod: "Stripe", descriptor: "Refund" },
-  { id: 9, currency: "GBP", amount: 1200, status: "Completed", date: "2025-09-30", paymentMethod: "Bank Transfer", descriptor: "Consulting" },
-  { id: 10, currency: "EUR", amount: 600, status: "Pending", date: "2025-10-06", paymentMethod: "PayPal", descriptor: "Invoice #125" },
-  { id: 11, currency: "INR", amount: 45000, status: "Completed", date: "2025-10-07", paymentMethod: "Bank Transfer", descriptor: "Freelance" },
-  { id: 12, currency: "USD", amount: 300, status: "Pending", date: "2025-10-08", paymentMethod: "Stripe", descriptor: "Refund" },
+  { 
+    id: "1", 
+    initiatedOn: "29 Sep 2025", 
+    payoutReference: "17591694139WIM01", 
+    grossPayout: 110.00, 
+    grossPayoutCurrency: "USD", 
+    settledAmount: 8874.95, 
+    settledAmountCurrency: "INR", 
+    status: "Settled", 
+    expectedOn: "01 Oct 2025" 
+  },
+  { 
+    id: "2", 
+    initiatedOn: "28 Sep 2025", 
+    payoutReference: "17591694139WIM02", 
+    grossPayout: 250.00, 
+    grossPayoutCurrency: "USD", 
+    settledAmount: 20175.00, 
+    settledAmountCurrency: "INR", 
+    status: "Pending", 
+    expectedOn: "02 Oct 2025" 
+  },
+  { 
+    id: "3", 
+    initiatedOn: "27 Sep 2025", 
+    payoutReference: "17591694139WIM03", 
+    grossPayout: 500.00, 
+    grossPayoutCurrency: "USD", 
+    settledAmount: 40350.00, 
+    settledAmountCurrency: "INR", 
+    status: "Settled", 
+    expectedOn: "30 Sep 2025" 
+  },
+  { 
+    id: "4", 
+    initiatedOn: "26 Sep 2025", 
+    payoutReference: "17591694139WIM04", 
+    grossPayout: 75.00, 
+    grossPayoutCurrency: "USD", 
+    settledAmount: 6052.50, 
+    settledAmountCurrency: "INR", 
+    status: "Failed", 
+    expectedOn: "29 Sep 2025" 
+  },
+  { 
+    id: "5", 
+    initiatedOn: "25 Sep 2025", 
+    payoutReference: "17591694139WIM05", 
+    grossPayout: 300.00, 
+    grossPayoutCurrency: "USD", 
+    settledAmount: 24210.00, 
+    settledAmountCurrency: "INR", 
+    status: "Settled", 
+    expectedOn: "28 Sep 2025" 
+  },
+  { 
+    id: "6", 
+    initiatedOn: "24 Sep 2025", 
+    payoutReference: "17591694139WIM06", 
+    grossPayout: 150.00, 
+    grossPayoutCurrency: "USD", 
+    settledAmount: 12105.00, 
+    settledAmountCurrency: "INR", 
+    status: "Pending", 
+    expectedOn: "27 Sep 2025" 
+  },
 ];
 
 type StatusCounts = {
-  Completed: number;
+  Settled: number;
   Pending: number;
   Failed: number;
 };
 
 const PayoutsDashboard: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [filters, setFilters] = useState<Filters>({
-    sortOrder: "none",
-    currency: "all",
-    dateFrom: "",
-    dateTo: "",
-  });
-  const [showFilters, setShowFilters] = useState<boolean>(false);
-  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [payouts, setPayouts] = useState<Payout[]>(dummyPayouts);
+  const [loading, setLoading] = useState(false);
+  const [timePeriod, setTimePeriod] = useState<string>("This Financial Year (1 Apr, 2025 - 31 Mar, 2026)");
+  const [viewBy, setViewBy] = useState<string>("Monthly");
 
-  const itemsPerPage = 10;
-  const startIndex = (currentPage - 1) * itemsPerPage;
+  // Generate chart data from actual payouts data
+  const generateChartData = (dataToUse: Payout[] = payouts) => {
+    const monthLabels = [
+      "Apr '25", "May '25", "Jun '25", "Jul '25", "Aug '25", "Sep '25",
+      "Oct '25", "Nov '25", "Dec '25", "Jan '26", "Feb '26", "Mar '26"
+    ];
+
+    // Initialize chart data with zero amounts
+    const chartData = monthLabels.map(month => ({ month, amount: 0 }));
+
+    // Process payouts data and group by month
+    dataToUse.forEach(payout => {
+      // Parse the initiated date (format: "29 Sep 2025")
+      const dateParts = payout.initiatedOn.split(' ');
+      const day = parseInt(dateParts[0]);
+      const monthName = dateParts[1];
+      const year = parseInt(dateParts[2]);
+
+      // Map month names to chart indices
+      const monthMap: { [key: string]: number } = {
+        'Jan': 9, 'Feb': 10, 'Mar': 11, 'Apr': 0, 'May': 1, 'Jun': 2,
+        'Jul': 3, 'Aug': 4, 'Sep': 5, 'Oct': 6, 'Nov': 7, 'Dec': 8
+      };
+
+      const monthIndex = monthMap[monthName];
+      
+      // Only include data for the current financial year (2025-2026)
+      if (year === 2025 && monthIndex !== undefined) {
+        chartData[monthIndex].amount += payout.settledAmount;
+      } else if (year === 2026 && monthIndex !== undefined && monthIndex >= 9) {
+        // For 2026, only include Jan, Feb, Mar (indices 9, 10, 11)
+        chartData[monthIndex].amount += payout.settledAmount;
+      }
+    });
+
+    return chartData;
+  };
 
   const filteredData = useMemo(() => {
-    return dummyPayouts
-      .filter((p) =>
-        searchTerm
-          ? p.id.toString().includes(searchTerm) ||
-            p.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            p.descriptor.toLowerCase().includes(searchTerm.toLowerCase())
-          : true
-      )
-      .filter((p) => (filters.currency !== "all" ? p.currency === filters.currency : true))
-      .filter((p) => (filters.dateFrom ? p.date >= filters.dateFrom : true))
-      .filter((p) => (filters.dateTo ? p.date <= filters.dateTo : true))
-      .sort((a, b) => {
-        if (filters.sortOrder === "asc") return a.amount - b.amount;
-        if (filters.sortOrder === "desc") return b.amount - a.amount;
-        return 0;
-      });
-  }, [searchTerm, filters]);
+    return payouts.filter((p) =>
+      searchTerm
+        ? p.payoutReference.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          p.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          p.id.toLowerCase().includes(searchTerm.toLowerCase())
+        : true
+    );
+  }, [searchTerm, payouts]);
 
-  const paginatedData = filteredData.slice(startIndex, startIndex + itemsPerPage);
+  const chartData = generateChartData(filteredData);
+  const totalPayoutAmount = chartData.reduce((sum, item) => sum + item.amount, 0);
+  const maxAmount = Math.max(...chartData.map(item => item.amount));
 
   const totalPayouts = filteredData.length;
-  const totalAmount = filteredData.reduce((sum, p) => sum + p.amount, 0);
+  const totalGrossPayout = filteredData.reduce((sum, p) => sum + p.grossPayout, 0);
+  const totalSettledAmount = filteredData.reduce((sum, p) => sum + p.settledAmount, 0);
   const statusCounts: StatusCounts = filteredData.reduce(
     (acc: StatusCounts, p) => {
       acc[p.status] += 1;
       return acc;
     },
-    { Completed: 0, Pending: 0, Failed: 0 }
+    { Settled: 0, Pending: 0, Failed: 0 }
   );
 
+  const fetchPayouts = async () => {
+    try {
+      setLoading(true);
+      // For now, use mock data. Replace with actual API call:
+      // const data = await payoutsService.getPayouts();
+      // setPayouts(data);
+      setPayouts(dummyPayouts);
+    } catch (err: any) {
+      console.error('Failed to fetch payouts:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'Settled': return 'success';
+      case 'Pending': return 'warning';
+      case 'Failed': return 'error';
+      default: return 'default';
+    }
+  };
+
+  const formatCurrency = (amount: number, currency: string) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: currency,
+    }).format(amount);
+  };
+
+  // Load payouts on component mount
+  React.useEffect(() => {
+    fetchPayouts();
+  }, []);
+
   return (
-    <div className="payouts-dashboard">
-      <DashboardHeader />
+    <div className="payouts-dashboard-container">
+      {/* Header */}
+      <Box className="dashboard-header">
+        <Box>
+          <Typography variant="h4" className="dashboard-title">
+            Payouts Dashboard
+          </Typography>
+          <Typography variant="body1" className="dashboard-subtitle">
+            Manage your payouts and track payment status
+          </Typography>
+        </Box>
+      </Box>
 
-      <SummaryCards
-        stats={{
-          totalPayouts,
-          totalAmount,
-          ...statusCounts,
-        }}
-      />
+      {/* Chart Section */}
+      <Card className="chart-card">
+        <CardContent>
+          {/* Chart Header */}
+          <Box className="chart-header">
+            <Box className="chart-header-left">
+              <Typography variant="body1" className="chart-header-text">
+                Total Payouts during
+              </Typography>
+              <FormControl size="small" className="time-period-select">
+                <Select
+                  value={timePeriod}
+                  onChange={(e) => setTimePeriod(e.target.value)}
+                  IconComponent={KeyboardArrowDown}
+                  sx={{
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      border: 'none',
+                    },
+                    '& .MuiSelect-select': {
+                      padding: '4px 8px',
+                      fontSize: '14px',
+                      fontWeight: 500,
+                    },
+                  }}
+                >
+                  <MenuItem value="This Financial Year (1 Apr, 2025 - 31 Mar, 2026)">
+                    This Financial Year (1 Apr, 2025 - 31 Mar, 2026)
+                  </MenuItem>
+                  <MenuItem value="Last Financial Year (1 Apr, 2024 - 31 Mar, 2025)">
+                    Last Financial Year (1 Apr, 2024 - 31 Mar, 2025)
+                  </MenuItem>
+                  <MenuItem value="This Calendar Year (1 Jan, 2025 - 31 Dec, 2025)">
+                    This Calendar Year (1 Jan, 2025 - 31 Dec, 2025)
+                  </MenuItem>
+                </Select>
+              </FormControl>
+              <Typography variant="body1" className="chart-header-text">
+                :
+              </Typography>
+              <Box className="total-amount-display">
+                <Box className="green-dot"></Box>
+                <Typography variant="h6" className="total-amount">
+                  INR {totalPayoutAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                </Typography>
+              </Box>
+            </Box>
+            <Box className="chart-header-right">
+              <Typography variant="body1" className="chart-header-text">
+                View By:
+              </Typography>
+              <FormControl size="small" className="view-by-select">
+                <Select
+                  value={viewBy}
+                  onChange={(e) => setViewBy(e.target.value)}
+                  IconComponent={KeyboardArrowDown}
+                  sx={{
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      border: 'none',
+                    },
+                    '& .MuiSelect-select': {
+                      padding: '4px 8px',
+                      fontSize: '14px',
+                      fontWeight: 500,
+                    },
+                  }}
+                >
+                  <MenuItem value="Monthly">Monthly</MenuItem>
+                  <MenuItem value="Weekly">Weekly</MenuItem>
+                  <MenuItem value="Daily">Daily</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
+          </Box>
 
-      <SearchAndFilters
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        filters={filters}
-        setFilters={setFilters}
-        showFilters={showFilters}
-        setShowFilters={setShowFilters}
-      />
+          {/* Chart */}
+          <Box className="chart-container">
+            <Box className="chart-y-axis">
+              <Typography variant="caption" className="y-axis-label">
+                INR
+              </Typography>
+            </Box>
+            <Box className="chart-content">
+              <Box className="chart-bars">
+                {chartData.map((item, index) => (
+                  <Box key={index} className="chart-bar-container">
+                    <Box
+                      className="chart-bar"
+                      style={{
+                        height: maxAmount > 0 ? `${(item.amount / maxAmount) * 100}%` : '0%',
+                        backgroundColor: item.amount > 0 ? '#4ade80' : 'transparent'
+                      }}
+                    />
+                  </Box>
+                ))}
+              </Box>
+              <Box className="chart-x-axis">
+                {chartData.map((item, index) => (
+                  <Typography key={index} variant="caption" className="x-axis-label">
+                    {item.month}
+                  </Typography>
+                ))}
+              </Box>
+            </Box>
+          </Box>
+        </CardContent>
+      </Card>
 
-      <div className="payouts-table border rounded mt-4 p-4">
-        <table className="w-full border-collapse">
-          <thead>
-            <tr>
-              <th className="border p-2">Payout ID</th>
-              <th className="border p-2">Amount</th>
-              <th className="border p-2">Currency</th>
-              <th className="border p-2">Status</th>
-              <th className="border p-2">Created At</th>
-              <th className="border p-2">Payment Method</th>
-              <th className="border p-2">Statement Descriptor</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginatedData.length > 0 ? (
-              paginatedData.map((p) => (
-                <tr key={p.id}>
-                  <td className="border p-2">{p.id}</td>
-                  <td className="border p-2">{p.amount}</td>
-                  <td className="border p-2">{p.currency}</td>
-                  <td
-                    className={`border p-2 font-semibold ${
-                      p.status === "Completed"
-                        ? "text-green-600"
-                        : p.status === "Pending"
-                        ? "text-yellow-600"
-                        : "text-red-600"
-                    }`}
-                  >
-                    {p.status}
-                  </td>
-                  <td className="border p-2">{p.date}</td>
-                  <td className="border p-2">{p.paymentMethod}</td>
-                  <td className="border p-2">{p.descriptor}</td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={7} className="p-4 text-center">
-                  No results found
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+      {/* Search and Filters */}
+      <Card className="filters-card">
+        <CardContent>
+          <Box className="filters-container">
+            <TextField
+              placeholder="Search payouts..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Search />
+                  </InputAdornment>
+                ),
+              }}
+              className="search-field"
+            />
+            <Button
+              variant="outlined"
+              onClick={fetchPayouts}
+              disabled={loading}
+              sx={{
+                borderRadius: '8px',
+                textTransform: 'none',
+              }}
+            >
+              {loading ? <CircularProgress size={20} /> : 'Refresh'}
+            </Button>
+          </Box>
+        </CardContent>
+      </Card>
 
-      <PaginationControls
-        currentPage={currentPage}
-        totalPages={Math.ceil(filteredData.length / itemsPerPage)}
-        startIndex={startIndex}
-        itemsPerPage={itemsPerPage}
-        totalItems={filteredData.length}
-        onPageChange={setCurrentPage}
-      />
+      {/* Payouts Table */}
+      <Card className="table-card">
+        <CardContent>
+          <Box className="table-header">
+            <Typography variant="h5" className="table-title">
+              Payouts
+            </Typography>
+          </Box>
+
+          <TableContainer component={Paper} className="table-container">
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Initiated On</TableCell>
+                  <TableCell>Payout Reference</TableCell>
+                  <TableCell>Gross Payout</TableCell>
+                  <TableCell>Settled Amount</TableCell>
+                  <TableCell>Status</TableCell>
+                  <TableCell>Expected On</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {filteredData.map((payout) => (
+                  <TableRow key={payout.id} className="table-row">
+                    <TableCell>
+                      <Typography variant="body2" className="date-text">
+                        {payout.initiatedOn}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Typography variant="body2" className="reference-number">
+                        {payout.payoutReference}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Typography variant="body2" className="amount">
+                        {formatCurrency(payout.grossPayout, payout.grossPayoutCurrency)}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Typography variant="body2" className="amount">
+                        {formatCurrency(payout.settledAmount, payout.settledAmountCurrency)}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Chip
+                        label={payout.status}
+                        color={getStatusColor(payout.status) as any}
+                        size="small"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Typography variant="body2" className="date-text">
+                        {payout.expectedOn}
+                      </Typography>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+
+          {filteredData.length === 0 && !loading && (
+            <Box className="empty-state">
+              <Typography variant="h6" color="textSecondary">
+                No payouts found
+              </Typography>
+              <Typography variant="body2" color="textSecondary">
+                {searchTerm ? 'Try adjusting your search criteria' : 'No payouts available'}
+              </Typography>
+            </Box>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };

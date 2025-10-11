@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   Box, 
-  Typography, 
+  Typography,
   TextField,
   Button,
   Card,
@@ -21,7 +21,13 @@ import {
   TableHead,
   TableRow,
   Chip,
-  Collapse
+  Collapse,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Alert,
+  Link
 } from '@mui/material';
 import { 
   CloudUpload,
@@ -29,7 +35,8 @@ import {
   Delete,
   Add,
   ExpandMore,
-  ExpandLess
+  ExpandLess,
+  AccountBalance
 } from '@mui/icons-material';
 import { toast, ToastContainer } from 'react-toastify';
 import receivablesService, { ReceivablesData } from '../../services/receivables.service';
@@ -93,6 +100,10 @@ const RecievablesDashboard: React.FC = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [receivables, setReceivables] = useState<ReceivableItem[]>([]);
   const [loading, setLoading] = useState(false);
+  const [reconcileModalOpen, setReconcileModalOpen] = useState(false);
+  const [selectedReceivable, setSelectedReceivable] = useState<ReceivableItem | null>(null);
+  const [reconcileAmount, setReconcileAmount] = useState<string>('');
+  const [reconcileCurrency, setReconcileCurrency] = useState<string>('USD');
 
   // Mock data for receivables table
   const mockReceivables: ReceivableItem[] = [
@@ -274,6 +285,38 @@ const RecievablesDashboard: React.FC = () => {
       month: 'short',
       day: 'numeric'
     });
+  };
+
+  const handleReconcile = (receivable: ReceivableItem) => {
+    setSelectedReceivable(receivable);
+    setReconcileAmount(receivable.amountPending.toString());
+    setReconcileCurrency(receivable.currency);
+    setReconcileModalOpen(true);
+  };
+
+  const handleCloseReconcileModal = () => {
+    setReconcileModalOpen(false);
+    setSelectedReceivable(null);
+    setReconcileAmount('');
+    setReconcileCurrency('USD');
+  };
+
+  const handleReconcileSubmit = () => {
+    if (!selectedReceivable || !reconcileAmount) return;
+    
+    // Update the receivable status and amount pending
+    setReceivables(prev => prev.map(item => 
+      item.id === selectedReceivable.id 
+        ? { 
+            ...item, 
+            amountPending: Math.max(0, item.amountPending - parseFloat(reconcileAmount)),
+            status: item.amountPending - parseFloat(reconcileAmount) <= 0 ? 'paid' : item.status
+          }
+        : item
+    ));
+    
+    toast.success('Receivable reconciled successfully!');
+    handleCloseReconcileModal();
   };
 
   // Load receivables on component mount
@@ -799,6 +842,7 @@ const RecievablesDashboard: React.FC = () => {
                     <TableCell>Receivable Amount</TableCell>
                     <TableCell>Amount Pending</TableCell>
                     <TableCell>Status</TableCell>
+                    <TableCell>Actions</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -833,6 +877,33 @@ const RecievablesDashboard: React.FC = () => {
                           size="small"
                         />
                       </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          startIcon={<AccountBalance />}
+                          onClick={() => handleReconcile(receivable)}
+                          disabled={receivable.status === 'paid' || receivable.amountPending === 0}
+                          sx={{
+                            borderRadius: '6px',
+                            textTransform: 'none',
+                            fontSize: '12px',
+                            padding: '4px 8px',
+                            borderColor: '#4299e1',
+                            color: '#4299e1',
+                            '&:hover': {
+                              borderColor: '#3182ce',
+                              backgroundColor: '#ebf8ff',
+                            },
+                            '&:disabled': {
+                              borderColor: '#e2e8f0',
+                              color: '#a0aec0',
+                            },
+                          }}
+                        >
+                          Reconcile
+                        </Button>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -851,6 +922,305 @@ const RecievablesDashboard: React.FC = () => {
             )}
           </CardContent>
         </Card>
+
+        {/* Reconciliation Modal */}
+        <Dialog 
+          open={reconcileModalOpen} 
+          onClose={handleCloseReconcileModal}
+          maxWidth="md"
+          fullWidth
+          PaperProps={{
+            sx: {
+              borderRadius: '16px',
+              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+            }
+          }}
+        >
+          <DialogTitle sx={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center',
+            padding: '24px 24px 0 24px',
+            borderBottom: '1px solid #e2e8f0'
+          }}>
+            <Box>
+              <Typography variant="h5" sx={{ fontWeight: 600, color: '#1a202c' }}>
+                You are reconciling {selectedReceivable?.currency} payments received in Common Balance
+              </Typography>
+            </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <Box sx={{ 
+                backgroundColor: '#f7fafc', 
+                border: '1px solid #e2e8f0', 
+                borderRadius: '8px', 
+                padding: '8px 12px' 
+              }}>
+                <Typography variant="body2" sx={{ color: '#4a5568' }}>
+                  Common Balance: {selectedReceivable?.currency} {selectedReceivable?.amountPending.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                </Typography>
+              </Box>
+              <IconButton 
+                onClick={handleCloseReconcileModal}
+                sx={{ 
+                  color: '#718096',
+                  '&:hover': { backgroundColor: '#f7fafc' }
+                }}
+              >
+                ✕
+              </IconButton>
+            </Box>
+          </DialogTitle>
+
+          <DialogContent sx={{ padding: '24px' }}>
+            {/* Invoice Reconciliation Input Section */}
+            <Card sx={{ 
+              backgroundColor: '#f7fafc', 
+              border: '1px solid #e2e8f0',
+              borderRadius: '12px',
+              marginBottom: '24px'
+            }}>
+              <CardContent sx={{ padding: '20px' }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                  <Typography variant="body2" sx={{ color: '#4a5568' }}>
+                    Enter amount to reconcile
+                  </Typography>
+                  <Link 
+                    component="button" 
+                    variant="body2" 
+                    onClick={() => setReconcileAmount(selectedReceivable?.amountPending.toString() || '')}
+                    sx={{ 
+                      color: '#4299e1', 
+                      textDecoration: 'none',
+                      '&:hover': { textDecoration: 'underline' }
+                    }}
+                  >
+                    Reset
+                  </Link>
+                </Box>
+                
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Typography variant="body2" sx={{ color: '#4a5568' }}>
+                      {selectedReceivable?.invoiceNo}
+                    </Typography>
+                    <Link sx={{ color: '#4299e1', fontSize: '14px' }}>🔗</Link>
+                  </Box>
+                  <Typography variant="body2" sx={{ color: '#718096' }}>
+                    Amount Pending: {selectedReceivable?.currency} {selectedReceivable?.amountPending.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                  </Typography>
+                </Box>
+
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '16px' }}>
+                  <FormControl size="small" sx={{ minWidth: '80px' }}>
+                    <Select
+                      value={reconcileCurrency}
+                      onChange={(e) => setReconcileCurrency(e.target.value)}
+                      sx={{
+                        '& .MuiOutlinedInput-notchedOutline': {
+                          borderColor: '#e2e8f0',
+                        },
+                        '&:hover .MuiOutlinedInput-notchedOutline': {
+                          borderColor: '#cbd5e0',
+                        },
+                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                          borderColor: '#4299e1',
+                        },
+                      }}
+                    >
+                      {currencies.map((currency) => (
+                        <MenuItem key={currency.value} value={currency.value}>
+                          {currency.value}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  
+                  <TextField
+                    type="number"
+                    value={reconcileAmount}
+                    onChange={(e) => setReconcileAmount(e.target.value)}
+                    inputProps={{ 
+                      min: 0, 
+                      max: selectedReceivable?.amountPending,
+                      step: 0.01 
+                    }}
+                    sx={{
+                      flex: 1,
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: '8px',
+                        '& fieldset': {
+                          borderColor: '#e2e8f0',
+                        },
+                        '&:hover fieldset': {
+                          borderColor: '#cbd5e0',
+                        },
+                        '&.Mui-focused fieldset': {
+                          borderColor: '#4299e1',
+                        },
+                      },
+                    }}
+                  />
+                  
+                  <IconButton 
+                    size="small"
+                    sx={{ 
+                      color: '#e53e3e',
+                      '&:hover': { backgroundColor: '#fed7d7' }
+                    }}
+                  >
+                    🗑️
+                  </IconButton>
+                </Box>
+              </CardContent>
+            </Card>
+
+            {/* Payout Details Section */}
+            <Card sx={{ 
+              backgroundColor: '#fff', 
+              border: '1px solid #e2e8f0',
+              borderRadius: '12px',
+              marginBottom: '24px'
+            }}>
+              <CardContent sx={{ padding: '20px' }}>
+                <Typography variant="h6" sx={{ marginBottom: '16px', color: '#1a202c' }}>
+                  Payout Details
+                </Typography>
+                
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Typography variant="body2" sx={{ color: '#4a5568' }}>Gross Amount:</Typography>
+                    <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                      {reconcileCurrency} {parseFloat(reconcileAmount || '0').toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    </Typography>
+                  </Box>
+                  
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Typography variant="body2" sx={{ color: '#4a5568' }}>Payout Fee:</Typography>
+                    <Typography variant="body2" sx={{ color: '#e53e3e', fontWeight: 500 }}>
+                      -{reconcileCurrency} {(parseFloat(reconcileAmount || '0') * 0.75).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    </Typography>
+                  </Box>
+                  
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Typography variant="body2" sx={{ color: '#4a5568' }}>Net Amount:</Typography>
+                    <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                      {reconcileCurrency} {(parseFloat(reconcileAmount || '0') * 0.25).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    </Typography>
+                  </Box>
+                  
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Typography variant="body2" sx={{ color: '#4a5568' }}>FX ({reconcileCurrency} 1.00):</Typography>
+                    <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                      INR 87.85166
+                    </Typography>
+                  </Box>
+                </Box>
+
+                <Alert 
+                  severity="info" 
+                  sx={{ 
+                    marginTop: '16px',
+                    backgroundColor: '#ebf8ff',
+                    border: '1px solid #bee3f8',
+                    '& .MuiAlert-icon': {
+                      color: '#3182ce'
+                    }
+                  }}
+                >
+                  <Typography variant="body2" sx={{ color: '#2c5282' }}>
+                    Your payout will be processed at the last available FX rate since a more recent rate is currently not available from the banking partner. Hover over the FX rate to see the timestamp of the current FX rate being offered.
+                  </Typography>
+                </Alert>
+
+                <Box sx={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  alignItems: 'center',
+                  marginTop: '16px',
+                  padding: '12px 0',
+                  borderTop: '1px solid #e2e8f0'
+                }}>
+                  <Typography variant="body1" sx={{ fontWeight: 600, color: '#1a202c' }}>
+                    Payout Amount
+                  </Typography>
+                  <Typography variant="h6" sx={{ fontWeight: 600, color: '#1a202c' }}>
+                    INR {(parseFloat(reconcileAmount || '0') * 0.25 * 87.85166).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                  </Typography>
+                </Box>
+              </CardContent>
+            </Card>
+
+            {/* Payout Summary Section */}
+            <Card sx={{ 
+              backgroundColor: '#f7fafc', 
+              border: '1px solid #e2e8f0',
+              borderRadius: '12px'
+            }}>
+              <CardContent sx={{ padding: '20px' }}>
+                <Typography variant="h6" sx={{ marginBottom: '16px', color: '#1a202c' }}>
+                  Payout Summary
+                </Typography>
+                
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Typography variant="body2" sx={{ color: '#4a5568' }}>Bank Account:</Typography>
+                    <Typography variant="body2" sx={{ color: '#e53e3e' }}>
+                      Ending with undefined
+                    </Typography>
+                  </Box>
+                  
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Typography variant="body2" sx={{ color: '#4a5568' }}>Payout Date:</Typography>
+                    <Typography variant="body2" sx={{ color: '#e53e3e' }}>
+                      Invalid date
+                    </Typography>
+                  </Box>
+                </Box>
+              </CardContent>
+            </Card>
+          </DialogContent>
+
+          <DialogActions sx={{ 
+            padding: '16px 24px 24px 24px',
+            borderTop: '1px solid #e2e8f0'
+          }}>
+            <Button
+              onClick={handleCloseReconcileModal}
+              sx={{
+                borderRadius: '8px',
+                textTransform: 'none',
+                padding: '8px 16px',
+                borderColor: '#e2e8f0',
+                color: '#4a5568',
+                '&:hover': {
+                  borderColor: '#cbd5e0',
+                  backgroundColor: '#f7fafc',
+                },
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleReconcileSubmit}
+              variant="contained"
+              disabled={!reconcileAmount || parseFloat(reconcileAmount) <= 0}
+              sx={{
+                borderRadius: '8px',
+                textTransform: 'none',
+                padding: '8px 16px',
+                backgroundColor: '#4299e1',
+                '&:hover': {
+                  backgroundColor: '#3182ce',
+                },
+                '&:disabled': {
+                  backgroundColor: '#a0aec0',
+                },
+              }}
+            >
+              Process Reconciliation
+            </Button>
+          </DialogActions>
+        </Dialog>
       </div>
     </>
   );
