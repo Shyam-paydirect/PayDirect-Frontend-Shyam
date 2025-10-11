@@ -11,8 +11,25 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
-  CircularProgress
+  CircularProgress,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Collapse,
+  Chip
 } from '@mui/material';
+import { 
+  Add,
+  ExpandMore,
+  ExpandLess,
+  Business,
+  Email,
+  LocationOn
+} from '@mui/icons-material';
 import { toast, ToastContainer } from 'react-toastify';
 import partnerAccountService, { PartnerAccountData } from '../../services/partner-account.service';
 import styles from './partner-account-form.module.css';
@@ -33,6 +50,20 @@ interface PartnerAccountFormData {
   };
   nickname: string;
   type: string;
+}
+
+interface PartnerItem {
+  id: string;
+  legalName: string;
+  email: string;
+  businessType: string;
+  city: string;
+  country: string;
+  nickname: string;
+  receivables: number;
+  amountPending: number;
+  currency: string;
+  status: 'active' | 'inactive' | 'pending';
 }
 
 const PartnerAccountForm: React.FC = () => {
@@ -56,6 +87,9 @@ const PartnerAccountForm: React.FC = () => {
 
   const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [partners, setPartners] = useState<PartnerItem[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const countries = [
     { code: 'US', name: 'United States' },
@@ -75,6 +109,62 @@ const PartnerAccountForm: React.FC = () => {
     { value: 'individual', label: 'Individual' },
     { value: 'partnership', label: 'Partnership' },
     { value: 'llc', label: 'LLC' }
+  ];
+
+  // Mock data for partners table
+  const mockPartners: PartnerItem[] = [
+    {
+      id: '1',
+      legalName: 'Acme Business Pvt. Ltd.',
+      email: 'contact@acme-business.com',
+      businessType: 'Company',
+      city: 'San Francisco',
+      country: 'United States',
+      nickname: 'Acme-Business-USD',
+      receivables: 50000,
+      amountPending: 25000,
+      currency: 'USD',
+      status: 'active'
+    },
+    {
+      id: '2',
+      legalName: 'Tech Solutions Inc.',
+      email: 'info@techsolutions.com',
+      businessType: 'LLC',
+      city: 'New York',
+      country: 'United States',
+      nickname: 'Tech-Solutions-USD',
+      receivables: 75000,
+      amountPending: 15000,
+      currency: 'USD',
+      status: 'active'
+    },
+    {
+      id: '3',
+      legalName: 'Global Services Ltd.',
+      email: 'admin@globalservices.com',
+      businessType: 'Company',
+      city: 'London',
+      country: 'United Kingdom',
+      nickname: 'Global-Services-GBP',
+      receivables: 30000,
+      amountPending: 0,
+      currency: 'GBP',
+      status: 'inactive'
+    },
+    {
+      id: '4',
+      legalName: 'Innovation Hub',
+      email: 'hello@innovationhub.com',
+      businessType: 'Partnership',
+      city: 'Toronto',
+      country: 'Canada',
+      nickname: 'Innovation-Hub-CAD',
+      receivables: 40000,
+      amountPending: 20000,
+      currency: 'CAD',
+      status: 'pending'
+    }
   ];
 
   const handleInputChange = (field: string, value: string) => {
@@ -153,6 +243,40 @@ const PartnerAccountForm: React.FC = () => {
     return Object.keys(errors).length === 0;
   };
 
+  const fetchPartners = async () => {
+    try {
+      setLoading(true);
+      // For now, use mock data. Replace with actual API call:
+      // const data = await partnerAccountService.getPartners();
+      // setPartners(data);
+      setPartners(mockPartners);
+    } catch (err: any) {
+      toast.error('Failed to fetch partners');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const toggleForm = () => {
+    setIsFormOpen(!isFormOpen);
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'active': return 'success';
+      case 'inactive': return 'error';
+      case 'pending': return 'warning';
+      default: return 'default';
+    }
+  };
+
+  const formatCurrency = (amount: number, currency: string) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: currency,
+    }).format(amount);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -168,6 +292,23 @@ const PartnerAccountForm: React.FC = () => {
       
       toast.success(response.message || 'Partner account created successfully!');
       
+      // Add new partner to the table
+      const newPartner: PartnerItem = {
+        id: Date.now().toString(),
+        legalName: formData.business_details.legal_name,
+        email: formData.business_details.email,
+        businessType: formData.business_details.type,
+        city: formData.business_details.physical_address.city,
+        country: formData.business_details.physical_address.country,
+        nickname: formData.nickname,
+        receivables: 0,
+        amountPending: 0,
+        currency: 'USD',
+        status: 'active'
+      };
+
+      setPartners(prev => [newPartner, ...prev]);
+
       // Reset form
       setFormData({
         business_details: {
@@ -186,6 +327,7 @@ const PartnerAccountForm: React.FC = () => {
         nickname: '',
         type: 'partner'
       });
+      setIsFormOpen(false);
       
     } catch (error: any) {
       console.error('Error creating partner account:', error);
@@ -194,6 +336,11 @@ const PartnerAccountForm: React.FC = () => {
       setIsSubmitting(false);
     }
   };
+
+  // Load partners on component mount
+  React.useEffect(() => {
+    fetchPartners();
+  }, []);
 
   const renderTextField = (
     field: string,
@@ -308,118 +455,246 @@ const PartnerAccountForm: React.FC = () => {
     <>
       <ToastContainer />
       <div className={styles.container}>
-        <Card className={styles.formCard}>
+        {/* Header */}
+        <Box sx={{ marginBottom: '24px' }}>
+          <Typography variant="h4" sx={{ fontWeight: 600, color: '#1a202c', marginBottom: '8px' }}>
+            Partner Account Management
+          </Typography>
+          <Typography variant="body1" sx={{ color: '#4a5568' }}>
+            Manage your partner accounts and track receivables
+          </Typography>
+        </Box>
+
+        {/* Create Partner Account Button */}
+        <Box sx={{ marginBottom: '24px' }}>
+          <Button
+            variant="contained"
+            startIcon={isFormOpen ? <ExpandLess /> : <Add />}
+            onClick={toggleForm}
+            sx={{
+              borderRadius: '10px',
+              textTransform: 'none',
+              padding: '12px 24px',
+              backgroundColor: '#4299e1',
+              '&:hover': {
+                backgroundColor: '#3182ce',
+              },
+            }}
+          >
+            {isFormOpen ? 'Hide Create Form' : 'Create New Partner Account'}
+          </Button>
+        </Box>
+
+        {/* Collapsible Form */}
+        <Collapse in={isFormOpen}>
+          <Card className={styles.formCard} sx={{ marginBottom: '24px' }}>
+            <CardContent>
+              <Box className={styles.header}>
+                <Typography variant="h5" className={styles.title}>
+                  Create Partner Account
+                </Typography>
+                <Typography variant="body1" className={styles.subtitle}>
+                  Fill in the details below to create a new partner account
+                </Typography>
+              </Box>
+
+              <form onSubmit={handleSubmit} className={styles.form}>
+                {/* Business Details Section */}
+                <Box className={styles.formSection}>
+                  <Typography variant="h6" className={styles.sectionTitle}>
+                    Business Details
+                  </Typography>
+                  
+                  <Grid container spacing={4}>
+                    <Grid item xs={12} md={6}>
+                      {renderTextField('business_details.email', 'Email Address', 'email')}
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                      {renderTextField('business_details.legal_name', 'Legal Name')}
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                      {renderSelectField('business_details.type', 'Business Type', businessTypes)}
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                      {renderTextField('nickname', 'Account Nickname')}
+                    </Grid>
+                  </Grid>
+                </Box>
+
+                {/* Physical Address Section */}
+                <Box className={styles.formSection}>
+                  <Typography variant="h6" className={styles.sectionTitle}>
+                    Physical Address
+                  </Typography>
+                  
+                  <Grid container spacing={4}>
+                    <Grid item xs={12}>
+                      {renderTextField('physical_address.line1', 'Address Line 1')}
+                    </Grid>
+                    <Grid item xs={12}>
+                      {renderTextField('physical_address.line2', 'Address Line 2 (Optional)', 'text', false)}
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                      {renderTextField('physical_address.city', 'City')}
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                      {renderTextField('physical_address.state', 'State/Province')}
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                      {renderTextField('physical_address.postal_code', 'Postal Code')}
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                      {renderSelectField('physical_address.country', 'Country', countries)}
+                    </Grid>
+                  </Grid>
+                </Box>
+
+                {/* Form Actions */}
+                <Box className={styles.formActions}>
+                  <Button
+                    type="button"
+                    variant="outlined"
+                    size="large"
+                    onClick={() => setIsFormOpen(false)}
+                    sx={{
+                      borderRadius: '10px',
+                      textTransform: 'none',
+                      padding: '12px 24px',
+                      marginRight: '16px',
+                      borderColor: '#e2e8f0',
+                      color: '#4a5568',
+                      '&:hover': {
+                        borderColor: '#cbd5e0',
+                        backgroundColor: '#f7fafc',
+                      },
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    size="large"
+                    disabled={isSubmitting}
+                    sx={{
+                      borderRadius: '10px',
+                      textTransform: 'none',
+                      padding: '12px 24px',
+                      backgroundColor: '#4299e1',
+                      '&:hover': {
+                        backgroundColor: '#3182ce',
+                      },
+                      '&:disabled': {
+                        backgroundColor: '#a0aec0',
+                      },
+                    }}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <CircularProgress size={20} sx={{ marginRight: 1 }} />
+                        Creating Account...
+                      </>
+                    ) : (
+                      'Create Partner Account'
+                    )}
+                  </Button>
+                </Box>
+              </form>
+            </CardContent>
+          </Card>
+        </Collapse>
+
+        {/* Partners Table */}
+        <Card sx={{ boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)' }}>
           <CardContent>
-            <Box className={styles.header}>
-              <Typography variant="h4" className={styles.title}>
-                Create Partner Account
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+              <Typography variant="h5" sx={{ fontWeight: 600, color: '#1a202c' }}>
+                Partners
               </Typography>
-              <Typography variant="body1" className={styles.subtitle}>
-                Fill in the details below to create a new partner account
-              </Typography>
+              <Button
+                variant="outlined"
+                onClick={fetchPartners}
+                disabled={loading}
+                sx={{
+                  borderRadius: '8px',
+                  textTransform: 'none',
+                }}
+              >
+                {loading ? <CircularProgress size={20} /> : 'Refresh'}
+              </Button>
             </Box>
 
-            <form onSubmit={handleSubmit} className={styles.form}>
-              {/* Business Details Section */}
-              <Box className={styles.formSection}>
-                <Typography variant="h6" className={styles.sectionTitle}>
-                  Business Details
-                </Typography>
-                
-                <Grid container spacing={4}>
-                  <Grid item xs={12} md={6}>
-                    {renderTextField('business_details.email', 'Email Address', 'email')}
-                  </Grid>
-                  <Grid item xs={12} md={6}>
-                    {renderTextField('business_details.legal_name', 'Legal Name')}
-                  </Grid>
-                  <Grid item xs={12} md={6}>
-                    {renderSelectField('business_details.type', 'Business Type', businessTypes)}
-                  </Grid>
-                  <Grid item xs={12} md={6}>
-                    {renderTextField('nickname', 'Account Nickname')}
-                  </Grid>
-                </Grid>
-              </Box>
+            <TableContainer component={Paper} sx={{ boxShadow: 'none', border: '1px solid #e2e8f0' }}>
+              <Table>
+                <TableHead>
+                  <TableRow sx={{ backgroundColor: '#f7fafc' }}>
+                    <TableCell sx={{ fontWeight: 600, color: '#374151' }}>Partner Information</TableCell>
+                    <TableCell sx={{ fontWeight: 600, color: '#374151' }}>Receivables</TableCell>
+                    <TableCell sx={{ fontWeight: 600, color: '#374151' }}>Amount Pending</TableCell>
+                    <TableCell sx={{ fontWeight: 600, color: '#374151' }}>Status</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {partners.map((partner) => (
+                    <TableRow key={partner.id} sx={{ '&:hover': { backgroundColor: '#f7fafc' } }}>
+                      <TableCell>
+                        <Box>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                            <Business sx={{ fontSize: 16, color: '#4299e1' }} />
+                            <Typography variant="body1" sx={{ fontWeight: 600, color: '#1a202c' }}>
+                              {partner.legalName}
+                            </Typography>
+                          </Box>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                            <Email sx={{ fontSize: 14, color: '#718096' }} />
+                            <Typography variant="body2" sx={{ color: '#4a5568' }}>
+                              {partner.email}
+                            </Typography>
+                          </Box>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <LocationOn sx={{ fontSize: 14, color: '#718096' }} />
+                            <Typography variant="body2" sx={{ color: '#4a5568' }}>
+                              {partner.city}, {partner.country}
+                            </Typography>
+                          </Box>
+                          <Typography variant="caption" sx={{ color: '#718096', marginTop: '4px', display: 'block' }}>
+                            {partner.businessType} • {partner.nickname}
+                          </Typography>
+                        </Box>
+                      </TableCell>
+                      <TableCell>
+                        <Typography variant="body1" sx={{ fontWeight: 500, color: '#1a202c' }}>
+                          {formatCurrency(partner.receivables, partner.currency)}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Typography variant="body1" sx={{ fontWeight: 500, color: '#e53e3e' }}>
+                          {formatCurrency(partner.amountPending, partner.currency)}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Chip
+                          label={partner.status.charAt(0).toUpperCase() + partner.status.slice(1)}
+                          color={getStatusColor(partner.status) as any}
+                          size="small"
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
 
-              {/* Physical Address Section */}
-              <Box className={styles.formSection}>
-                <Typography variant="h6" className={styles.sectionTitle}>
-                  Physical Address
+            {partners.length === 0 && !loading && (
+              <Box sx={{ textAlign: 'center', padding: '40px' }}>
+                <Typography variant="h6" sx={{ color: '#718096', marginBottom: '8px' }}>
+                  No partners found
                 </Typography>
-                
-                <Grid container spacing={4}>
-                  <Grid item xs={12}>
-                    {renderTextField('physical_address.line1', 'Address Line 1')}
-                  </Grid>
-                  <Grid item xs={12}>
-                    {renderTextField('physical_address.line2', 'Address Line 2 (Optional)', 'text', false)}
-                  </Grid>
-                  <Grid item xs={12} md={6}>
-                    {renderTextField('physical_address.city', 'City')}
-                  </Grid>
-                  <Grid item xs={12} md={6}>
-                    {renderTextField('physical_address.state', 'State/Province')}
-                  </Grid>
-                  <Grid item xs={12} md={6}>
-                    {renderTextField('physical_address.postal_code', 'Postal Code')}
-                  </Grid>
-                  <Grid item xs={12} md={6}>
-                    {renderSelectField('physical_address.country', 'Country', countries)}
-                  </Grid>
-                </Grid>
+                <Typography variant="body2" sx={{ color: '#a0aec0' }}>
+                  Create your first partner account to get started
+                </Typography>
               </Box>
-
-              {/* Form Actions */}
-              <Box className={styles.formActions}>
-                <Button
-                  type="button"
-                  variant="outlined"
-                  size="large"
-                  sx={{
-                    borderRadius: '10px',
-                    textTransform: 'none',
-                    padding: '12px 24px',
-                    marginRight: '16px',
-                    borderColor: '#e2e8f0',
-                    color: '#4a5568',
-                    '&:hover': {
-                      borderColor: '#cbd5e0',
-                      backgroundColor: '#f7fafc',
-                    },
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  variant="contained"
-                  size="large"
-                  disabled={isSubmitting}
-                  sx={{
-                    borderRadius: '10px',
-                    textTransform: 'none',
-                    padding: '12px 24px',
-                    backgroundColor: '#4299e1',
-                    '&:hover': {
-                      backgroundColor: '#3182ce',
-                    },
-                    '&:disabled': {
-                      backgroundColor: '#a0aec0',
-                    },
-                  }}
-                >
-                  {isSubmitting ? (
-                    <>
-                      <CircularProgress size={20} sx={{ marginRight: 1 }} />
-                      Creating Account...
-                    </>
-                  ) : (
-                    'Create Partner Account'
-                  )}
-                </Button>
-              </Box>
-            </form>
+            )}
           </CardContent>
         </Card>
       </div>
