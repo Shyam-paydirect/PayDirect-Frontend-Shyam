@@ -1,0 +1,65 @@
+/* Main container */
+.receivables-dashboard {
+  padding: 1.5rem;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+/* Table container */
+.receivables-dashboard .receivables-table {
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+}
+
+.receivables-dashboard table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.receivables-dashboard th,
+.receivables-dashboard td {
+  border: 1px solid #e5e7eb;
+  padding: 10px 12px;
+  text-align: left;
+}
+
+.receivables-dashboard th {
+  background-color: #f9fafb;
+  font-weight: 600;
+  color: #374151;
+}
+
+/* Row hover effect */
+.receivables-dashboard tbody tr:hover {
+  background-color: #f3f4f6;
+  transition: background 0.2s ease-in-out;
+}
+
+/* Status styling */
+.receivables-dashboard .text-green-600 {
+  color: #16a34a !important;
+  font-weight: 600;
+}
+
+.receivables-dashboard .text-yellow-600 {
+  color: #d97706 !important;
+  font-weight: 600;
+}
+
+.receivables-dashboard .text-red-600 {
+  color: #dc2626 !important;
+  font-weight: 600;
+}
+
+/* No results */
+.receivables-dashboard td[colspan="7"] {
+  text-align: center;
+  color: #6b7280;
+  padding: 1rem;
+  font-style: italic;
+}
+
+

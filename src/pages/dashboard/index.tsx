@@ -29,9 +29,11 @@ const UserManagement = dynamic(() => import('@/components/manage-users/manage-us
 const BalanceTransactionsPage = dynamic(() => import('@/components/BalanceTransactions/BalanceTransactionsPage'), { ssr: false });
 const DepositsDashboard = dynamic(() => import('@/components/Deposits/DepositsDashboard'), { ssr: false });
 const ExchangeRatesDashboard = dynamic(() => import('@/components/ExchangeRates/ExchangeRatesDashboard'), { ssr: false });
+
 // Import your combined BalanceDashboard
 const BalanceDashboard = dynamic(() => import('@/components/Balances/BalanceDashboard'), { ssr: false });
 const PayoutsDashboard = dynamic(() => import('@/components/Payouts/PayoutsDashboard'), { ssr: false });
+const RecievablesDashboard = dynamic(() => import('@/components/Receivables/RecievablesDashboard'), { ssr: false });
 
 const Main: React.FC = () => {
   const router = useRouter();
@@ -90,6 +92,8 @@ const Main: React.FC = () => {
       return <ExchangeRatesDashboard />;
     case 'payouts-dashboard':
       return <PayoutsDashboard />;
+    case 'recievables-dashboard':
+      return <RecievablesDashboard />;  
     default:
       localStorage.setItem("prev_component", 'currency-management');
       return <CurrencyManagement />;
