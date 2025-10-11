@@ -42,7 +42,8 @@ const menuItems = [
   { id: 'deposits-dashboard', icon: 'ri-money-dollar-circle-line', text: 'Deposits' },
   { id: 'exchange-rates', icon: 'ri-repeat-line', text: 'Exchange Rates' },
   { id: 'payouts-dashboard', icon: 'ri-wallet-line', text: 'Payouts Dashboard' },
-  { id: 'recievables-dashboard', icon: 'ri-hand-coin-line', text: 'Receivables Dashboard' } // ✅ New Tab
+  { id: 'recievables-dashboard', icon: 'ri-hand-coin-line', text: 'Receivables Dashboard' }, // ✅ Receivables Tab
+  { id: 'partner-account', icon: 'ri-user-add-line', text: 'Create Partner Account' } // ✅ Partner Account Tab
 ];
 
 

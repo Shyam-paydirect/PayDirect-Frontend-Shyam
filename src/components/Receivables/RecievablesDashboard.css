@@ -1,65 +1,160 @@
-/* Main container */
-.receivables-dashboard {
-  padding: 1.5rem;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+.receivables-form-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #e9f0fb 0%, #f9fbff 100%);
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* Table container */
-.receivables-dashboard .receivables-table {
-  background: #fff;
-  border-radius: 10px;
-  border: 1px solid #e5e7eb;
+/* Form Card */
+.form-card {
+  width: 100%;
+  max-width: 800px;
+  border-radius: 20px !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+  background: white !important;
+  border: 1px solid #e2e8f0 !important;
   overflow: hidden;
 }
 
-.receivables-dashboard table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.receivables-dashboard th,
-.receivables-dashboard td {
-  border: 1px solid #e5e7eb;
-  padding: 10px 12px;
-  text-align: left;
-}
-
-.receivables-dashboard th {
-  background-color: #f9fafb;
-  font-weight: 600;
-  color: #374151;
-}
-
-/* Row hover effect */
-.receivables-dashboard tbody tr:hover {
-  background-color: #f3f4f6;
-  transition: background 0.2s ease-in-out;
-}
-
-/* Status styling */
-.receivables-dashboard .text-green-600 {
-  color: #16a34a !important;
-  font-weight: 600;
-}
-
-.receivables-dashboard .text-yellow-600 {
-  color: #d97706 !important;
-  font-weight: 600;
-}
-
-.receivables-dashboard .text-red-600 {
-  color: #dc2626 !important;
-  font-weight: 600;
-}
-
-/* No results */
-.receivables-dashboard td[colspan="7"] {
+/* Form Header */
+.form-header {
   text-align: center;
-  color: #6b7280;
-  padding: 1rem;
-  font-style: italic;
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #e2e8f0;
 }
 
+.form-title {
+  font-weight: 700 !important;
+  color: #1a202c !important;
+  margin-bottom: 8px !important;
+  background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
 
+.form-subtitle {
+  color: #718096 !important;
+  font-size: 16px !important;
+}
+
+/* Form Sections */
+.receivables-form {
+  padding: 0;
+}
+
+.form-section {
+  margin-bottom: 32px;
+}
+
+.section-title {
+  font-weight: 600 !important;
+  color: #2d3748 !important;
+  margin-bottom: 20px !important;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #e2e8f0;
+  position: relative;
+}
+
+.section-title::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 50px;
+  height: 2px;
+  background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+}
+
+/* File Upload Section */
+.file-upload-section {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.file-upload-area {
+  transition: all 0.3s ease !important;
+}
+
+.file-upload-area:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(66, 153, 225, 0.15) !important;
+}
+
+.uploaded-file-display {
+  transition: all 0.3s ease !important;
+}
+
+.uploaded-file-display:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Form Actions */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid #e2e8f0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .receivables-form-container {
+    padding: 16px;
+  }
+  
+  .form-card {
+    max-width: 100%;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .form-actions .MuiButton-root {
+    width: 100%;
+  }
+  
+  .file-upload-area {
+    padding: 16px !important;
+  }
+  
+  .uploaded-file-display {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .form-title {
+    font-size: 24px !important;
+  }
+  
+  .form-subtitle {
+    font-size: 14px !important;
+  }
+}
+
+/* Animation for form */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.form-card {
+  animation: fadeInUp 0.6s ease-out;
+}

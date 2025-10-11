@@ -52,6 +52,10 @@ function getTitleByDashboard(dashboard: string): string {
       return 'Change Password';
     case 'request-letter':
       return 'Request Letter';
+    case 'partner-account':
+      return 'Create Partner Account';
+    case 'recievables-dashboard':
+      return 'Receivables Dashboard';
     default:
       return 'Payments';
   }

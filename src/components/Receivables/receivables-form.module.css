@@ -1,0 +1,203 @@
+.container {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  box-sizing: border-box;
+}
+
+.formCard {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.title {
+  color: #1f2937;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  color: #6b7280;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.formSection {
+  background: #f9fafb;
+  padding: 2rem;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.sectionTitle {
+  color: #374151;
+  font-weight: 600;
+  margin-bottom: 2rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #4299e1;
+  display: inline-block;
+  font-size: 1.25rem;
+}
+
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 2rem 0;
+  width: 100%;
+  box-sizing: border-box;
+  border-top: 1px solid #e5e7eb;
+  margin-top: 1.5rem;
+  gap: 1rem;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .container {
+    padding: 1.5rem;
+  }
+  
+  .formSection {
+    padding: 1.5rem;
+  }
+  
+  .formActions {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1.5rem 0;
+  }
+  
+  .formActions button {
+    width: 100%;
+    padding: 14px 24px;
+  }
+  
+  .form {
+    gap: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 1rem;
+  }
+  
+  .formSection {
+    padding: 1rem;
+  }
+  
+  .sectionTitle {
+    font-size: 1.125rem;
+    margin-bottom: 1.5rem;
+  }
+}
+
+/* Form field spacing */
+.formSection .MuiGrid-item {
+  margin-bottom: 1.5rem;
+}
+
+/* Make form fields wider and more spacious */
+.formSection .MuiTextField-root,
+.formSection .MuiFormControl-root {
+  margin-bottom: 1.5rem;
+}
+
+.formSection .MuiTextField-root .MuiOutlinedInput-root,
+.formSection .MuiFormControl-root .MuiOutlinedInput-root {
+  min-height: 56px;
+  font-size: 1rem;
+}
+
+.formSection .MuiInputLabel-root {
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+/* Custom focus states */
+.formSection input:focus,
+.formSection select:focus,
+.formSection textarea:focus {
+  outline: none;
+  border-color: #4299e1;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+}
+
+/* Error states */
+.formSection .MuiFormControl-root .MuiOutlinedInput-root.Mui-error .MuiOutlinedInput-notchedOutline {
+  border-color: #ef4444;
+}
+
+.formSection .MuiFormControl-root .MuiInputLabel-root.Mui-error {
+  color: #ef4444;
+}
+
+/* Loading state */
+.formActions button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Success state */
+.formSection .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: #10b981;
+  border-width: 2px;
+}
+
+/* Hover effects */
+.formSection .MuiButton-root:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+  transition: all 0.2s ease-in-out;
+}
+
+/* Number input styling */
+.formSection input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.formSection input[type="number"]::-webkit-outer-spin-button,
+.formSection input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Date input styling */
+.formSection input[type="date"] {
+  color-scheme: light;
+}
+
+/* Amount field highlighting */
+.formSection .MuiTextField-root:has(input[name*="amount"]) .MuiOutlinedInput-root {
+  border-color: #10b981;
+}
+
+.formSection .MuiTextField-root:has(input[name*="amount"]) .MuiOutlinedInput-root:hover {
+  border-color: #059669;
+}
+
+.formSection .MuiTextField-root:has(input[name*="amount"]) .MuiOutlinedInput-root.Mui-focused {
+  border-color: #047857;
+}

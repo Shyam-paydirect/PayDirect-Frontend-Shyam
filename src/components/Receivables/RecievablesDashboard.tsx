@@ -1,177 +1,612 @@
-import React, { useState, useMemo } from "react";
-import DashboardHeader from "./components/header/Header";
-import SummaryCards from "./components/summary/SummaryCards";
-import SearchAndFilters from "./components/filters/SearchAndFilters";
-import PaginationControls from "./components/pagination/PaginationControls";
-import { Filters } from "./components/filters/FilterPanel";
-import "./RecievablesDashboard.css";
+import React, { useState } from 'react';
+import { 
+  Box, 
+  Typography, 
+  TextField,
+  Button,
+  Card,
+  CardContent,
+  Grid,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  CircularProgress,
+  Paper,
+  IconButton
+} from '@mui/material';
+import { 
+  CloudUpload,
+  AttachFile,
+  Delete
+} from '@mui/icons-material';
+import { toast, ToastContainer } from 'react-toastify';
+import receivablesService, { ReceivablesData } from '../../services/receivables.service';
+import './RecievablesDashboard.css';
 
-// ---------------------- Types ----------------------
-export type Receivable = {
-  id: number;
-  amount: number;
-  currency: "USD" | "EUR" | "INR" | "GBP";
-  status: "Confirmed" | "Pending" | "Cancelled";
-  createdAt: string;
-  invoiceId: string;
-  dueDate: string;
-};
+interface ReceivablesFormData {
+  account_id: string;
+  amount_maximum_reconcilable: string;
+  currency: string;
+  invoice: {
+    amount: string;
+    creation_date: string;
+    currency: string;
+    document: string;
+    due_date: string;
+    reference_number: string;
+  };
+  purpose_code: string;
+  transaction_type: string;
+}
 
-type StatusCounts = {
-  Confirmed: number;
-  Pending: number;
-  Cancelled: number;
-};
+interface UploadedFile {
+  file: File;
+  name: string;
+  size: number;
+  type: string;
+}
 
-// ---------------------- Dummy Data ----------------------
-const dummyReceivables: Receivable[] = [
-  { id: 1, amount: 1500, currency: "USD", status: "Confirmed", createdAt: "2025-09-20", invoiceId: "INV-001", dueDate: "2025-10-05" },
-  { id: 2, amount: 1200, currency: "EUR", status: "Pending", createdAt: "2025-09-25", invoiceId: "INV-002", dueDate: "2025-10-10" },
-  { id: 3, amount: 85000, currency: "INR", status: "Confirmed", createdAt: "2025-10-01", invoiceId: "INV-003", dueDate: "2025-10-15" },
-  { id: 4, amount: 700, currency: "GBP", status: "Cancelled", createdAt: "2025-10-02", invoiceId: "INV-004", dueDate: "2025-10-18" },
-  { id: 5, amount: 900, currency: "USD", status: "Confirmed", createdAt: "2025-09-28", invoiceId: "INV-005", dueDate: "2025-10-12" },
-  { id: 6, amount: 1350, currency: "EUR", status: "Confirmed", createdAt: "2025-10-03", invoiceId: "INV-006", dueDate: "2025-10-16" },
-  { id: 7, amount: 30000, currency: "INR", status: "Pending", createdAt: "2025-10-04", invoiceId: "INV-007", dueDate: "2025-10-20" },
-  { id: 8, amount: 450, currency: "USD", status: "Cancelled", createdAt: "2025-10-05", invoiceId: "INV-008", dueDate: "2025-10-22" },
-  { id: 9, amount: 1400, currency: "GBP", status: "Confirmed", createdAt: "2025-09-30", invoiceId: "INV-009", dueDate: "2025-10-17" },
-  { id: 10, amount: 1100, currency: "EUR", status: "Pending", createdAt: "2025-10-06", invoiceId: "INV-010", dueDate: "2025-10-23" },
-  { id: 11, amount: 42000, currency: "INR", status: "Confirmed", createdAt: "2025-10-07", invoiceId: "INV-011", dueDate: "2025-10-25" },
-  { id: 12, amount: 600, currency: "USD", status: "Pending", createdAt: "2025-10-08", invoiceId: "INV-012", dueDate: "2025-10-26" },
-];
-
-// ---------------------- Component ----------------------
-const ReceivablesDashboard: React.FC = () => {
-  const [searchTerm, setSearchTerm] = useState<string>("");
-  const [filters, setFilters] = useState<Filters>({
-    sortOrder: "none",
-    status: "all", // ✅ Added status
-    currency: "all",
-    dateFrom: "",
-    dateTo: "",
-  });
-  const [showFilters, setShowFilters] = useState<boolean>(false);
-  const [currentPage, setCurrentPage] = useState<number>(1);
-
-  const itemsPerPage = 10;
-  const startIndex = (currentPage - 1) * itemsPerPage;
-
-  // 🔍 Filtering + Searching
-  const filteredData = useMemo(() => {
-    return dummyReceivables
-      .filter((r) =>
-        searchTerm
-          ? r.id.toString().includes(searchTerm) ||
-            r.invoiceId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            r.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            r.currency.toLowerCase().includes(searchTerm.toLowerCase())
-          : true
-      )
-      .filter((r) => (filters.status !== "all" ? r.status === filters.status : true))
-      .filter((r) => (filters.currency !== "all" ? r.currency === filters.currency : true))
-      .filter((r) => (filters.dateFrom ? r.createdAt >= filters.dateFrom : true))
-      .filter((r) => (filters.dateTo ? r.createdAt <= filters.dateTo : true))
-      .sort((a, b) => {
-        if (filters.sortOrder === "asc") return a.amount - b.amount;
-        if (filters.sortOrder === "desc") return b.amount - a.amount;
-        return 0;
-      });
-  }, [searchTerm, filters]);
-
-  const paginatedData = filteredData.slice(startIndex, startIndex + itemsPerPage);
-
-  // 📊 Summary Stats
-  const totalReceivables = filteredData.length;
-  const totalAmount = filteredData.reduce((sum, r) => sum + r.amount, 0);
-  const statusCounts: StatusCounts = filteredData.reduce(
-    (acc, r) => {
-      acc[r.status] = (acc[r.status] || 0) + 1;
-      return acc;
+const RecievablesDashboard: React.FC = () => {
+  const [formData, setFormData] = useState<ReceivablesFormData>({
+    account_id: '',
+    amount_maximum_reconcilable: '',
+    currency: 'USD',
+    invoice: {
+      amount: '',
+      creation_date: '',
+      currency: 'USD',
+      document: '',
+      due_date: '',
+      reference_number: ''
     },
-    { Confirmed: 0, Pending: 0, Cancelled: 0 }
-  );
+    purpose_code: 'P1014',
+    transaction_type: 'services'
+  });
 
-  return (
-    <div className="receivables-dashboard">
-      <DashboardHeader />
+  const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState<UploadedFile | null>(null);
 
-      {/* Summary Section */}
-      <SummaryCards
-        stats={{
-          totalReceivables,
-          totalAmount,
-          ...statusCounts,
+  const currencies = [
+    { value: 'USD', label: 'US Dollar' },
+    { value: 'EUR', label: 'Euro' },
+    { value: 'GBP', label: 'British Pound' },
+    { value: 'CAD', label: 'Canadian Dollar' },
+    { value: 'AUD', label: 'Australian Dollar' },
+    { value: 'JPY', label: 'Japanese Yen' },
+    { value: 'CHF', label: 'Swiss Franc' },
+    { value: 'INR', label: 'Indian Rupee' }
+  ];
+
+  const purposeCodes = [
+    { value: 'P1014', label: 'Services' },
+    { value: 'P1015', label: 'Goods' },
+    { value: 'P1016', label: 'Consulting' },
+    { value: 'P1017', label: 'Software' },
+    { value: 'P1018', label: 'Maintenance' },
+    { value: 'P1019', label: 'Training' },
+    { value: 'P1020', label: 'Support' }
+  ];
+
+  const transactionTypes = [
+    { value: 'services', label: 'Services' },
+    { value: 'goods', label: 'Goods' },
+    { value: 'consulting', label: 'Consulting' },
+    { value: 'maintenance', label: 'Maintenance' },
+    { value: 'training', label: 'Training' }
+  ];
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => {
+      const newData = { ...prev };
+      
+      if (field.startsWith('invoice.')) {
+        const invoiceField = field.split('.')[1];
+        newData.invoice = {
+          ...newData.invoice,
+          [invoiceField]: value
+        };
+      } else {
+        (newData as any)[field] = value;
+      }
+      
+      return newData;
+    });
+
+    // Clear validation error for this field
+    if (validationErrors[field]) {
+      setValidationErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      });
+    }
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Validate file type
+      const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
+      if (!allowedTypes.includes(file.type)) {
+        toast.error('Please upload a PDF, JPEG, or PNG file');
+        return;
+      }
+
+      // Validate file size (max 10MB)
+      const maxSize = 10 * 1024 * 1024; // 10MB
+      if (file.size > maxSize) {
+        toast.error('File size must be less than 10MB');
+        return;
+      }
+
+      const uploadedFileData: UploadedFile = {
+        file,
+        name: file.name,
+        size: file.size,
+        type: file.type
+      };
+
+      setUploadedFile(uploadedFileData);
+      
+      // Update the document field with the file name
+      handleInputChange('invoice.document', file.name);
+      
+      toast.success('File uploaded successfully');
+    }
+  };
+
+  const handleRemoveFile = () => {
+    setUploadedFile(null);
+    handleInputChange('invoice.document', '');
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  const validateForm = (): boolean => {
+    const errors: { [key: string]: string } = {};
+
+    // Validate main fields
+    if (!formData.account_id) {
+      errors['account_id'] = 'Account ID is required';
+    }
+
+    if (!formData.amount_maximum_reconcilable) {
+      errors['amount_maximum_reconcilable'] = 'Maximum reconcilable amount is required';
+    } else if (isNaN(parseFloat(formData.amount_maximum_reconcilable)) || parseFloat(formData.amount_maximum_reconcilable) <= 0) {
+      errors['amount_maximum_reconcilable'] = 'Please enter a valid amount';
+    }
+
+    if (!formData.currency) {
+      errors['currency'] = 'Currency is required';
+    }
+
+    if (!formData.purpose_code) {
+      errors['purpose_code'] = 'Purpose code is required';
+    }
+
+    if (!formData.transaction_type) {
+      errors['transaction_type'] = 'Transaction type is required';
+    }
+
+    // Validate invoice fields
+    if (!formData.invoice.amount) {
+      errors['invoice.amount'] = 'Invoice amount is required';
+    } else if (isNaN(parseFloat(formData.invoice.amount)) || parseFloat(formData.invoice.amount) <= 0) {
+      errors['invoice.amount'] = 'Please enter a valid invoice amount';
+    }
+
+    if (!formData.invoice.creation_date) {
+      errors['invoice.creation_date'] = 'Invoice creation date is required';
+    }
+
+    if (!formData.invoice.currency) {
+      errors['invoice.currency'] = 'Invoice currency is required';
+    }
+
+    if (!formData.invoice.document) {
+      errors['invoice.document'] = 'Document ID is required';
+    }
+
+    if (!formData.invoice.due_date) {
+      errors['invoice.due_date'] = 'Invoice due date is required';
+    }
+
+    if (!formData.invoice.reference_number) {
+      errors['invoice.reference_number'] = 'Reference number is required';
+    }
+
+    // Validate date logic
+    if (formData.invoice.creation_date && formData.invoice.due_date) {
+      const creationDate = new Date(formData.invoice.creation_date);
+      const dueDate = new Date(formData.invoice.due_date);
+      if (dueDate <= creationDate) {
+        errors['invoice.due_date'] = 'Due date must be after creation date';
+      }
+    }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      toast.error('Please fix the validation errors');
+      return;
+    }
+
+    setIsSubmitting(true);
+    
+    try {
+      const response = await receivablesService.createReceivable(formData as ReceivablesData);
+      
+      toast.success(response.message || 'Receivable created successfully!');
+      
+      // Reset form
+      setFormData({
+        account_id: '',
+        amount_maximum_reconcilable: '',
+        currency: 'USD',
+        invoice: {
+          amount: '',
+          creation_date: '',
+          currency: 'USD',
+          document: '',
+          due_date: '',
+          reference_number: ''
+        },
+        purpose_code: 'P1014',
+        transaction_type: 'services'
+      });
+      setUploadedFile(null);
+      
+    } catch (error: any) {
+      console.error('Error creating receivable:', error);
+      toast.error(error.message || 'Failed to create receivable. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const renderTextField = (
+    field: string,
+    label: string,
+    type: string = 'text',
+    required: boolean = true,
+    multiline: boolean = false,
+    rows: number = 1
+  ) => {
+    const getValue = () => {
+      if (field.startsWith('invoice.')) {
+        const invoiceField = field.split('.')[1];
+        return formData.invoice[invoiceField as keyof typeof formData.invoice];
+      } else {
+        return (formData as any)[field];
+      }
+    };
+
+    return (
+      <TextField
+        fullWidth
+        type={type}
+        name={field}
+        label={label}
+        value={getValue()}
+        onChange={(e) => handleInputChange(field, e.target.value)}
+        required={required}
+        multiline={multiline}
+        rows={rows}
+        error={!!validationErrors[field]}
+        helperText={validationErrors[field]}
+        InputLabelProps={{
+          shrink: type === 'date' ? true : undefined,
+        }}
+        sx={{
+          '& .MuiOutlinedInput-root': {
+            borderRadius: '10px',
+            backgroundColor: '#fff',
+            '& fieldset': {
+              borderColor: '#e2e8f0',
+            },
+            '&:hover fieldset': {
+              borderColor: '#cbd5e0',
+            },
+            '&.Mui-focused fieldset': {
+              borderColor: '#4299e1',
+            },
+          },
+          '& .MuiInputLabel-root': {
+            color: '#4a5568',
+            '&.Mui-focused': {
+              color: '#4299e1',
+            },
+          },
         }}
       />
+    );
+  };
 
-      {/* Search + Filters */}
-      <SearchAndFilters
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        filters={filters}
-        setFilters={setFilters}
-        showFilters={showFilters}
-        setShowFilters={setShowFilters}
-      />
+  const renderSelectField = (
+    field: string,
+    label: string,
+    options: { value: string; label: string }[],
+    required: boolean = true
+  ) => {
+    const getValue = () => {
+      return (formData as any)[field];
+    };
 
-      {/* Receivables Table */}
-      <div className="receivables-table border rounded mt-4 p-4">
-        <table className="w-full border-collapse">
-          <thead>
-            <tr>
-              <th className="border p-2">Receivable ID</th>
-              <th className="border p-2">Amount</th>
-              <th className="border p-2">Currency</th>
-              <th className="border p-2">Status</th>
-              <th className="border p-2">Created At</th>
-              <th className="border p-2">Invoice ID</th>
-              <th className="border p-2">Due Date</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginatedData.length > 0 ? (
-              paginatedData.map((r) => (
-                <tr key={r.id}>
-                  <td className="border p-2">{r.id}</td>
-                  <td className="border p-2">{r.amount}</td>
-                  <td className="border p-2">{r.currency}</td>
-                  <td
-                    className={`border p-2 font-semibold ${
-                      r.status === "Confirmed"
-                        ? "text-green-600"
-                        : r.status === "Pending"
-                        ? "text-yellow-600"
-                        : "text-red-600"
-                    }`}
-                  >
-                    {r.status}
-                  </td>
-                  <td className="border p-2">{r.createdAt}</td>
-                  <td className="border p-2">{r.invoiceId}</td>
-                  <td className="border p-2">{r.dueDate}</td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={7} className="p-4 text-center">
-                  No results found
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+    return (
+      <FormControl fullWidth error={!!validationErrors[field]}>
+        <InputLabel>{label}</InputLabel>
+        <Select
+          value={getValue()}
+          onChange={(e) => handleInputChange(field, e.target.value)}
+          label={label}
+          sx={{
+            borderRadius: '10px',
+            backgroundColor: '#fff',
+            '& .MuiOutlinedInput-notchedOutline': {
+              borderColor: '#e2e8f0',
+            },
+            '&:hover .MuiOutlinedInput-notchedOutline': {
+              borderColor: '#cbd5e0',
+            },
+            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+              borderColor: '#4299e1',
+            },
+          }}
+        >
+          {options.map((option) => (
+            <MenuItem key={option.value} value={option.value}>
+              {option.label}
+            </MenuItem>
+          ))}
+        </Select>
+        {validationErrors[field] && (
+          <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 1.75 }}>
+            {validationErrors[field]}
+          </Typography>
+        )}
+      </FormControl>
+    );
+  };
+
+  return (
+    <>
+      <ToastContainer />
+      <div className="receivables-form-container">
+        <Card className="form-card">
+          <CardContent>
+            <Box className="form-header">
+              <Typography variant="h4" className="form-title">
+                Create Receivable
+              </Typography>
+              <Typography variant="body1" className="form-subtitle">
+                Fill in the details below to create a new receivable entry
+              </Typography>
+            </Box>
+
+            <form onSubmit={handleSubmit} className="receivables-form">
+              {/* Account Information Section */}
+              <Box className="form-section">
+                <Typography variant="h6" className="section-title">
+                  Account Information
+                </Typography>
+                
+                <Grid container spacing={4}>
+                  <Grid item xs={12} md={6}>
+                    {renderTextField('account_id', 'Account ID')}
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    {renderTextField('amount_maximum_reconcilable', 'Maximum Reconcilable Amount', 'number')}
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    {renderSelectField('currency', 'Currency', currencies)}
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    {renderSelectField('purpose_code', 'Purpose Code', purposeCodes)}
+                  </Grid>
+                  <Grid item xs={12}>
+                    {renderSelectField('transaction_type', 'Transaction Type', transactionTypes)}
+                  </Grid>
+                </Grid>
+              </Box>
+
+              {/* Invoice Details Section */}
+              <Box className="form-section">
+                <Typography variant="h6" className="section-title">
+                  Invoice Details
+                </Typography>
+                
+                <Grid container spacing={4}>
+                  <Grid item xs={12} md={6}>
+                    {renderTextField('invoice.amount', 'Invoice Amount', 'number')}
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    {renderSelectField('invoice.currency', 'Invoice Currency', currencies)}
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    {renderTextField('invoice.creation_date', 'Creation Date', 'date')}
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    {renderTextField('invoice.due_date', 'Due Date', 'date')}
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    {renderTextField('invoice.reference_number', 'Reference Number')}
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    {renderTextField('invoice.document', 'Document ID')}
+                  </Grid>
+                </Grid>
+
+                {/* File Upload Section */}
+                <Box className="file-upload-section">
+                  <Typography variant="h6" className="section-title" sx={{ marginBottom: '16px' }}>
+                    Invoice File Upload
+                  </Typography>
+                  
+                  {!uploadedFile ? (
+                    <Paper
+                      className="file-upload-area"
+                      sx={{
+                        border: '2px dashed #cbd5e0',
+                        borderRadius: '12px',
+                        padding: '24px',
+                        textAlign: 'center',
+                        backgroundColor: '#f7fafc',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease',
+                        '&:hover': {
+                          borderColor: '#4299e1',
+                          backgroundColor: '#edf2f7',
+                        },
+                      }}
+                      onClick={() => document.getElementById('file-upload-input')?.click()}
+                    >
+                      <CloudUpload sx={{ fontSize: 48, color: '#a0aec0', marginBottom: '16px' }} />
+                      <Typography variant="h6" sx={{ color: '#4a5568', marginBottom: '8px' }}>
+                        Upload Invoice File
+                      </Typography>
+                      <Typography variant="body2" sx={{ color: '#718096', marginBottom: '16px' }}>
+                        Click to browse or drag and drop your invoice file here
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: '#a0aec0' }}>
+                        Supported formats: PDF, JPEG, PNG (Max 10MB)
+                      </Typography>
+                      <input
+                        id="file-upload-input"
+                        type="file"
+                        accept=".pdf,.jpg,.jpeg,.png"
+                        onChange={handleFileUpload}
+                        style={{ display: 'none' }}
+                      />
+                    </Paper>
+                  ) : (
+                    <Paper
+                      className="uploaded-file-display"
+                      sx={{
+                        border: '1px solid #e2e8f0',
+                        borderRadius: '12px',
+                        padding: '16px',
+                        backgroundColor: '#f7fafc',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                      }}
+                    >
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <AttachFile sx={{ color: '#4299e1' }} />
+                        <Box>
+                          <Typography variant="body1" sx={{ fontWeight: 600, color: '#2d3748' }}>
+                            {uploadedFile.name}
+                          </Typography>
+                          <Typography variant="caption" sx={{ color: '#718096' }}>
+                            {formatFileSize(uploadedFile.size)} • {uploadedFile.type.split('/')[1].toUpperCase()}
+                          </Typography>
+                        </Box>
+                      </Box>
+                      <IconButton
+                        onClick={handleRemoveFile}
+                        size="small"
+                        sx={{
+                          color: '#e53e3e',
+                          '&:hover': {
+                            backgroundColor: '#fed7d7',
+                          },
+                        }}
+                      >
+                        <Delete />
+                      </IconButton>
+                    </Paper>
+                  )}
+                </Box>
+              </Box>
+
+              {/* Form Actions */}
+              <Box className="form-actions">
+                <Button
+                  type="button"
+                  variant="outlined"
+                  size="large"
+                  onClick={() => {
+                    // Reset form to default values
+                    setFormData({
+                      account_id: '',
+                      amount_maximum_reconcilable: '',
+                      currency: 'USD',
+                      invoice: {
+                        amount: '',
+                        creation_date: '',
+                        currency: 'USD',
+                        document: '',
+                        due_date: '',
+                        reference_number: ''
+                      },
+                      purpose_code: 'P1014',
+                      transaction_type: 'services'
+                    });
+                    setValidationErrors({});
+                    setUploadedFile(null);
+                  }}
+                  sx={{
+                    borderRadius: '10px',
+                    textTransform: 'none',
+                    padding: '12px 24px',
+                    marginRight: '16px',
+                    borderColor: '#e2e8f0',
+                    color: '#4a5568',
+                    '&:hover': {
+                      borderColor: '#cbd5e0',
+                      backgroundColor: '#f7fafc',
+                    },
+                  }}
+                >
+                  Reset Form
+                </Button>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  size="large"
+                  disabled={isSubmitting}
+                  sx={{
+                    borderRadius: '10px',
+                    textTransform: 'none',
+                    padding: '12px 24px',
+                    backgroundColor: '#4299e1',
+                    '&:hover': {
+                      backgroundColor: '#3182ce',
+                    },
+                    '&:disabled': {
+                      backgroundColor: '#a0aec0',
+                    },
+                  }}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <CircularProgress size={20} sx={{ marginRight: 1 }} />
+                      Creating Receivable...
+                    </>
+                  ) : (
+                    'Create Receivable'
+                  )}
+                </Button>
+              </Box>
+            </form>
+          </CardContent>
+        </Card>
       </div>
-
-      {/* Pagination */}
-      <PaginationControls
-        currentPage={currentPage}
-        totalPages={Math.ceil(filteredData.length / itemsPerPage)}
-        startIndex={startIndex}
-        itemsPerPage={itemsPerPage}
-        totalItems={filteredData.length}
-        onPageChange={setCurrentPage}
-      />
-    </div>
+    </>
   );
 };
 
-export default ReceivablesDashboard;
+export default RecievablesDashboard;
