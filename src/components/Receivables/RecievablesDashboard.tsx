@@ -13,12 +13,23 @@ import {
   InputLabel,
   CircularProgress,
   Paper,
-  IconButton
+  IconButton,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Chip,
+  Collapse
 } from '@mui/material';
 import { 
   CloudUpload,
   AttachFile,
-  Delete
+  Delete,
+  Add,
+  ExpandMore,
+  ExpandLess
 } from '@mui/icons-material';
 import { toast, ToastContainer } from 'react-toastify';
 import receivablesService, { ReceivablesData } from '../../services/receivables.service';
@@ -47,6 +58,18 @@ interface UploadedFile {
   type: string;
 }
 
+interface ReceivableItem {
+  id: string;
+  created: string;
+  invoiceNo: string;
+  partnerName: string;
+  description: string;
+  receivableAmount: number;
+  amountPending: number;
+  status: 'pending' | 'paid' | 'overdue' | 'cancelled';
+  currency: string;
+}
+
 const RecievablesDashboard: React.FC = () => {
   const [formData, setFormData] = useState<ReceivablesFormData>({
     account_id: '',
@@ -67,6 +90,46 @@ const RecievablesDashboard: React.FC = () => {
   const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<UploadedFile | null>(null);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [receivables, setReceivables] = useState<ReceivableItem[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  // Mock data for receivables table
+  const mockReceivables: ReceivableItem[] = [
+    {
+      id: '1',
+      created: '2024-01-15',
+      invoiceNo: 'INV-2024-001',
+      partnerName: 'ABC Corporation',
+      description: 'Software Development Services',
+      receivableAmount: 50000,
+      amountPending: 50000,
+      status: 'pending',
+      currency: 'USD'
+    },
+    {
+      id: '2',
+      created: '2024-01-10',
+      invoiceNo: 'INV-2024-002',
+      partnerName: 'XYZ Ltd',
+      description: 'Consulting Services',
+      receivableAmount: 75000,
+      amountPending: 75000,
+      status: 'overdue',
+      currency: 'EUR'
+    },
+    {
+      id: '3',
+      created: '2024-01-05',
+      invoiceNo: 'INV-2024-003',
+      partnerName: 'Tech Solutions Inc',
+      description: 'Maintenance Contract',
+      receivableAmount: 30000,
+      amountPending: 0,
+      status: 'paid',
+      currency: 'GBP'
+    }
+  ];
 
   const currencies = [
     { value: 'USD', label: 'US Dollar' },
@@ -170,6 +233,54 @@ const RecievablesDashboard: React.FC = () => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
+  const fetchReceivables = async () => {
+    try {
+      setLoading(true);
+      // For now, use mock data. Replace with actual API call:
+      // const data = await receivablesService.getReceivables();
+      // setReceivables(data);
+      setReceivables(mockReceivables);
+    } catch (err: any) {
+      toast.error('Failed to fetch receivables');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const toggleForm = () => {
+    setIsFormOpen(!isFormOpen);
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'pending': return 'warning';
+      case 'paid': return 'success';
+      case 'overdue': return 'error';
+      case 'cancelled': return 'default';
+      default: return 'default';
+    }
+  };
+
+  const formatCurrency = (amount: number, currency: string) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: currency,
+    }).format(amount);
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  // Load receivables on component mount
+  React.useEffect(() => {
+    fetchReceivables();
+  }, []);
+
   const validateForm = (): boolean => {
     const errors: { [key: string]: string } = {};
 
@@ -251,6 +362,21 @@ const RecievablesDashboard: React.FC = () => {
       
       toast.success(response.message || 'Receivable created successfully!');
       
+      // Add new receivable to the table
+      const newReceivable: ReceivableItem = {
+        id: Date.now().toString(),
+        created: new Date().toISOString().split('T')[0],
+        invoiceNo: formData.invoice.reference_number,
+        partnerName: formData.account_id,
+        description: `${formData.transaction_type} - ${formData.purpose_code}`,
+        receivableAmount: parseFloat(formData.amount_maximum_reconcilable),
+        amountPending: parseFloat(formData.amount_maximum_reconcilable),
+        status: 'pending',
+        currency: formData.currency
+      };
+
+      setReceivables(prev => [newReceivable, ...prev]);
+
       // Reset form
       setFormData({
         account_id: '',
@@ -268,6 +394,7 @@ const RecievablesDashboard: React.FC = () => {
         transaction_type: 'services'
       });
       setUploadedFile(null);
+      setIsFormOpen(false);
       
     } catch (error: any) {
       console.error('Error creating receivable:', error);
@@ -384,19 +511,54 @@ const RecievablesDashboard: React.FC = () => {
   return (
     <>
       <ToastContainer />
-      <div className="receivables-form-container">
-        <Card className="form-card">
-          <CardContent>
-            <Box className="form-header">
-              <Typography variant="h4" className="form-title">
-                Create Receivable
-              </Typography>
-              <Typography variant="body1" className="form-subtitle">
-                Fill in the details below to create a new receivable entry
-              </Typography>
-            </Box>
+      <div className="receivables-dashboard-container">
+        {/* Header */}
+        <Box className="dashboard-header">
+          <Box>
+            <Typography variant="h4" className="dashboard-title">
+              Receivables Dashboard
+            </Typography>
+            <Typography variant="body1" className="dashboard-subtitle">
+              Manage your receivables and track outstanding payments
+            </Typography>
+          </Box>
+        </Box>
 
-            <form onSubmit={handleSubmit} className="receivables-form">
+        {/* Create Receivable Button */}
+        <Box className="create-button-section">
+          <Button
+            variant="contained"
+            startIcon={isFormOpen ? <ExpandLess /> : <Add />}
+            onClick={toggleForm}
+            className="create-receivable-button"
+            sx={{
+              borderRadius: '10px',
+              textTransform: 'none',
+              padding: '12px 24px',
+              backgroundColor: '#4299e1',
+              '&:hover': {
+                backgroundColor: '#3182ce',
+              },
+            }}
+          >
+            {isFormOpen ? 'Hide Create Form' : 'Create New Receivable'}
+          </Button>
+        </Box>
+
+        {/* Collapsible Form */}
+        <Collapse in={isFormOpen}>
+          <Card className="form-card">
+            <CardContent>
+              <Box className="form-header">
+                <Typography variant="h5" className="form-title">
+                  Create Receivable
+                </Typography>
+                <Typography variant="body1" className="form-subtitle">
+                  Fill in the details below to create a new receivable entry
+                </Typography>
+              </Box>
+
+              <form onSubmit={handleSubmit} className="receivables-form">
               {/* Account Information Section */}
               <Box className="form-section">
                 <Typography variant="h6" className="section-title">
@@ -601,7 +763,92 @@ const RecievablesDashboard: React.FC = () => {
                   )}
                 </Button>
               </Box>
-            </form>
+              </form>
+            </CardContent>
+          </Card>
+        </Collapse>
+
+        {/* Receivables Table */}
+        <Card className="table-card">
+          <CardContent>
+            <Box className="table-header">
+              <Typography variant="h5" className="table-title">
+                Receivables
+              </Typography>
+              <Button
+                variant="outlined"
+                onClick={fetchReceivables}
+                disabled={loading}
+                sx={{
+                  borderRadius: '8px',
+                  textTransform: 'none',
+                }}
+              >
+                {loading ? <CircularProgress size={20} /> : 'Refresh'}
+              </Button>
+            </Box>
+
+            <TableContainer component={Paper} className="table-container">
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Created</TableCell>
+                    <TableCell>Invoice No.</TableCell>
+                    <TableCell>Partner Name</TableCell>
+                    <TableCell>Description</TableCell>
+                    <TableCell>Receivable Amount</TableCell>
+                    <TableCell>Amount Pending</TableCell>
+                    <TableCell>Status</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {receivables.map((receivable) => (
+                    <TableRow key={receivable.id} className="table-row">
+                      <TableCell>{formatDate(receivable.created)}</TableCell>
+                      <TableCell>
+                        <Typography variant="body2" className="invoice-number">
+                          {receivable.invoiceNo}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>{receivable.partnerName}</TableCell>
+                      <TableCell>
+                        <Typography variant="body2" className="description">
+                          {receivable.description}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Typography variant="body2" className="amount">
+                          {formatCurrency(receivable.receivableAmount, receivable.currency)}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Typography variant="body2" className="amount">
+                          {formatCurrency(receivable.amountPending, receivable.currency)}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Chip
+                          label={receivable.status.charAt(0).toUpperCase() + receivable.status.slice(1)}
+                          color={getStatusColor(receivable.status) as any}
+                          size="small"
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+
+            {receivables.length === 0 && !loading && (
+              <Box className="empty-state">
+                <Typography variant="h6" color="textSecondary">
+                  No receivables found
+                </Typography>
+                <Typography variant="body2" color="textSecondary">
+                  Create your first receivable to get started
+                </Typography>
+              </Box>
+            )}
           </CardContent>
         </Card>
       </div>

@@ -1,21 +1,135 @@
-.receivables-form-container {
+.receivables-dashboard-container {
   min-height: 100vh;
   background: linear-gradient(135deg, #e9f0fb 0%, #f9fbff 100%);
   padding: 24px;
+}
+
+/* Dashboard Header */
+.dashboard-header {
+  margin-bottom: 32px;
+  background: white;
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.dashboard-title {
+  font-weight: 700;
+  color: #1a202c;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.dashboard-subtitle {
+  color: #718096;
+  font-size: 16px;
+}
+
+/* Create Button Section */
+.create-button-section {
+  margin-bottom: 24px;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+}
+
+.create-receivable-button {
+  box-shadow: 0 4px 6px -1px rgba(66, 153, 225, 0.3) !important;
+}
+
+.create-receivable-button:hover {
+  box-shadow: 0 6px 8px -1px rgba(66, 153, 225, 0.4) !important;
 }
 
 /* Form Card */
 .form-card {
   width: 100%;
   max-width: 800px;
+  margin: 0 auto 24px auto;
   border-radius: 20px !important;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
   background: white !important;
   border: 1px solid #e2e8f0 !important;
   overflow: hidden;
+}
+
+/* Table Card */
+.table-card {
+  border-radius: 16px !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+  background: white !important;
+  border: 1px solid #e2e8f0 !important;
+  overflow: hidden;
+}
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.table-title {
+  font-weight: 600 !important;
+  color: #2d3748 !important;
+}
+
+.table-container {
+  border-radius: 12px !important;
+  overflow: hidden;
+}
+
+.table-container .MuiTable-root {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.table-container .MuiTableHead-root {
+  background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+}
+
+.table-container .MuiTableHead-root .MuiTableCell-root {
+  font-weight: 600 !important;
+  color: #2d3748 !important;
+  border-bottom: 2px solid #e2e8f0 !important;
+  padding: 16px !important;
+  font-size: 14px !important;
+}
+
+.table-container .MuiTableBody-root .MuiTableRow-root {
+  transition: all 0.2s ease !important;
+}
+
+.table-container .MuiTableBody-root .MuiTableRow-root:hover {
+  background-color: #f7fafc !important;
+}
+
+.table-container .MuiTableBody-root .MuiTableCell-root {
+  border-bottom: 1px solid #e2e8f0 !important;
+  padding: 16px !important;
+  font-size: 14px !important;
+}
+
+.invoice-number {
+  font-weight: 600 !important;
+  color: #2d3748 !important;
+}
+
+.description {
+  color: #4a5568 !important;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.amount {
+  font-weight: 600 !important;
+  color: #2d3748 !important;
 }
 
 /* Form Header */
@@ -103,9 +217,21 @@
   border-top: 1px solid #e2e8f0;
 }
 
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  color: #718096;
+}
+
+.empty-state .MuiTypography-h6 {
+  margin-bottom: 8px !important;
+  color: #a0aec0 !important;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
-  .receivables-form-container {
+  .receivables-dashboard-container {
     padding: 16px;
   }
   
@@ -130,6 +256,20 @@
     flex-direction: column !important;
     align-items: flex-start !important;
     gap: 12px !important;
+  }
+  
+  .table-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  
+  .table-container {
+    overflow-x: auto;
+  }
+  
+  .description {
+    max-width: 150px;
   }
 }
 
