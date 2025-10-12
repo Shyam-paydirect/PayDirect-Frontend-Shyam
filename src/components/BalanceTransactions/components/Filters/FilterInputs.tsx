@@ -83,16 +83,6 @@ const FilterInputs = <T extends Filters>({ filters, setFilters }: FilterInputsPr
         </select>
       </div>
 
-      {/* Search */}
-      <div className="filter-field col-span-2">
-        <label>Search</label>
-        <input
-          type="text"
-          placeholder="Search description, reference or ID"
-          value={filters.search}
-          onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
-        />
-      </div>
     </div>
   );
 };

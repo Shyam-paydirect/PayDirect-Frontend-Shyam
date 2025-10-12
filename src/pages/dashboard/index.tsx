@@ -51,7 +51,7 @@ const Main: React.FC = () => {
   const dashboardTitle = useSelector((state: RootState) => state.dashboard.currentDashboard);
   const previousDashboard = localStorage.getItem('prev_component') || 'currency-management';
   const currentDashboard = localStorage.getItem('component') || '';
-  const mainDashboards = ['currency-management', 'financial-reporting', 'order-book', 'accounts'];
+  const mainDashboards = ['currency-management', 'financial-reporting', 'order-book', 'accounts', 'balances-dashboard', 'balance-transactions'];
 
   const renderDashboard = () => {
   if (!isClient) return <div></div>; // Prevent SSR mismatch

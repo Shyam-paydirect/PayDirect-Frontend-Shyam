@@ -1,5 +1,5 @@
 import React from "react";
-import { Search, SlidersHorizontal } from "lucide-react";
+import { Search, SlidersHorizontal, Download } from "lucide-react";
 import FilterInputs, { Filters } from "./FilterInputs";
 
 interface TransactionFiltersProps {
@@ -34,14 +34,22 @@ const TransactionFilters: React.FC<TransactionFiltersProps> = ({
             />
           </div>
 
-          {/* Toggle Filters Button */}
-          <button
-            onClick={() => setShowFilters((prev) => !prev)}
-            className="filter-toggle-button"
-          >
-            <SlidersHorizontal />
-            Filters
-          </button>
+          {/* Button Group */}
+          <div className="button-group">
+            {/* Export Button */}
+            <button className="export-button" title="Download your transactions in .xls format">
+              <Download /> Export
+            </button>
+
+            {/* Toggle Filters Button */}
+            <button
+              onClick={() => setShowFilters((prev) => !prev)}
+              className="filter-toggle-button"
+            >
+              <SlidersHorizontal />
+              Filters
+            </button>
+          </div>
         </div>
       </div>
 

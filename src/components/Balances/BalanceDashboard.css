@@ -289,29 +289,39 @@
 }
 
 .summary-card__icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.75rem;
+}
+
+.summary-card__icon svg {
   width: 1.25rem;
   height: 1.25rem;
   color: #ffffff;
 }
 
-/* Color variants */
-.summary-card__icon-wrapper--green {
+/* Color variants for summary card icons */
+.summary-card__icon.bg-green-500 {
   background-color: #22c55e;
 }
 
-.summary-card__icon-wrapper--orange {
+.summary-card__icon.bg-orange-500 {
   background-color: #f97316;
 }
 
-.summary-card__icon-wrapper--blue {
+.summary-card__icon.bg-blue-500 {
   background-color: #4299e1;
 }
 
-.summary-card__icon-wrapper--gray {
+.summary-card__icon.bg-gray-500 {
   background-color: #6b7280;
 }
 
-.summary-card__icon-wrapper--purple {
+.summary-card__icon.bg-purple-500 {
   background-color: #a855f7;
 }
 

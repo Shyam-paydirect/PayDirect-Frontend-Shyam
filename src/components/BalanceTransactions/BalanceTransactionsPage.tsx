@@ -18,7 +18,7 @@ const BalanceTransactionsPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
 
-  const itemsPerPage = 20;
+  const itemsPerPage = 10;
 
   const [filters, setFilters] = useState<Filters>({
     dateFrom: "",
@@ -74,21 +74,6 @@ const BalanceTransactionsPage: React.FC = () => {
 
   return (
     <div className="balance-transactions-page">
-      {/* Header */}
-      <div className="page-header">
-        <div className="header-container">
-          <div className="header-content">
-            <div className="header-title">
-              <h1>Balance Transactions</h1>
-              <p>View and manage all balance transaction entries</p>
-            </div>
-            <button className="export-button">
-              <Download /> Export
-            </button>
-          </div>
-        </div>
-      </div>
-
       {/* Main Content */}
       <div className="main-content">
         <SummaryCards transactions={filteredTransactions} />
