@@ -6,7 +6,7 @@
 /* Base Dashboard Styles */
 .balances-dashboard {
   min-height: 100vh;
-  background: linear-gradient(135deg, #e9f0fb 0%, #f9fbff 100%);
+  background-color: #e3f2fd;
   padding: 24px;
 }
 
@@ -14,17 +14,111 @@
    HEADER STYLES
    ============================================ */
 
+/* Currency Filter Styles */
+.currency-filter {
+  position: relative;
+  margin-right: 1rem;
+}
+
+.currency-filter__dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.currency-filter__button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.875rem;
+  color: #2d2d2d;
+}
+
+.currency-filter__button:hover {
+  border-color: #1976d2;
+  box-shadow: 0 2px 4px rgba(25, 118, 210, 0.1);
+}
+
+.currency-filter__label {
+  color: #666666;
+  font-weight: 500;
+}
+
+.currency-filter__selected {
+  font-weight: 600;
+  color: #1976d2;
+}
+
+.currency-filter__icon {
+  width: 1rem;
+  height: 1rem;
+  transition: transform 0.2s ease;
+  color: #666666;
+}
+
+.currency-filter__icon--open {
+  transform: rotate(180deg);
+}
+
+.currency-filter__menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  margin-top: 0.25rem;
+  overflow: hidden;
+}
+
+.currency-filter__option {
+  display: block;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: #2d2d2d;
+  transition: background-color 0.2s ease;
+}
+
+.currency-filter__option:hover {
+  background-color: #f5f5f5;
+}
+
+.currency-filter__option--selected {
+  background-color: #e3f2fd;
+  color: #1976d2;
+  font-weight: 600;
+}
+
+.currency-filter__option--selected:hover {
+  background-color: #bbdefb;
+}
+
 .dashboard-header {
-  margin-bottom: 32px;
+  margin-bottom: 24px;
   background: white;
-  padding: 24px;
-  border-radius: 16px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .dashboard-header__container {
-  max-width: 80rem;
-  margin: 0 auto;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -66,13 +160,9 @@
 
 .dashboard-header__title {
   font-size: 1.5rem;
-  font-weight: 700;
-  color: #1a202c;
+  font-weight: 600;
+  color: #1976d2;
   margin-left: 1rem;
-  background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
 }
 
 .dashboard-header__right {
@@ -151,8 +241,8 @@
 .summary-cards-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1rem;
-  margin-bottom: 2rem;
+  gap: 16px;
+  margin-bottom: 24px;
 }
 
 @media (min-width: 768px) {
@@ -169,17 +259,17 @@
 
 .summary-card {
   background-color: #ffffff;
-  border-radius: 16px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  border: 1px solid #e2e8f0;
-  padding: 1.25rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border: 1px solid #e0e0e0;
+  padding: 20px;
   transition: all 0.3s ease;
   animation: fadeInUp 0.6s ease-out;
 }
 
 .summary-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
 .summary-card__header {
@@ -227,14 +317,14 @@
 
 .summary-card__amount {
   font-size: 1.5rem;
-  font-weight: 700;
-  color: #111827;
+  font-weight: 600;
+  color: #2d2d2d;
   margin-bottom: 0.25rem;
 }
 
 .summary-card__label {
   font-size: 0.875rem;
-  color: #6b7280;
+  color: #666666;
 }
 
 /* ============================================
@@ -242,13 +332,13 @@
    ============================================ */
 
 .aggregate-widget {
-  background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
-  border-radius: 16px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  padding: 1.5rem;
-  margin-bottom: 2rem;
+  background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  padding: 20px;
+  margin-bottom: 24px;
   color: #ffffff;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #e0e0e0;
 }
 
 .aggregate-widget__header {
@@ -304,22 +394,22 @@
 
 .balance-table-container {
   background-color: #ffffff;
-  border-radius: 16px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border: 1px solid #e0e0e0;
   overflow: hidden;
 }
 
 .balance-table__header {
-  padding: 1.5rem;
-  background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
-  border-bottom: 1px solid #e2e8f0;
+  padding: 20px;
+  background: #fafafa;
+  border-bottom: 1px solid #e0e0e0;
 }
 
 .balance-table__title {
   font-size: 1.125rem;
   font-weight: 600;
-  color: #2d3748;
+  color: #2d2d2d;
 }
 
 .balance-table__wrapper {
@@ -335,23 +425,23 @@
 }
 
 .balance-table__head {
-  background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
-  color: #2d3748;
+  background: #fafafa;
+  color: #2d2d2d;
 }
 
 .balance-table__head th,
 .balance-table__body td {
-  padding: 1rem 1.5rem;
+  padding: 16px 20px;
   font-size: 0.875rem;
   vertical-align: middle;
   white-space: nowrap;  /* keeps content on one line */
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e0e0e0;
 }
 
 .balance-table__head th {
   text-align: left;
   font-weight: 600;
-  color: #2d3748;
+  color: #2d2d2d;
 }
 
 .balance-table__head th:not(:first-child),
@@ -360,20 +450,20 @@
 }
 
 .balance-table__body tr {
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e0e0e0;
   transition: all 0.2s ease;
 }
 
 .balance-table__body tr:hover {
-  background-color: #f7fafc;
+  background-color: #f5f5f5;
 }
 
 .balance-table__body tr:nth-child(even) {
-  background-color: #f9fafb;
+  background-color: #fafafa;
 }
 
 .balance-table__body tr:nth-child(even):hover {
-  background-color: #f3f4f6;
+  background-color: #f0f0f0;
 }
 
 .balance-table__currency {
@@ -389,12 +479,12 @@
 
 .balance-table__currency-code {
   font-weight: 600;
-  color: #2d3748;
+  color: #2d2d2d;
 }
 
 .balance-table__amount {
   font-weight: 600;
-  color: #2d3748;
+  color: #2d2d2d;
 }
 
 .balance-table__amount--available {
@@ -452,12 +542,12 @@
 
 .loading-state {
   min-height: 100vh;
-  background: linear-gradient(135deg, #e9f0fb 0%, #f9fbff 100%);
+  background-color: #e3f2fd;
   padding: 24px;
 }
 
 .loading-state__container {
-  max-width: 80rem;
+  max-width: 1000px;
   margin: 0 auto;
 }
 
@@ -520,7 +610,7 @@
 
 .error-state {
   min-height: 100vh;
-  background: linear-gradient(135deg, #e9f0fb 0%, #f9fbff 100%);
+  background-color: #e3f2fd;
   padding: 24px;
   display: flex;
   align-items: center;
@@ -529,9 +619,9 @@
 
 .error-state__card {
   background-color: #ffffff;
-  border-radius: 16px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border: 1px solid #e0e0e0;
   padding: 2rem;
   max-width: 28rem;
   text-align: center;
@@ -546,18 +636,18 @@
 .error-state__title {
   font-size: 1.25rem;
   font-weight: 600;
-  color: #111827;
+  color: #2d2d2d;
   margin-bottom: 0.5rem;
 }
 
 .error-state__description {
-  color: #6b7280;
+  color: #666666;
   margin-bottom: 1rem;
   font-size: 0.875rem;
 }
 
 .error-state__button {
-  background-color: #4299e1;
+  background-color: #1976d2;
   color: #ffffff;
   padding: 0.5rem 1.5rem;
   border: none;
@@ -570,8 +660,8 @@
 }
 
 .error-state__button:hover {
-  background-color: #3182ce;
-  box-shadow: 0 4px 6px -1px rgba(66, 153, 225, 0.3);
+  background-color: #1565c0;
+  box-shadow: 0 4px 6px -1px rgba(25, 118, 210, 0.3);
 }
 
 /* ============================================
@@ -579,10 +669,10 @@
    ============================================ */
 
 .dashboard-footer {
-  margin-top: 1.5rem;
+  margin-top: 24px;
   text-align: center;
   font-size: 0.875rem;
-  color: #6b7280;
+  color: #666666;
 }
 
 /* ============================================
@@ -590,7 +680,7 @@
    ============================================ */
 
 .dashboard-main {
-  max-width: 80rem;
+  max-width: 1000px;
   margin: 0 auto;
   padding: 0;
 }

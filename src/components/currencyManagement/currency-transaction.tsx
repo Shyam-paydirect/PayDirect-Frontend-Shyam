@@ -20,6 +20,10 @@ const CurrencyTransactions: React.FC = () => {
   }
   const handleClose = () => setIsModalOpen(false);
 
+  const handleReceivePayment = () => {
+    router.push('/payment-form');
+  };
+
   return (
     <>
       <div className="trade-payments-parent commonCard">
@@ -39,7 +43,7 @@ const CurrencyTransactions: React.FC = () => {
             />
             <div className="payment-text"><span>Send</span><span> Payment</span></div>
           </button>
-          <button className="payment" onClick={() => setIsReceivablesModalOpen(true)}>
+          <button className="payment" onClick={handleReceivePayment}>
             <img
               src="assets/svg/common/dollar-receive.svg"
               alt="Receive Payment"

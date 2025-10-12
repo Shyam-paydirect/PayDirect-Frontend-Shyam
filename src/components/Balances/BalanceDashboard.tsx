@@ -12,11 +12,18 @@ import "./BalanceDashboard.css";
 
 const BalancesDashboard: React.FC = () => {
   const [isAdmin] = useState(true);
+  const [selectedCurrency, setSelectedCurrency] = useState("All");
 
   const { data: balanceData, loading: balanceLoading, error: balanceError, refetch } = useBalance();
 
   // ✅ Pass account_id as argument
   const { data: aggregateData } = useAggregateBalance(balanceData?.account_id || "acc_123");
+
+  const handleCurrencyChange = (currency: string) => {
+    setSelectedCurrency(currency);
+    // Here you can add logic to filter the balance data by currency
+    console.log("Currency filter changed to:", currency);
+  };
 
   if (balanceLoading && !balanceData) return <LoadingState />;
   if (balanceError) return <ErrorState onRetry={refetch} />;
@@ -27,6 +34,8 @@ const BalancesDashboard: React.FC = () => {
         livemode={balanceData?.livemode ?? false}
         onRefresh={refetch}
         isRefreshing={balanceLoading}
+        selectedCurrency={selectedCurrency}
+        onCurrencyChange={handleCurrencyChange}
       />
 
       <div className="dashboard-main">
