@@ -40,6 +40,7 @@ import {
 } from '@mui/icons-material';
 import { toast, ToastContainer } from 'react-toastify';
 import receivablesService, { ReceivablesData, ReceivableApiItem } from '../../services/receivables.service';
+import fileUploadService from '../../services/file-upload.service';
 import './RecievablesDashboard.css';
 
 interface ReceivablesFormData {
@@ -97,7 +98,11 @@ const RecievablesDashboard: React.FC = () => {
   const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<UploadedFile | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadedFileId, setUploadedFileId] = useState<string | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [diagnosticResult, setDiagnosticResult] = useState<string>('');
   const [receivables, setReceivables] = useState<ReceivableItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [reconcileModalOpen, setReconcileModalOpen] = useState(false);
@@ -208,23 +213,35 @@ const RecievablesDashboard: React.FC = () => {
     }
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      // Validate file type
-      const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
-      if (!allowedTypes.includes(file.type)) {
-        toast.error('Please upload a PDF, JPEG, or PNG file');
-        return;
-      }
+    if (!file) return;
 
-      // Validate file size (max 10MB)
-      const maxSize = 10 * 1024 * 1024; // 10MB
-      if (file.size > maxSize) {
-        toast.error('File size must be less than 10MB');
-        return;
-      }
+    // Validate file type
+    const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error('Please upload a PDF, JPEG, or PNG file');
+      return;
+    }
 
+    // Validate file size (max 10MB)
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxSize) {
+      toast.error('File size must be less than 10MB');
+      return;
+    }
+
+    setIsUploading(true);
+    setUploadProgress(0);
+
+    try {
+      // Upload file using the FileUploadService - simplified to match curl call
+      const uploadResponse = await fileUploadService.uploadFile({
+        file: file,
+        purpose: 'finance_document' // Keep purpose for interface compatibility
+      });
+
+      // Store the uploaded file data
       const uploadedFileData: UploadedFile = {
         file,
         name: file.name,
@@ -233,17 +250,74 @@ const RecievablesDashboard: React.FC = () => {
       };
 
       setUploadedFile(uploadedFileData);
+      setUploadedFileId(uploadResponse.id);
       
-      // Update the document field with the file name
-      handleInputChange('invoice.document', file.name);
+      // Update the document field with the file ID from API response
+      handleInputChange('invoice.document', uploadResponse.id);
       
-      toast.success('File uploaded successfully');
+      toast.success('File uploaded successfully to server');
+      console.log('File upload response:', uploadResponse);
+      
+    } catch (error: any) {
+      console.error('File upload error:', error);
+      toast.error(`File upload failed: ${error.message}`);
+      
+      // Reset file input
+      if (event.target) {
+        event.target.value = '';
+      }
+    } finally {
+      setIsUploading(false);
+      setUploadProgress(0);
     }
   };
 
   const handleRemoveFile = () => {
     setUploadedFile(null);
+    setUploadedFileId(null);
     handleInputChange('invoice.document', '');
+  };
+
+  const handleDiagnoseUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setDiagnosticResult('Running diagnostic...');
+    
+    try {
+      const result = await fileUploadService.diagnoseUploadIssue(file);
+      setDiagnosticResult(JSON.stringify(result, null, 2));
+      console.log('Diagnostic result:', result);
+    } catch (error: any) {
+      setDiagnosticResult(`Diagnostic failed: ${error.message}`);
+    }
+  };
+
+  const handleTestAPIConnection = async () => {
+    setDiagnosticResult('Testing API connection...');
+    
+    try {
+      const result = await fileUploadService.testConnection();
+      setDiagnosticResult(`API Connection Test:\n\nSuccess: ${result.success}\nMessage: ${result.message}`);
+      console.log('API connection test result:', result);
+    } catch (error: any) {
+      setDiagnosticResult(`API connection test failed: ${error.message}`);
+    }
+  };
+
+  const handleTestCurlStyleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setDiagnosticResult('Testing curl-style upload...');
+    
+    try {
+      const result = await fileUploadService.testCurlStyleUpload(file);
+      setDiagnosticResult(`Curl-Style Upload Test:\n\nSuccess: ${result.success}\nMessage: ${result.message}\n\nData: ${JSON.stringify(result.data, null, 2)}`);
+      console.log('Curl-style upload test result:', result);
+    } catch (error: any) {
+      setDiagnosticResult(`Curl-style upload test failed: ${error.message}`);
+    }
   };
 
   const formatFileSize = (bytes: number) => {
@@ -515,6 +589,9 @@ const RecievablesDashboard: React.FC = () => {
         transaction_type: 'services'
       });
       setUploadedFile(null);
+      setUploadedFileId(null);
+      setIsUploading(false);
+      setUploadProgress(0);
       setIsFormOpen(false);
       
     } catch (error: any) {
@@ -738,6 +815,138 @@ const RecievablesDashboard: React.FC = () => {
                     Invoice File Upload
                   </Typography>
                   
+                  {/* API Info */}
+                  <Alert 
+                    severity="info" 
+                    sx={{ 
+                      marginBottom: '16px',
+                      backgroundColor: '#ebf8ff',
+                      border: '1px solid #bee3f8',
+                      '& .MuiAlert-icon': {
+                        color: '#3182ce'
+                      }
+                    }}
+                  >
+                    <Typography variant="body2" sx={{ color: '#2c5282', marginBottom: '8px' }}>
+                      Files are uploaded using curl-style integration to: <strong>http://43.205.26.213:7015/files</strong>
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#2c5282', fontFamily: 'monospace', display: 'block' }}>
+                      Equivalent curl command:
+                    </Typography>
+                    <pre style={{ 
+                      fontSize: '10px', 
+                      backgroundColor: 'rgba(0,0,0,0.05)', 
+                      padding: '4px', 
+                      borderRadius: '4px',
+                      margin: '4px 0',
+                      overflow: 'auto'
+                    }}>
+                      {fileUploadService.getCurlCommand('your-file.pdf')}
+                    </pre>
+                  </Alert>
+
+                  {/* Diagnostic Section */}
+                  <Box sx={{ marginBottom: '16px', display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      onClick={handleTestAPIConnection}
+                      sx={{
+                        borderRadius: '6px',
+                        textTransform: 'none',
+                        fontSize: '12px',
+                        borderColor: '#4299e1',
+                        color: '#4299e1',
+                        '&:hover': {
+                          borderColor: '#3182ce',
+                          backgroundColor: '#ebf8ff',
+                        },
+                      }}
+                    >
+                      🔗 Test API Connection
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      component="label"
+                      sx={{
+                        borderRadius: '6px',
+                        textTransform: 'none',
+                        fontSize: '12px',
+                        borderColor: '#38a169',
+                        color: '#38a169',
+                        '&:hover': {
+                          borderColor: '#2f855a',
+                          backgroundColor: '#f0fff4',
+                        },
+                      }}
+                    >
+                      🚀 Test Curl-Style Upload
+                      <input
+                        type="file"
+                        hidden
+                        accept=".pdf,.jpg,.jpeg,.png"
+                        onChange={handleTestCurlStyleUpload}
+                      />
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      component="label"
+                      sx={{
+                        borderRadius: '6px',
+                        textTransform: 'none',
+                        fontSize: '12px',
+                        borderColor: '#e53e3e',
+                        color: '#e53e3e',
+                        '&:hover': {
+                          borderColor: '#c53030',
+                          backgroundColor: '#fed7d7',
+                        },
+                      }}
+                    >
+                      🔍 Diagnose Upload Issue
+                      <input
+                        type="file"
+                        hidden
+                        accept=".pdf,.jpg,.jpeg,.png"
+                        onChange={handleDiagnoseUpload}
+                      />
+                    </Button>
+                    <Typography variant="caption" sx={{ color: '#718096' }}>
+                      Use these tools to debug file upload problems
+                    </Typography>
+                  </Box>
+
+                  {/* Diagnostic Results */}
+                  {diagnosticResult && (
+                    <Alert 
+                      severity={diagnosticResult.includes('success') ? 'success' : 'error'}
+                      sx={{ 
+                        marginBottom: '16px',
+                        '& .MuiAlert-message': {
+                          width: '100%'
+                        }
+                      }}
+                    >
+                      <Typography variant="body2" sx={{ fontWeight: 600, marginBottom: '8px' }}>
+                        Diagnostic Results:
+                      </Typography>
+                      <pre style={{ 
+                        fontSize: '10px', 
+                        whiteSpace: 'pre-wrap', 
+                        wordBreak: 'break-word',
+                        backgroundColor: 'rgba(0,0,0,0.05)',
+                        padding: '8px',
+                        borderRadius: '4px',
+                        maxHeight: '200px',
+                        overflow: 'auto'
+                      }}>
+                        {diagnosticResult}
+                      </pre>
+                    </Alert>
+                  )}
+                  
                   {!uploadedFile ? (
                     <Paper
                       className="file-upload-area"
@@ -747,30 +956,49 @@ const RecievablesDashboard: React.FC = () => {
                         padding: '24px',
                         textAlign: 'center',
                         backgroundColor: '#f7fafc',
-                        cursor: 'pointer',
+                        cursor: isUploading ? 'not-allowed' : 'pointer',
                         transition: 'all 0.3s ease',
+                        opacity: isUploading ? 0.6 : 1,
                         '&:hover': {
-                          borderColor: '#4299e1',
-                          backgroundColor: '#edf2f7',
+                          borderColor: isUploading ? '#cbd5e0' : '#4299e1',
+                          backgroundColor: isUploading ? '#f7fafc' : '#edf2f7',
                         },
                       }}
-                      onClick={() => document.getElementById('file-upload-input')?.click()}
+                      onClick={() => !isUploading && document.getElementById('file-upload-input')?.click()}
                     >
-                      <CloudUpload sx={{ fontSize: 48, color: '#a0aec0', marginBottom: '16px' }} />
-                      <Typography variant="h6" sx={{ color: '#4a5568', marginBottom: '8px' }}>
-                        Upload Invoice File
-                      </Typography>
-                      <Typography variant="body2" sx={{ color: '#718096', marginBottom: '16px' }}>
-                        Click to browse or drag and drop your invoice file here
-                      </Typography>
-                      <Typography variant="caption" sx={{ color: '#a0aec0' }}>
-                        Supported formats: PDF, JPEG, PNG (Max 10MB)
-                      </Typography>
+                      {isUploading ? (
+                        <>
+                          <CircularProgress sx={{ fontSize: 48, color: '#4299e1', marginBottom: '16px' }} />
+                          <Typography variant="h6" sx={{ color: '#4a5568', marginBottom: '8px' }}>
+                            Uploading File...
+                          </Typography>
+                          <Typography variant="body2" sx={{ color: '#718096', marginBottom: '16px' }}>
+                            Please wait while your file is being uploaded to the server
+                          </Typography>
+                          <Typography variant="caption" sx={{ color: '#a0aec0' }}>
+                            Upload Progress: {uploadProgress}%
+                          </Typography>
+                        </>
+                      ) : (
+                        <>
+                          <CloudUpload sx={{ fontSize: 48, color: '#a0aec0', marginBottom: '16px' }} />
+                          <Typography variant="h6" sx={{ color: '#4a5568', marginBottom: '8px' }}>
+                            Upload Invoice File
+                          </Typography>
+                          <Typography variant="body2" sx={{ color: '#718096', marginBottom: '16px' }}>
+                            Click to browse or drag and drop your invoice file here
+                          </Typography>
+                          <Typography variant="caption" sx={{ color: '#a0aec0' }}>
+                            Supported formats: PDF, JPEG, PNG (Max 10MB)
+                          </Typography>
+                        </>
+                      )}
                       <input
                         id="file-upload-input"
                         type="file"
                         accept=".pdf,.jpg,.jpeg,.png"
                         onChange={handleFileUpload}
+                        disabled={isUploading}
                         style={{ display: 'none' }}
                       />
                     </Paper>
@@ -796,20 +1024,33 @@ const RecievablesDashboard: React.FC = () => {
                           <Typography variant="caption" sx={{ color: '#718096' }}>
                             {formatFileSize(uploadedFile.size)} • {uploadedFile.type.split('/')[1].toUpperCase()}
                           </Typography>
+                          {uploadedFileId && (
+                            <Typography variant="caption" sx={{ color: '#4299e1', display: 'block', marginTop: '4px' }}>
+                              File ID: {uploadedFileId}
+                            </Typography>
+                          )}
                         </Box>
                       </Box>
-                      <IconButton
-                        onClick={handleRemoveFile}
-                        size="small"
-                        sx={{
-                          color: '#e53e3e',
-                          '&:hover': {
-                            backgroundColor: '#fed7d7',
-                          },
-                        }}
-                      >
-                        <Delete />
-                      </IconButton>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Chip
+                          label="Uploaded"
+                          color="success"
+                          size="small"
+                          sx={{ fontSize: '10px' }}
+                        />
+                        <IconButton
+                          onClick={handleRemoveFile}
+                          size="small"
+                          sx={{
+                            color: '#e53e3e',
+                            '&:hover': {
+                              backgroundColor: '#fed7d7',
+                            },
+                          }}
+                        >
+                          <Delete />
+                        </IconButton>
+                      </Box>
                     </Paper>
                   )}
                 </Box>
@@ -840,6 +1081,9 @@ const RecievablesDashboard: React.FC = () => {
                     });
                     setValidationErrors({});
                     setUploadedFile(null);
+                    setUploadedFileId(null);
+                    setIsUploading(false);
+                    setUploadProgress(0);
                   }}
                   sx={{
                     borderRadius: '10px',
