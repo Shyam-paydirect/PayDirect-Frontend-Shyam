@@ -4,41 +4,51 @@ This document describes the integration of the new `/receivables` API endpoint i
 
 ## Overview
 
-The receivables creation functionality has been updated to use the new API endpoint:
+The receivables creation functionality has been updated to use the enhanced API endpoint with support for metadata and flexible data mapping:
 - **Endpoint**: `POST http://43.205.26.213:7015/receivables`
 - **Headers**: 
   - `Content-Type: application/json`
   - `Xflow-Account: account_F0A_1759166669125_GuHWS_000`
+- **Features**: 
+  - Automatic purpose code mapping (trade_payment → P0102)
+  - Transaction type mapping (payment → services)
+  - Metadata support for enhanced tracking
+  - Flexible document handling
 
 ## Changes Made
 
 ### 1. Service Layer Updates (`src/services/receivables.service.ts`)
 
-#### New Interface
+#### Enhanced Interface
 ```typescript
 export interface NewReceivablesData {
-  account_id: string;
+  account_id: string | null;
   currency: string;
-  amount_maximum_reconcilable: number;
+  amount_maximum_reconcilable: string | number;
   purpose_code: string;
   transaction_type: string;
   description: string;
   invoice: {
-    number: string;
-    date: string;
+    amount: string;
+    creation_date: string;
+    currency: string;
+    document: string | null;
     due_date: string;
+    reference_number: string;
   };
-  metadata: {
+  metadata?: {
     customer_reference?: string;
     order_id?: string;
     partner_id?: string;
+    document_id?: string;
   };
 }
 ```
 
-#### New Methods
+#### Enhanced Methods
 - `createReceivableNew(receivableData: NewReceivablesData)`: Direct method to create receivables using the new API
-- `transformToNewFormat(receivableData: ReceivablesData)`: Transforms old format to new API format
+- `createReceivableWithMetadata(receivableData, customMetadata)`: Enhanced method with custom metadata support
+- `transformToNewFormat(receivableData: ReceivablesData)`: Transforms old format to new API format with automatic mapping
 - `getXflowAccountHeader()`: Gets Xflow-Account header from localStorage or uses default
 
 #### Updated Configuration
@@ -142,8 +152,9 @@ The integration includes comprehensive error handling:
 
 The existing `createReceivable` method has been updated to use the new API while maintaining the same interface, ensuring backward compatibility with existing code.
 
-## Usage Example
+## Usage Examples
 
+### Basic Usage
 ```typescript
 import receivablesService from '../services/receivables.service';
 
@@ -167,6 +178,45 @@ const receivableData = {
 try {
   const response = await receivablesService.createReceivable(receivableData);
   console.log('Receivable created:', response);
+} catch (error) {
+  console.error('Error creating receivable:', error.message);
+}
+```
+
+### Enhanced Usage with Custom Metadata
+```typescript
+import receivablesService from '../services/receivables.service';
+
+// Create a receivable with custom metadata
+const receivableData = {
+  account_id: 'account_F0A_1759166669125_GuHWS_000',
+  amount_maximum_reconcilable: '10000.00',
+  currency: 'USD',
+  invoice: {
+    amount: '10000.00',
+    creation_date: '2024-01-15',
+    currency: 'USD',
+    document: '',
+    due_date: '2024-02-15',
+    reference_number: 'INV-2024-001'
+  },
+  purpose_code: 'trade_payment', // Will be mapped to P0102
+  transaction_type: 'payment' // Will be mapped to services
+};
+
+const customMetadata = {
+  customer_reference: 'CUST-12345',
+  order_id: 'ORD-67890',
+  partner_id: 'acct_partner_9876543210',
+  document_id: 'file_F0A_1666079283600_ffoLd_000'
+};
+
+try {
+  const response = await receivablesService.createReceivableWithMetadata(
+    receivableData, 
+    customMetadata
+  );
+  console.log('Receivable created with metadata:', response);
 } catch (error) {
   console.error('Error creating receivable:', error.message);
 }
@@ -218,11 +268,19 @@ curl -X POST http://43.205.26.213:7015/receivables \
 
 1. **Account ID Format**: Changed `account_id` from string to `null` (API requirement)
 2. **Date Formatting**: Added proper YYYY-MM-DD date formatting
-3. **Purpose Code Mapping**: Added mapping from form purpose codes to valid API codes (P1014 → P0102)
-4. **Document Field Handling**: Fixed document field to always be `null` in requests (API requirement)
-5. **Request Structure**: Removed fields that are only returned in response (`hsn_code`, `metadata`, `supporting_documentation`)
-6. **Data Validation**: Added validation for required fields before API call
-7. **Error Handling**: Enhanced error handling with detailed 400 error information
+3. **Purpose Code Mapping**: Added comprehensive mapping from form purpose codes to valid API codes:
+   - `P1014` → `P0102`
+   - `trade_payment` → `P0102`
+   - `payment` → `P0102`
+4. **Transaction Type Mapping**: Added mapping for transaction types:
+   - `payment` → `services`
+   - `goods` → `services`
+   - `trade` → `services`
+5. **Document Field Handling**: Fixed document field to always be `null` in requests (API requirement)
+6. **Metadata Support**: Added support for custom metadata with automatic generation
+7. **Request Structure**: Removed fields that are only returned in response (`hsn_code`, `supporting_documentation`)
+8. **Data Validation**: Added validation for required fields before API call
+9. **Error Handling**: Enhanced error handling with detailed 400 error information
 
 ## Current Status
 
@@ -239,9 +297,14 @@ curl -X POST http://43.205.26.213:7015/receivables \
 - `receivable_f0A_1760293206719_kWAAD_000`
 - `receivable_f0A_1760293230650_97RgV_000`
 - `receivable_f0A_1760293484635_klchv_000`
+- `receivable_f0A_1760294477636_tA7f2_000`
+- `receivable_f0A_1760294483356_IpMYt_000`
+- `receivable_f0A_1760294523801_aHIYa_000`
 ✅ **Data Format**: Correct format confirmed with existing receivables structure
 ✅ **Error Handling**: Detailed error messages for debugging
-✅ **Purpose Code Mapping**: P1014 → P0102 mapping working correctly
+✅ **Purpose Code Mapping**: Comprehensive mapping working correctly (P1014 → P0102, trade_payment → P0102)
+✅ **Transaction Type Mapping**: Payment → services mapping working correctly
+✅ **Metadata Support**: Custom metadata integration working correctly
 ✅ **Document Field**: Proper null handling for empty document fields
 
 ## Next Steps

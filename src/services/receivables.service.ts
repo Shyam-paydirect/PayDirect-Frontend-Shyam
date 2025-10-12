@@ -18,21 +18,25 @@ export interface ReceivablesData {
 
 // New API format for the /receivables endpoint
 export interface NewReceivablesData {
-  account_id: string;
+  account_id: string | null;
   currency: string;
-  amount_maximum_reconcilable: number;
+  amount_maximum_reconcilable: string | number;
   purpose_code: string;
   transaction_type: string;
   description: string;
   invoice: {
-    number: string;
-    date: string;
+    amount: string;
+    creation_date: string;
+    currency: string;
+    document: string | null;
     due_date: string;
+    reference_number: string;
   };
-  metadata: {
+  metadata?: {
     customer_reference?: string;
     order_id?: string;
     partner_id?: string;
+    document_id?: string;
   };
 }
 
@@ -122,18 +126,31 @@ class ReceivablesService {
         'P0101': 'P0101',
         'P0103': 'P0103',
         'P0104': 'P0104',
-        'P0105': 'P0105'
+        'P0105': 'P0105',
+        'trade_payment': 'P0102', // Map trade_payment to P0102
+        'payment': 'P0102' // Map payment to P0102
       };
       return purposeCodeMap[purposeCode] || 'P0102'; // Default to P0102 if not found
     };
 
-    const transformedData = {
+    // Map transaction types to valid API values
+    const mapTransactionType = (transactionType: string) => {
+      const transactionTypeMap: { [key: string]: string } = {
+        'payment': 'services', // Map payment to services (API requirement)
+        'services': 'services', // Already correct
+        'goods': 'services', // Map goods to services
+        'trade': 'services' // Map trade to services
+      };
+      return transactionTypeMap[transactionType] || 'services'; // Default to services
+    };
+
+    const transformedData: NewReceivablesData = {
       account_id: null, // API expects null for account_id
       currency: receivableData.currency,
       amount_maximum_reconcilable: receivableData.amount_maximum_reconcilable,
       purpose_code: mapPurposeCode(receivableData.purpose_code),
-      transaction_type: receivableData.transaction_type,
-      description: `${receivableData.transaction_type} - ${mapPurposeCode(receivableData.purpose_code)}`,
+      transaction_type: mapTransactionType(receivableData.transaction_type),
+      description: `${mapTransactionType(receivableData.transaction_type)} - ${mapPurposeCode(receivableData.purpose_code)}`,
       invoice: {
         amount: receivableData.invoice.amount || receivableData.amount_maximum_reconcilable,
         creation_date: formatDate(receivableData.invoice.creation_date),
@@ -141,9 +158,13 @@ class ReceivablesService {
         document: null, // API expects document to always be null in requests
         due_date: formatDate(receivableData.invoice.due_date),
         reference_number: receivableData.invoice.reference_number
-      }
-      // Note: hsn_code, metadata, supporting_documentation are not sent in request
-      // They are only returned in the API response
+      },
+      // Add metadata if available
+      metadata: receivableData.invoice.reference_number ? {
+        customer_reference: receivableData.invoice.reference_number,
+        order_id: receivableData.invoice.reference_number,
+        partner_id: receivableData.account_id || 'acct_partner_9876543210'
+      } : undefined
     };
 
     console.log('Transformed data for API:', transformedData);
@@ -246,6 +267,42 @@ class ReceivablesService {
       return await this.createReceivableNew(newFormatData);
     } catch (error: any) {
       console.error('Error creating receivable:', error);
+      throw error;
+    }
+  }
+
+  // Enhanced method for creating receivables with custom metadata
+  async createReceivableWithMetadata(
+    receivableData: ReceivablesData, 
+    customMetadata?: {
+      customer_reference?: string;
+      order_id?: string;
+      partner_id?: string;
+      document_id?: string;
+    }
+  ): Promise<ReceivablesResponse> {
+    try {
+      console.log('=== RECEIVABLES WITH METADATA DEBUG ===');
+      console.log('Original form data:', JSON.stringify(receivableData, null, 2));
+      console.log('Custom metadata:', JSON.stringify(customMetadata, null, 2));
+      
+      // Transform the data to the new format
+      const newFormatData = this.transformToNewFormat(receivableData);
+      
+      // Add custom metadata if provided
+      if (customMetadata) {
+        newFormatData.metadata = {
+          ...newFormatData.metadata,
+          ...customMetadata
+        };
+      }
+      
+      console.log('Final transformed data:', JSON.stringify(newFormatData, null, 2));
+      
+      // Use the new createReceivableNew method
+      return await this.createReceivableNew(newFormatData);
+    } catch (error: any) {
+      console.error('Error creating receivable with metadata:', error);
       throw error;
     }
   }
