@@ -26,6 +26,27 @@ export interface ReceivablesResponse {
   };
 }
 
+export interface ReceivableApiItem {
+  id?: string;
+  created_at?: string;
+  created?: string;
+  reference_number?: string;
+  partner_name?: string;
+  partnerName?: string;
+  description?: string;
+  purpose_code?: string;
+  amount_maximum_reconcilable?: string;
+  amount?: string;
+  amount_pending?: string;
+  status?: 'pending' | 'paid' | 'overdue' | 'cancelled';
+  currency?: string;
+  invoice?: {
+    reference_number?: string;
+    amount?: string;
+    currency?: string;
+  };
+}
+
 class ReceivablesService {
   private baseURL: string;
 
@@ -60,18 +81,36 @@ class ReceivablesService {
     }
   }
 
-  async getReceivables(): Promise<any[]> {
+  async getReceivables(): Promise<any> {
     try {
-      const response = await axios.get(`${this.baseURL}/receivables`, {
+      const response = await axios.get('http://43.205.26.213:7015/receivables', {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Xflow-Account': 'account_F0A_1759166669125_GuHWS_000',
+          'Content-Type': 'application/json',
         },
       });
+
+      // Log the raw response for debugging
+      console.log('Raw API Response:', response);
+      console.log('Response data:', response.data);
+      console.log('Response status:', response.status);
 
       return response.data;
     } catch (error: any) {
       console.error('Error fetching receivables:', error);
-      throw new Error('Failed to fetch receivables');
+      console.error('Error response:', error.response);
+      
+      if (error.code === 'NETWORK_ERROR' || error.message.includes('Network Error')) {
+        throw new Error('Network error: Unable to connect to the receivables service');
+      } else if (error.response?.status === 404) {
+        throw new Error('Receivables endpoint not found');
+      } else if (error.response?.status === 401) {
+        throw new Error('Unauthorized: Invalid account credentials');
+      } else if (error.response?.status >= 500) {
+        throw new Error('Server error: Please try again later');
+      } else {
+        throw new Error('Failed to fetch receivables');
+      }
     }
   }
 

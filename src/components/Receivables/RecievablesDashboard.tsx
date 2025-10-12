@@ -39,7 +39,7 @@ import {
   AccountBalance
 } from '@mui/icons-material';
 import { toast, ToastContainer } from 'react-toastify';
-import receivablesService, { ReceivablesData } from '../../services/receivables.service';
+import receivablesService, { ReceivablesData, ReceivableApiItem } from '../../services/receivables.service';
 import './RecievablesDashboard.css';
 
 interface ReceivablesFormData {
@@ -105,12 +105,14 @@ const RecievablesDashboard: React.FC = () => {
   const [reconcileAmount, setReconcileAmount] = useState<string>('');
   const [reconcileCurrency, setReconcileCurrency] = useState<string>('USD');
 
-  // Auto-open form when component loads
+  // Auto-open form when component loads and fetch receivables data
   useEffect(() => {
     const prevComponent = localStorage.getItem('prev_component');
     if (prevComponent === 'currency-management') {
       setIsFormOpen(true);
     }
+    // Fetch receivables data on component mount
+    fetchReceivables();
   }, []);
 
   // Mock data for receivables table
@@ -255,12 +257,80 @@ const RecievablesDashboard: React.FC = () => {
   const fetchReceivables = async () => {
     try {
       setLoading(true);
-      // For now, use mock data. Replace with actual API call:
-      // const data = await receivablesService.getReceivables();
-      // setReceivables(data);
-      setReceivables(mockReceivables);
+      // Fetch receivables from API: http://43.205.26.213:7015/receivables
+      // with Xflow-Account header: account_F0A_1759166669125_GuHWS_000
+      const data = await receivablesService.getReceivables();
+      
+      // Log the actual API response to understand the structure
+      console.log('API Response:', data);
+      console.log('Data type:', typeof data);
+      console.log('Is array:', Array.isArray(data));
+      
+      // Handle different response formats
+      let receivablesArray: ReceivableApiItem[] = [];
+      
+      if (Array.isArray(data)) {
+        // If data is already an array
+        receivablesArray = data;
+      } else if (data && typeof data === 'object') {
+        // If data is an object, check for common array properties
+        if (data.receivables && Array.isArray(data.receivables)) {
+          receivablesArray = data.receivables;
+        } else if (data.data && Array.isArray(data.data)) {
+          receivablesArray = data.data;
+        } else if (data.items && Array.isArray(data.items)) {
+          receivablesArray = data.items;
+        } else if (data.results && Array.isArray(data.results)) {
+          receivablesArray = data.results;
+        } else {
+          // If it's a single object, wrap it in an array
+          receivablesArray = [data];
+        }
+      }
+      
+      // Transform API data to match our interface
+      const transformedData = receivablesArray.map((item: ReceivableApiItem, index: number) => {
+        // Ensure we have a valid item
+        if (!item || typeof item !== 'object') {
+          console.warn('Invalid item at index', index, ':', item);
+          return {
+            id: `invalid_${index}`,
+            created: new Date().toISOString().split('T')[0],
+            invoiceNo: `INV-${index + 1}`,
+            partnerName: 'Invalid Data',
+            description: 'Invalid receivable data',
+            receivableAmount: 0,
+            amountPending: 0,
+            status: 'pending' as const,
+            currency: 'USD'
+          };
+        }
+        
+        return {
+          id: item.id || `receivable_${index}`,
+          created: item.created_at || item.created || new Date().toISOString().split('T')[0],
+          invoiceNo: item.invoice?.reference_number || item.reference_number || `INV-${index + 1}`,
+          partnerName: item.partner_name || item.partnerName || 'Unknown Partner',
+          description: item.description || item.purpose_code || 'Receivable',
+          receivableAmount: parseFloat(item.amount_maximum_reconcilable || item.amount || '0'),
+          amountPending: parseFloat(item.amount_pending || item.amount || '0'),
+          status: item.status || 'pending',
+          currency: item.currency || 'USD'
+        };
+      });
+      
+      setReceivables(transformedData);
+      if (transformedData.length > 0) {
+        toast.success(`Successfully loaded ${transformedData.length} receivables`);
+      } else {
+        toast.info('No receivables found');
+      }
     } catch (err: any) {
-      toast.error('Failed to fetch receivables');
+      console.error('Error fetching receivables:', err);
+      const errorMessage = err.message || 'Failed to fetch receivables';
+      toast.error(`${errorMessage}. Using mock data.`);
+      // Fallback to mock data if API fails
+      setReceivables(mockReceivables);
     } finally {
       setLoading(false);
     }
@@ -836,6 +906,21 @@ const RecievablesDashboard: React.FC = () => {
                 }}
               >
                 {loading ? <CircularProgress size={20} /> : 'Refresh'}
+              </Button>
+              <Button
+                variant="outlined"
+                onClick={() => {
+                  console.log('Testing API call...');
+                  fetchReceivables();
+                }}
+                disabled={loading}
+                sx={{
+                  borderRadius: '8px',
+                  textTransform: 'none',
+                  marginLeft: '8px',
+                }}
+              >
+                Test API
               </Button>
             </Box>
 
