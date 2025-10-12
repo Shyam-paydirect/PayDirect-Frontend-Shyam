@@ -50,6 +50,7 @@ interface PartnerAccountFormData {
   };
   nickname: string;
   type: string;
+  account_id: string;
 }
 
 interface PartnerItem {
@@ -82,7 +83,8 @@ const PartnerAccountForm: React.FC = () => {
       type: 'company'
     },
     nickname: '',
-    type: 'partner'
+    type: 'partner',
+    account_id: 'acct_1234567890'
   });
 
   const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
@@ -92,16 +94,16 @@ const PartnerAccountForm: React.FC = () => {
   const [loading, setLoading] = useState(false);
 
   const countries = [
-    { code: 'US', name: 'United States' },
-    { code: 'CA', name: 'Canada' },
-    { code: 'GB', name: 'United Kingdom' },
-    { code: 'AU', name: 'Australia' },
-    { code: 'DE', name: 'Germany' },
-    { code: 'FR', name: 'France' },
-    { code: 'IN', name: 'India' },
-    { code: 'SG', name: 'Singapore' },
-    { code: 'JP', name: 'Japan' },
-    { code: 'CN', name: 'China' }
+    { value: 'US', label: 'United States' },
+    { value: 'CA', label: 'Canada' },
+    { value: 'GB', label: 'United Kingdom' },
+    { value: 'AU', label: 'Australia' },
+    { value: 'DE', label: 'Germany' },
+    { value: 'FR', label: 'France' },
+    { value: 'IN', label: 'India' },
+    { value: 'SG', label: 'Singapore' },
+    { value: 'JP', label: 'Japan' },
+    { value: 'CN', label: 'China' }
   ];
 
   const businessTypes = [
@@ -239,6 +241,10 @@ const PartnerAccountForm: React.FC = () => {
       errors['nickname'] = 'Nickname is required';
     }
 
+    if (!formData.account_id) {
+      errors['account_id'] = 'Account ID is required';
+    }
+
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -325,7 +331,8 @@ const PartnerAccountForm: React.FC = () => {
           type: 'company'
         },
         nickname: '',
-        type: 'partner'
+        type: 'partner',
+        account_id: 'acct_1234567890'
       });
       setIsFormOpen(false);
       
@@ -410,6 +417,9 @@ const PartnerAccountForm: React.FC = () => {
       if (field.startsWith('business_details.')) {
         const businessField = field.split('.')[1];
         return formData.business_details[businessField as keyof typeof formData.business_details];
+      } else if (field.startsWith('physical_address.')) {
+        const addressField = field.split('.')[1];
+        return formData.business_details.physical_address[addressField as keyof typeof formData.business_details.physical_address];
       } else {
         return (formData as any)[field];
       }
@@ -517,6 +527,9 @@ const PartnerAccountForm: React.FC = () => {
                     </Grid>
                     <Grid item xs={12} md={6}>
                       {renderTextField('nickname', 'Account Nickname')}
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                      {renderTextField('account_id', 'Account ID')}
                     </Grid>
                   </Grid>
                 </Box>
