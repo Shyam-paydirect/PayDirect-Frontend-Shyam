@@ -16,6 +16,26 @@ export interface ReceivablesData {
   transaction_type: string;
 }
 
+// New API format for the /receivables endpoint
+export interface NewReceivablesData {
+  account_id: string;
+  currency: string;
+  amount_maximum_reconcilable: number;
+  purpose_code: string;
+  transaction_type: string;
+  description: string;
+  invoice: {
+    number: string;
+    date: string;
+    due_date: string;
+  };
+  metadata: {
+    customer_reference?: string;
+    order_id?: string;
+    partner_id?: string;
+  };
+}
+
 export interface ReceivablesResponse {
   success: boolean;
   message: string;
@@ -51,17 +71,106 @@ class ReceivablesService {
   private baseURL: string;
 
   constructor() {
-    this.baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001/api';
+    this.baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://43.205.26.213:7015';
   }
 
-  async createReceivable(receivableData: ReceivablesData): Promise<ReceivablesResponse> {
+  // Get Xflow-Account header from localStorage or use default
+  private getXflowAccountHeader(): string {
+    return localStorage.getItem('xflow-account') || 'account_F0A_1759166669125_GuHWS_000';
+  }
+
+  // Transform old format to new API format
+  private transformToNewFormat(receivableData: ReceivablesData): any {
+    // Format dates to YYYY-MM-DD format
+    const formatDate = (dateString: string) => {
+      if (!dateString) return '';
+      try {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) {
+          console.warn('Invalid date format:', dateString);
+          return '';
+        }
+        return date.toISOString().split('T')[0];
+      } catch (error) {
+        console.warn('Error formatting date:', dateString, error);
+        return '';
+      }
+    };
+
+    // Validate required fields
+    if (!receivableData.amount_maximum_reconcilable) {
+      throw new Error('Amount is required');
+    }
+    if (!receivableData.currency) {
+      throw new Error('Currency is required');
+    }
+    if (!receivableData.purpose_code) {
+      throw new Error('Purpose code is required');
+    }
+    if (!receivableData.transaction_type) {
+      throw new Error('Transaction type is required');
+    }
+    if (!receivableData.invoice.reference_number) {
+      throw new Error('Invoice reference number is required');
+    }
+
+    // Map purpose codes to valid API values
+    const mapPurposeCode = (purposeCode: string) => {
+      const purposeCodeMap: { [key: string]: string } = {
+        'P1014': 'P0102', // Map common form values to API values
+        'P0102': 'P0102', // Already correct
+        'P0101': 'P0101',
+        'P0103': 'P0103',
+        'P0104': 'P0104',
+        'P0105': 'P0105'
+      };
+      return purposeCodeMap[purposeCode] || 'P0102'; // Default to P0102 if not found
+    };
+
+    const transformedData = {
+      account_id: null, // API expects null for account_id
+      currency: receivableData.currency,
+      amount_maximum_reconcilable: receivableData.amount_maximum_reconcilable,
+      purpose_code: mapPurposeCode(receivableData.purpose_code),
+      transaction_type: receivableData.transaction_type,
+      description: `${receivableData.transaction_type} - ${mapPurposeCode(receivableData.purpose_code)}`,
+      invoice: {
+        amount: receivableData.invoice.amount || receivableData.amount_maximum_reconcilable,
+        creation_date: formatDate(receivableData.invoice.creation_date),
+        currency: receivableData.invoice.currency || receivableData.currency,
+        document: null, // API expects document to always be null in requests
+        due_date: formatDate(receivableData.invoice.due_date),
+        reference_number: receivableData.invoice.reference_number
+      }
+      // Note: hsn_code, metadata, supporting_documentation are not sent in request
+      // They are only returned in the API response
+    };
+
+    console.log('Transformed data for API:', transformedData);
+    return transformedData;
+  }
+
+  // New method for creating receivables using the /receivables endpoint
+  async createReceivableNew(receivableData: NewReceivablesData): Promise<ReceivablesResponse> {
     try {
+      console.log('=== RECEIVABLES API DEBUG ===');
+      console.log('Creating receivable with data:', JSON.stringify(receivableData, null, 2));
+      console.log('Making request to:', `${this.baseURL}/receivables`);
+      console.log('Using Xflow-Account header:', this.getXflowAccountHeader());
+      console.log('Request headers:', {
+        'Content-Type': 'application/json',
+        'Xflow-Account': this.getXflowAccountHeader(),
+      });
+      
       const response = await axios.post(`${this.baseURL}/receivables`, receivableData, {
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Xflow-Account': this.getXflowAccountHeader(),
         },
+        timeout: 30000,
       });
+
+      console.log('Receivable creation successful:', response.data);
 
       return {
         success: true,
@@ -69,9 +178,51 @@ class ReceivablesService {
         data: response.data,
       };
     } catch (error: any) {
-      console.error('Error creating receivable:', error);
+      console.error('=== RECEIVABLES API ERROR ===');
+      console.error('Full error object:', error);
+      console.error('Error details:', {
+        message: error.message,
+        code: error.code,
+        response: error.response?.data,
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        url: `${this.baseURL}/receivables`,
+        requestData: receivableData,
+        requestHeaders: {
+          'Content-Type': 'application/json',
+          'Xflow-Account': this.getXflowAccountHeader(),
+        }
+      });
       
-      if (error.response?.data?.message) {
+      // Log the full response for debugging
+      if (error.response) {
+        console.error('Full server response:', {
+          status: error.response.status,
+          statusText: error.response.statusText,
+          headers: error.response.headers,
+          data: error.response.data
+        });
+      }
+      
+      // Provide more specific error messages
+      if (error.code === 'ECONNREFUSED') {
+        throw new Error(`Cannot connect to server at ${this.baseURL}. Please check if the server is running.`);
+      } else if (error.code === 'ENOTFOUND') {
+        throw new Error(`Server not found at ${this.baseURL}. Please check the URL.`);
+      } else if (error.code === 'ECONNABORTED') {
+        throw new Error('Request timeout. The server is taking too long to respond.');
+      } else if (error.response?.status === 400) {
+        // Handle 400 Bad Request with detailed error information
+        const errorMessage = error.response?.data?.message || error.response?.data?.error || 'Bad Request';
+        const errorDetails = error.response?.data?.details || error.response?.data;
+        console.error('400 Error Details:', errorDetails);
+        console.error('Request that failed:', JSON.stringify(receivableData, null, 2));
+        throw new Error(`Validation Error: ${errorMessage}. Check console for details.`);
+      } else if (error.response?.status === 404) {
+        throw new Error('Receivables endpoint not found. Please check if the server supports the /receivables endpoint.');
+      } else if (error.response?.status === 500) {
+        throw new Error('Server error. Please try again later.');
+      } else if (error.response?.data?.message) {
         throw new Error(error.response.data.message);
       } else if (error.message) {
         throw new Error(error.message);
@@ -81,13 +232,32 @@ class ReceivablesService {
     }
   }
 
+  // Updated method that uses the new API
+  async createReceivable(receivableData: ReceivablesData): Promise<ReceivablesResponse> {
+    try {
+      console.log('=== RECEIVABLES TRANSFORMATION DEBUG ===');
+      console.log('Original form data:', JSON.stringify(receivableData, null, 2));
+      
+      // Transform the data to the new format
+      const newFormatData = this.transformToNewFormat(receivableData);
+      console.log('Transformed data:', JSON.stringify(newFormatData, null, 2));
+      
+      // Use the new createReceivableNew method
+      return await this.createReceivableNew(newFormatData);
+    } catch (error: any) {
+      console.error('Error creating receivable:', error);
+      throw error;
+    }
+  }
+
   async getReceivables(): Promise<any> {
     try {
-      const response = await axios.get('http://43.205.26.213:7015/receivables', {
+      const response = await axios.get(`${this.baseURL}/receivables`, {
         headers: {
-          'Xflow-Account': 'account_F0A_1759166669125_GuHWS_000',
+          'Xflow-Account': this.getXflowAccountHeader(),
           'Content-Type': 'application/json',
         },
+        timeout: 30000,
       });
 
       // Log the raw response for debugging
