@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import DashboardHeader from './components/Header/DashboardHeader';
 import SummaryCards from './components/Summary/SummaryCards';
 import SearchAndFilters from './components/Filters/SearchAndFilters';
 import DepositsTable from './components/Table/DepositsTable';
@@ -94,8 +93,6 @@ const DepositsDashboard: React.FC = () => {
 
   return (
     <div className="dashboard-container">
-      <DashboardHeader />
-
       <div className="dashboard-content">
         <SummaryCards stats={stats} formatAmount={formatAmount} />
 

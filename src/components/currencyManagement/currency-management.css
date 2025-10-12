@@ -203,6 +203,12 @@
   font-family: "cc font", monospace;
 }
 
+.card-number .section {
+  flex: 1;
+  text-align: center;
+  letter-spacing: 2px;
+}
+
 .end {
   margin-left: 25px;
   text-transform: uppercase;

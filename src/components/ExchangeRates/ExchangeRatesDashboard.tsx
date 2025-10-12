@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import DashboardHeader from "./components/header/Header";
 import SummaryCards from "./components/summary/SummaryCards";
 import SearchAndFilters from "./components/filters/SearchAndFilters";
 import PaginationControls from "./components/pagination/PaginationControls";
@@ -101,7 +100,6 @@ const ExchangeRateDashboard: React.FC = () => {
 
   return (
     <div className="exchange-dashboard p-6">
-      <DashboardHeader />
       <SummaryCards stats={{ conversion: "0.94", increase: "+0.5%" }} />
 
       {/* Search & Filters */}
@@ -117,47 +115,49 @@ const ExchangeRateDashboard: React.FC = () => {
       </div>
 
       {/* Rates Table */}
-      <div className="rates-table mt-6 border rounded overflow-hidden">
-        <table className="w-full table-auto">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="px-4 py-2 text-left">From</th>
-              <th className="px-4 py-2 text-left">To</th>
-              <th className="px-4 py-2 text-left">Rate</th>
-              <th className="px-4 py-2 text-left">24h %</th>
-              <th className="px-4 py-2 text-left">7d %</th>
-              <th className="px-4 py-2 text-left">30d %</th>
-              <th className="px-4 py-2 text-left">Timestamp</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentItems.length > 0 ? (
-              currentItems.map((rate) => (
-                <tr key={rate.id}>
-                  <td className="px-4 py-2">{rate.from}</td>
-                  <td className="px-4 py-2">{rate.to}</td>
-                  <td className="px-4 py-2">{rate.rate}</td>
-                  <td className={`px-4 py-2 ${rate.change24h >= 0 ? "text-green-600" : "text-red-600"}`}>
-                    {rate.change24h}%
-                  </td>
-                  <td className={`px-4 py-2 ${rate.change7d >= 0 ? "text-green-600" : "text-red-600"}`}>
-                    {rate.change7d}%
-                  </td>
-                  <td className={`px-4 py-2 ${rate.change30d >= 0 ? "text-green-600" : "text-red-600"}`}>
-                    {rate.change30d}%
-                  </td>
-                  <td className="px-4 py-2">{rate.timestamp}</td>
-                </tr>
-              ))
-            ) : (
+      <div className="exchange-rates-table-container">
+        <div className="table-wrapper">
+          <table className="exchange-rates-table">
+            <thead>
               <tr>
-                <td colSpan={7} className="text-center py-4 text-gray-500">
-                  No exchange rates found
-                </td>
+                <th>From</th>
+                <th>To</th>
+                <th>Rate</th>
+                <th>24h %</th>
+                <th>7d %</th>
+                <th>30d %</th>
+                <th>Timestamp</th>
               </tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {currentItems.length > 0 ? (
+                currentItems.map((rate) => (
+                  <tr key={rate.id}>
+                    <td className="font-medium">{rate.from}</td>
+                    <td className="font-medium">{rate.to}</td>
+                    <td className="font-semibold">{rate.rate}</td>
+                    <td className={rate.change24h >= 0 ? 'text-green' : 'text-red'}>
+                      {rate.change24h >= 0 ? '+' : ''}{rate.change24h}%
+                    </td>
+                    <td className={rate.change7d >= 0 ? 'text-green' : 'text-red'}>
+                      {rate.change7d >= 0 ? '+' : ''}{rate.change7d}%
+                    </td>
+                    <td className={rate.change30d >= 0 ? 'text-green' : 'text-red'}>
+                      {rate.change30d >= 0 ? '+' : ''}{rate.change30d}%
+                    </td>
+                    <td className="text-gray-500">{rate.timestamp}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={7} className="empty-state">
+                    No exchange rates found
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Pagination */}

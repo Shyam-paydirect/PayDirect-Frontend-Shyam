@@ -13,10 +13,46 @@ interface SummaryCardsProps {
 
 const SummaryCards: React.FC<SummaryCardsProps> = ({ stats, formatAmount }) => {
   return (
-    <div className="summary-grid">
-      <SummaryCard title="USD → EUR :" value={stats.conversion} increase={stats.increase} />
-      <SummaryCard title="USD → INR :" value={stats.conversion} increase={stats.increase} />
-      <SummaryCard title="EUR → GBP :" value={stats.conversion} increase={stats.increase} />
+    <div className="summary-cards">
+      <SummaryCard 
+        title="USD → EUR" 
+        value={stats.conversion} 
+        increase={stats.increase} 
+        iconClass="icon-blue"
+        icon={
+          <>
+            <span className="currency-symbol">$</span>
+            <span className="arrow">→</span>
+            <span className="currency-symbol">€</span>
+          </>
+        }
+      />
+      <SummaryCard 
+        title="USD → INR" 
+        value={stats.conversion} 
+        increase={stats.increase} 
+        iconClass="icon-green"
+        icon={
+          <>
+            <span className="currency-symbol">$</span>
+            <span className="arrow">→</span>
+            <span className="currency-symbol">₹</span>
+          </>
+        }
+      />
+      <SummaryCard 
+        title="EUR → GBP" 
+        value={stats.conversion} 
+        increase={stats.increase} 
+        iconClass="icon-yellow"
+        icon={
+          <>
+            <span className="currency-symbol">€</span>
+            <span className="arrow">→</span>
+            <span className="currency-symbol">£</span>
+          </>
+        }
+      />
     </div>
   );
 };

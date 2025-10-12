@@ -116,22 +116,82 @@
   box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
-.summary-card-header {
+.summary-card-content {
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.summary-card-info p:first-child {
+  font-size: 14px;
+  color: #718096;
   margin-bottom: 8px;
 }
 
-.summary-card-header span {
-  font-size: 14px;
-  font-weight: 500;
-  color: #718096;
+.summary-card-info p:last-child {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a202c;
+}
+
+.summary-card-info p.text-green {
+  color: #38a169;
+}
+
+.summary-card-info p.text-yellow {
+  color: #d97706;
+}
+
+.summary-card-info p.text-red {
+  color: #dc2626;
 }
 
 .summary-card-icon {
-  width: 20px;
-  height: 20px;
+  width: 3rem;
+  height: 3rem;
+  background-color: #dbeafe;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.summary-card-icon svg {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: #2563eb;
+}
+
+.summary-card-icon.icon-blue {
+  background-color: #dbeafe;
+}
+
+.summary-card-icon.icon-blue svg {
+  color: #2563eb;
+}
+
+.summary-card-icon.icon-green {
+  background-color: #d1fae5;
+}
+
+.summary-card-icon.icon-green svg {
+  color: #059669;
+}
+
+.summary-card-icon.icon-yellow {
+  background-color: #fef3c7;
+}
+
+.summary-card-icon.icon-yellow svg {
+  color: #d97706;
+}
+
+.summary-card-icon.icon-red {
+  background-color: #fee2e2;
+}
+
+.summary-card-icon.icon-red svg {
+  color: #dc2626;
 }
 
 .summary-card-value {
