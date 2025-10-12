@@ -56,6 +56,16 @@ function getTitleByDashboard(dashboard: string): string {
       return 'Create Partner Account';
     case 'recievables-dashboard':
       return 'Receivables Dashboard';
+    case 'balances-dashboard':
+      return 'Balances Dashboard';
+    case 'balance-transactions':
+      return 'Balance Transactions';
+    case 'deposits-dashboard':
+      return 'Deposits Dashboard';
+    case 'exchange-rates':
+      return 'Exchange Rates Dashboard';
+    case 'payouts-dashboard':
+      return 'Payouts Dashboard';
     default:
       return 'Payments';
   }

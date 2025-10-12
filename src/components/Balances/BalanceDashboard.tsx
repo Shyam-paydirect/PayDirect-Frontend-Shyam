@@ -22,14 +22,14 @@ const BalancesDashboard: React.FC = () => {
   if (balanceError) return <ErrorState onRetry={refetch} />;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#e9f0fb] to-[#f9fbff]">
+    <div className="balances-dashboard">
       <DashboardHeader
         livemode={balanceData?.livemode ?? false}
         onRefresh={refetch}
         isRefreshing={balanceLoading}
       />
 
-      <div className="max-w-7xl mx-auto p-6">
+      <div className="dashboard-main">
         <SummaryCardsGrid balanceData={balanceData || {}} />
         {isAdmin && aggregateData && <AggregateBalanceWidget aggregateData={aggregateData} />}
         <BalanceTable balanceData={balanceData || {}} />

@@ -1,34 +1,25 @@
 /* Balance Transactions Page Styles */
 
-/* Base Styles */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  background-color: #f9fafb;
-  color: #111827;
-}
-
 /* Main Container */
 .balance-transactions-page {
   min-height: 100vh;
-  background-color: #f9fafb;
+  background: linear-gradient(135deg, #e9f0fb 0%, #f9fbff 100%);
+  padding: 24px;
 }
 
 /* Header Section */
 .page-header {
-  background-color: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 32px;
+  background: white;
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e2e8f0;
 }
 
 .header-container {
-  max-width: 1280px;
+  max-width: 80rem;
   margin: 0 auto;
-  padding: 1rem 1.5rem;
 }
 
 .header-content {
@@ -42,60 +33,74 @@ body {
 .header-title h1 {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #111827;
-  margin-bottom: 0.25rem;
+  color: #1a202c;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .header-title p {
-  font-size: 0.875rem;
-  color: #6b7280;
+  font-size: 16px;
+  color: #718096;
 }
 
 .export-button {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  background-color: #2563eb;
-  color: #ffffff;
+  gap: 8px;
+  padding: 12px 20px;
+  background: #4299e1;
+  color: white;
   border: none;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
+  border-radius: 8px;
+  font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
+  text-transform: none;
 }
 
 .export-button:hover {
-  background-color: #1d4ed8;
+  background: #3182ce;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(66, 153, 225, 0.3);
 }
 
 .export-button svg {
-  width: 1rem;
-  height: 1rem;
+  width: 16px;
+  height: 16px;
 }
 
 /* Main Content */
 .main-content {
-  max-width: 1280px;
+  max-width: 80rem;
   margin: 0 auto;
-  padding: 1.5rem;
+  padding: 0;
 }
 
 /* Summary Cards */
 .summary-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  gap: 24px;
+  margin-bottom: 32px;
 }
 
 .summary-card {
-  background-color: #ffffff;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e5e7eb;
-  padding: 1rem;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e2e8f0;
+  padding: 24px;
+  transition: all 0.2s ease;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.summary-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
 .summary-card-content {
@@ -105,19 +110,19 @@ body {
 }
 
 .summary-card-info p:first-child {
-  font-size: 0.875rem;
-  color: #6b7280;
-  margin-bottom: 0.25rem;
+  font-size: 14px;
+  color: #718096;
+  margin-bottom: 8px;
 }
 
 .summary-card-info p:last-child {
-  font-size: 1.5rem;
+  font-size: 24px;
   font-weight: 700;
-  color: #111827;
+  color: #1a202c;
 }
 
 .summary-card-info p.text-green {
-  color: #059669;
+  color: #38a169;
 }
 
 .summary-card-info p.text-yellow {
@@ -281,10 +286,10 @@ body {
 
 /* Transactions Table */
 .transactions-table-container {
-  background-color: #ffffff;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e5e7eb;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e2e8f0;
   overflow: hidden;
 }
 
@@ -298,31 +303,32 @@ body {
 }
 
 .transactions-table thead {
-  background-color: #1e1b4b;
-  color: #ffffff;
+  background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+  color: white;
 }
 
 .transactions-table th {
-  padding: 1rem 1.5rem;
+  padding: 16px 24px;
   text-align: left;
-  font-size: 0.875rem;
+  font-size: 14px;
   font-weight: 600;
   white-space: nowrap;
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .transactions-table tbody tr {
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid #e2e8f0;
   transition: background-color 0.2s;
   cursor: pointer;
 }
 
 .transactions-table tbody tr:hover {
-  background-color: #f9fafb;
+  background-color: #f7fafc;
 }
 
 .transactions-table td {
-  padding: 1rem 1.5rem;
-  font-size: 0.875rem;
+  padding: 16px 24px;
+  font-size: 14px;
 }
 
 .transaction-type {
@@ -331,24 +337,42 @@ body {
 }
 
 .transaction-type.type-payment {
-  color: #059669;
+  color: #38a169;
 }
 
 .transaction-type.type-payout {
-  color: #2563eb;
+  color: #4299e1;
 }
 
 .transaction-type.type-refund {
-  color: #ea580c;
+  color: #ed8936;
 }
 
 .transaction-type.type-fee {
-  color: #dc2626;
+  color: #e53e3e;
 }
 
 .transaction-type.type-adjustment {
-  color: #9333ea;
+  color: #9f7aea;
 }
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Animation delays for summary cards */
+.summary-card:nth-child(1) { animation-delay: 0.1s; }
+.summary-card:nth-child(2) { animation-delay: 0.2s; }
+.summary-card:nth-child(3) { animation-delay: 0.3s; }
+.summary-card:nth-child(4) { animation-delay: 0.4s; }
 
 .transaction-amount {
   display: flex;

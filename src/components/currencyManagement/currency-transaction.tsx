@@ -3,6 +3,7 @@ import React, {useState} from 'react';
 import { Typography, Divider } from '@mui/material';
 import './currency-management.css';
 import SendPaymentModal from '../orderbook/sendPaymentOrder';
+import ReceivablesFormModal from '../Receivables/ReceivablesFormModal';
 import { useRouter } from 'next/router';
 import { setCurrentDashboard } from '@/app/redux/slices/dashboardSlice';
 import { useSelector, useDispatch } from 'react-redux';
@@ -10,6 +11,7 @@ import { useSelector, useDispatch } from 'react-redux';
 const CurrencyTransactions: React.FC = () => {
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isReceivablesModalOpen, setIsReceivablesModalOpen] = useState(false);
   const dispatch = useDispatch();
 
   const handleOpen = () =>     {
@@ -37,7 +39,7 @@ const CurrencyTransactions: React.FC = () => {
             />
             <div className="payment-text"><span>Send</span><span> Payment</span></div>
           </button>
-          <button className="payment" onClick={() => {}}>
+          <button className="payment" onClick={() => setIsReceivablesModalOpen(true)}>
             <img
               src="assets/svg/common/dollar-receive.svg"
               alt="Receive Payment"
@@ -48,6 +50,10 @@ const CurrencyTransactions: React.FC = () => {
         </div>
       </div>
       <SendPaymentModal isOpen={isModalOpen} onClose={handleClose} />
+      <ReceivablesFormModal 
+        open={isReceivablesModalOpen} 
+        onClose={() => setIsReceivablesModalOpen(false)} 
+      />
     </>
   );
 };

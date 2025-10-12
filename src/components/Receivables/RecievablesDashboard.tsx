@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Box, 
   Typography,
@@ -104,6 +104,14 @@ const RecievablesDashboard: React.FC = () => {
   const [selectedReceivable, setSelectedReceivable] = useState<ReceivableItem | null>(null);
   const [reconcileAmount, setReconcileAmount] = useState<string>('');
   const [reconcileCurrency, setReconcileCurrency] = useState<string>('USD');
+
+  // Auto-open form when component loads
+  useEffect(() => {
+    const prevComponent = localStorage.getItem('prev_component');
+    if (prevComponent === 'currency-management') {
+      setIsFormOpen(true);
+    }
+  }, []);
 
   // Mock data for receivables table
   const mockReceivables: ReceivableItem[] = [

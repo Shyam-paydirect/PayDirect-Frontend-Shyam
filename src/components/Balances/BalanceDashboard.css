@@ -1,12 +1,13 @@
 /* ============================================
-   FILE: src/features/balances/styles/balances.css
+   FILE: src/components/Balances/BalanceDashboard.css
    Main stylesheet for Balances Dashboard
    ============================================ */
 
 /* Base Dashboard Styles */
 .balances-dashboard {
   min-height: 100vh;
-  background-color: #f9fafb;
+  background: linear-gradient(135deg, #e9f0fb 0%, #f9fbff 100%);
+  padding: 24px;
 }
 
 /* ============================================
@@ -14,9 +15,11 @@
    ============================================ */
 
 .dashboard-header {
-  background-color: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
-  padding: 1rem 1.5rem;
+  margin-bottom: 32px;
+  background: white;
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 .dashboard-header__container {
@@ -42,7 +45,7 @@
 .dashboard-header__logo-icon {
   width: 2.5rem;
   height: 2.5rem;
-  background-color: #2563eb;
+  background-color: #4299e1;
   border-radius: 0.5rem;
   display: flex;
   align-items: center;
@@ -64,8 +67,12 @@
 .dashboard-header__title {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #1f2937;
+  color: #1a202c;
   margin-left: 1rem;
+  background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .dashboard-header__right {
@@ -98,18 +105,20 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  background-color: #2563eb;
+  background-color: #4299e1;
   color: #ffffff;
   border: none;
-  border-radius: 0.5rem;
+  border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
   font-size: 0.875rem;
   font-weight: 500;
+  text-transform: none;
 }
 
 .refresh-button:hover {
-  background-color: #1d4ed8;
+  background-color: #3182ce;
+  box-shadow: 0 4px 6px -1px rgba(66, 153, 225, 0.3);
 }
 
 .refresh-button:disabled {
@@ -160,15 +169,17 @@
 
 .summary-card {
   background-color: #ffffff;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e2e8f0;
   padding: 1.25rem;
-  transition: box-shadow 0.2s;
+  transition: all 0.3s ease;
+  animation: fadeInUp 0.6s ease-out;
 }
 
 .summary-card:hover {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
 .summary-card__header {
@@ -203,7 +214,7 @@
 }
 
 .summary-card__icon-wrapper--blue {
-  background-color: #3b82f6;
+  background-color: #4299e1;
 }
 
 .summary-card__icon-wrapper--gray {
@@ -231,12 +242,13 @@
    ============================================ */
 
 .aggregate-widget {
-  background: linear-gradient(to right, #6366f1, #9333ea);
-  border-radius: 0.5rem;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   padding: 1.5rem;
   margin-bottom: 2rem;
   color: #ffffff;
+  border: 1px solid #e2e8f0;
 }
 
 .aggregate-widget__header {
@@ -292,22 +304,22 @@
 
 .balance-table-container {
   background-color: #ffffff;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e2e8f0;
   overflow: hidden;
 }
 
 .balance-table__header {
-  padding: 1rem 1.5rem;
-  background-color: #f9fafb;
-  border-bottom: 1px solid #e5e7eb;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .balance-table__title {
   font-size: 1.125rem;
   font-weight: 600;
-  color: #1f2937;
+  color: #2d3748;
 }
 
 .balance-table__wrapper {
@@ -323,8 +335,8 @@
 }
 
 .balance-table__head {
-  background-color: #312e81;
-  color: #ffffff;
+  background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+  color: #2d3748;
 }
 
 .balance-table__head th,
@@ -333,10 +345,13 @@
   font-size: 0.875rem;
   vertical-align: middle;
   white-space: nowrap;  /* keeps content on one line */
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .balance-table__head th {
   text-align: left;
+  font-weight: 600;
+  color: #2d3748;
 }
 
 .balance-table__head th:not(:first-child),
@@ -345,11 +360,12 @@
 }
 
 .balance-table__body tr {
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid #e2e8f0;
+  transition: all 0.2s ease;
 }
 
 .balance-table__body tr:hover {
-  background-color: #f9fafb;
+  background-color: #f7fafc;
 }
 
 .balance-table__body tr:nth-child(even) {
@@ -373,11 +389,12 @@
 
 .balance-table__currency-code {
   font-weight: 600;
-  color: #111827;
+  color: #2d3748;
 }
 
 .balance-table__amount {
   font-weight: 600;
+  color: #2d3748;
 }
 
 .balance-table__amount--available {
@@ -435,8 +452,8 @@
 
 .loading-state {
   min-height: 100vh;
-  background-color: #f9fafb;
-  padding: 1.5rem;
+  background: linear-gradient(135deg, #e9f0fb 0%, #f9fbff 100%);
+  padding: 24px;
 }
 
 .loading-state__container {
@@ -503,8 +520,8 @@
 
 .error-state {
   min-height: 100vh;
-  background-color: #f9fafb;
-  padding: 1.5rem;
+  background: linear-gradient(135deg, #e9f0fb 0%, #f9fbff 100%);
+  padding: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -512,7 +529,9 @@
 
 .error-state__card {
   background-color: #ffffff;
-  border-radius: 0.5rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e2e8f0;
   padding: 2rem;
   max-width: 28rem;
   text-align: center;
@@ -538,19 +557,21 @@
 }
 
 .error-state__button {
-  background-color: #2563eb;
+  background-color: #4299e1;
   color: #ffffff;
   padding: 0.5rem 1.5rem;
   border: none;
-  border-radius: 0.5rem;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 0.875rem;
   font-weight: 500;
-  transition: background-color 0.2s;
+  text-transform: none;
+  transition: all 0.2s ease;
 }
 
 .error-state__button:hover {
-  background-color: #1d4ed8;
+  background-color: #3182ce;
+  box-shadow: 0 4px 6px -1px rgba(66, 153, 225, 0.3);
 }
 
 /* ============================================
@@ -571,20 +592,46 @@
 .dashboard-main {
   max-width: 80rem;
   margin: 0 auto;
-  padding: 1.5rem;
+  padding: 0;
 }
 
 /* ============================================
    RESPONSIVE UTILITIES
    ============================================ */
 
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Animation delays for cards */
+.summary-card:nth-child(1) { animation-delay: 0.1s; }
+.summary-card:nth-child(2) { animation-delay: 0.2s; }
+.summary-card:nth-child(3) { animation-delay: 0.3s; }
+.summary-card:nth-child(4) { animation-delay: 0.4s; }
+.summary-card:nth-child(5) { animation-delay: 0.5s; }
+
 @media (max-width: 768px) {
+  .balances-dashboard {
+    padding: 16px;
+  }
+
   .dashboard-header__title {
     font-size: 1.25rem;
   }
 
   .dashboard-main {
-    padding: 1rem;
+    padding: 0;
   }
 
   .summary-card__amount {
