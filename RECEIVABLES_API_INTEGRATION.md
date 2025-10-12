@@ -48,6 +48,7 @@ export interface NewReceivablesData {
 #### Enhanced Methods
 - `createReceivableNew(receivableData: NewReceivablesData)`: Direct method to create receivables using the new API
 - `createReceivableWithMetadata(receivableData, customMetadata)`: Enhanced method with custom metadata support
+- `getReceivableById(receivableId: string)`: Get specific receivable details by ID
 - `transformToNewFormat(receivableData: ReceivablesData)`: Transforms old format to new API format with automatic mapping
 - `getXflowAccountHeader()`: Gets Xflow-Account header from localStorage or uses default
 
@@ -227,6 +228,7 @@ try {
 ### API Endpoints
 - **Create receivable**: `POST http://43.205.26.213:7015/receivables`
 - **Get receivables**: `GET http://43.205.26.213:7015/receivables`
+- **Get receivable by ID**: `GET http://43.205.26.213:7015/receivables/{receivableId}`
 
 ### Test Commands
 ```bash
@@ -234,12 +236,16 @@ try {
 curl -X GET http://43.205.26.213:7015/receivables \
   -H "Xflow-Account: account_F0A_1759166669125_GuHWS_000"
 
+# Test GET receivable by ID
+curl -X GET http://43.205.26.213:7015/receivables/receivable_f0A_1760294483356_IpMYt_000 \
+  -H "Xflow-Account: account_F0A_1759166669125_GuHWS_000"
+
 # Test POST receivables (example)
 curl -X POST http://43.205.26.213:7015/receivables \
   -H "Content-Type: application/json" \
   -H "Xflow-Account: account_F0A_1759166669125_GuHWS_000" \
   -d '{
-    "account_id": "account_F0A_1759166669125_GuHWS_000",
+    "account_id": null,
     "currency": "USD",
     "amount_maximum_reconcilable": "1000.00",
     "purpose_code": "P0102",
@@ -249,6 +255,7 @@ curl -X POST http://43.205.26.213:7015/receivables \
       "amount": "1000.00",
       "creation_date": "2024-01-15",
       "currency": "USD",
+      "document": null,
       "due_date": "2024-02-15",
       "reference_number": "INV-TEST-001"
     }
@@ -306,9 +313,37 @@ curl -X POST http://43.205.26.213:7015/receivables \
 ✅ **Transaction Type Mapping**: Payment → services mapping working correctly
 ✅ **Metadata Support**: Custom metadata integration working correctly
 ✅ **Document Field**: Proper null handling for empty document fields
+✅ **Get Receivable by ID**: Individual receivable details API integration working correctly
+✅ **Dashboard Integration**: View Details button added to receivables table
+✅ **Date Formatting**: Fixed Unix timestamp to date conversion in table display
+
+## Dashboard Integration
+
+### Receivables Table Enhancement
+
+The receivables dashboard has been enhanced with a "View Details" button for each receivable row:
+
+#### Features Added:
+- **View Details Button**: Added to each row in the receivables table
+- **Details Modal**: Comprehensive modal showing all receivable information
+- **Real-time API Integration**: Fetches live data from the API
+- **Error Handling**: Graceful error handling with user feedback
+
+#### Modal Sections:
+1. **Basic Information**: ID, Status, Description, Purpose Code, Transaction Type
+2. **Financial Information**: Amounts, Currency, Reconciliation details
+3. **Invoice Information**: Reference number, amounts, dates
+4. **Metadata**: Customer reference, order ID, partner ID, document ID
+
+#### Usage:
+1. Click "View Details" button on any receivable row
+2. Modal opens with comprehensive receivable information
+3. Data is fetched in real-time from the API
+4. Close modal to return to table view
 
 ## Next Steps
 
 1. **Test with actual form data** - The integration should now work seamlessly
 2. **Monitor console logs** for detailed API request/response information
 3. **Verify complete flow** from form submission to successful receivable creation
+4. **Test View Details functionality** - Click on any receivable to see detailed information

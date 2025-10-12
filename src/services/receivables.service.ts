@@ -343,16 +343,70 @@ class ReceivablesService {
 
   async getReceivableById(receivableId: string): Promise<any> {
     try {
+      console.log('=== GET RECEIVABLE BY ID DEBUG ===');
+      console.log('Fetching receivable with ID:', receivableId);
+      console.log('Making request to:', `${this.baseURL}/receivables/${receivableId}`);
+      console.log('Using Xflow-Account header:', this.getXflowAccountHeader());
+      
       const response = await axios.get(`${this.baseURL}/receivables/${receivableId}`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Xflow-Account': this.getXflowAccountHeader(),
+          'Content-Type': 'application/json',
         },
+        timeout: 30000,
       });
 
+      console.log('Receivable fetched successfully:', response.data);
       return response.data;
     } catch (error: any) {
-      console.error('Error fetching receivable:', error);
-      throw new Error('Failed to fetch receivable details');
+      console.error('=== GET RECEIVABLE BY ID ERROR ===');
+      console.error('Error fetching receivable by ID:', error);
+      console.error('Error details:', {
+        message: error.message,
+        code: error.code,
+        response: error.response?.data,
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        url: `${this.baseURL}/receivables/${receivableId}`,
+        requestHeaders: {
+          'Xflow-Account': this.getXflowAccountHeader(),
+          'Content-Type': 'application/json',
+        }
+      });
+      
+      // Log the full response for debugging
+      if (error.response) {
+        console.error('Full server response:', {
+          status: error.response.status,
+          statusText: error.response.statusText,
+          headers: error.response.headers,
+          data: error.response.data
+        });
+      }
+      
+      // Provide more specific error messages
+      if (error.code === 'ECONNREFUSED') {
+        throw new Error(`Cannot connect to server at ${this.baseURL}. Please check if the server is running.`);
+      } else if (error.code === 'ENOTFOUND') {
+        throw new Error(`Server not found at ${this.baseURL}. Please check the URL.`);
+      } else if (error.code === 'ECONNABORTED') {
+        throw new Error('Request timeout. The server is taking too long to respond.');
+      } else if (error.response?.status === 400) {
+        const errorMessage = error.response?.data?.message || error.response?.data?.error || 'Bad Request';
+        const errorDetails = error.response?.data?.details || error.response?.data;
+        console.error('400 Error Details:', errorDetails);
+        throw new Error(`Validation Error: ${errorMessage}. Check console for details.`);
+      } else if (error.response?.status === 404) {
+        throw new Error(`Receivable with ID '${receivableId}' not found.`);
+      } else if (error.response?.status === 500) {
+        throw new Error('Server error. Please try again later.');
+      } else if (error.response?.data?.message) {
+        throw new Error(error.response.data.message);
+      } else if (error.message) {
+        throw new Error(error.message);
+      } else {
+        throw new Error('Failed to fetch receivable. Please try again.');
+      }
     }
   }
 

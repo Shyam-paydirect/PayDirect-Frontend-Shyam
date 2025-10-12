@@ -109,6 +109,9 @@ const RecievablesDashboard: React.FC = () => {
   const [selectedReceivable, setSelectedReceivable] = useState<ReceivableItem | null>(null);
   const [reconcileAmount, setReconcileAmount] = useState<string>('');
   const [reconcileCurrency, setReconcileCurrency] = useState<string>('USD');
+  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+  const [selectedReceivableDetails, setSelectedReceivableDetails] = useState<any>(null);
+  const [loadingDetails, setLoadingDetails] = useState(false);
 
   // Auto-open form when component loads and fetch receivables data
   useEffect(() => {
@@ -380,9 +383,26 @@ const RecievablesDashboard: React.FC = () => {
           };
         }
         
+        // Helper function to format date from Unix timestamp or date string
+        const formatCreatedDate = (dateValue: any) => {
+          if (!dateValue) return new Date().toISOString().split('T')[0];
+          
+          // If it's a Unix timestamp (number)
+          if (typeof dateValue === 'number') {
+            return new Date(dateValue * 1000).toISOString().split('T')[0];
+          }
+          
+          // If it's already a date string
+          if (typeof dateValue === 'string') {
+            return dateValue.split('T')[0]; // Remove time part if present
+          }
+          
+          return new Date().toISOString().split('T')[0];
+        };
+
         return {
           id: item.id || `receivable_${index}`,
-          created: item.created_at || item.created || new Date().toISOString().split('T')[0],
+          created: formatCreatedDate(item.created_at || item.created),
           invoiceNo: item.invoice?.reference_number || item.reference_number || `INV-${index + 1}`,
           partnerName: item.partner_name || item.partnerName || 'Unknown Partner',
           description: item.description || item.purpose_code || 'Receivable',
@@ -412,6 +432,25 @@ const RecievablesDashboard: React.FC = () => {
 
   const toggleForm = () => {
     setIsFormOpen(!isFormOpen);
+  };
+
+  const handleViewDetails = async (receivableId: string) => {
+    try {
+      setLoadingDetails(true);
+      console.log('Fetching details for receivable ID:', receivableId);
+      
+      const details = await receivablesService.getReceivableById(receivableId);
+      console.log('Receivable details fetched:', details);
+      
+      setSelectedReceivableDetails(details);
+      setDetailsModalOpen(true);
+      toast.success('Receivable details loaded successfully');
+    } catch (error: any) {
+      console.error('Error fetching receivable details:', error);
+      toast.error(`Failed to load receivable details: ${error.message}`);
+    } finally {
+      setLoadingDetails(false);
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -1215,31 +1254,53 @@ const RecievablesDashboard: React.FC = () => {
                         />
                       </TableCell>
                       <TableCell>
-                        <Button
-                          variant="outlined"
-                          size="small"
-                          startIcon={<AccountBalance />}
-                          onClick={() => handleReconcile(receivable)}
-                          disabled={receivable.status === 'paid' || receivable.amountPending === 0}
-                          sx={{
-                            borderRadius: '6px',
-                            textTransform: 'none',
-                            fontSize: '12px',
-                            padding: '4px 8px',
-                            borderColor: '#4299e1',
-                            color: '#4299e1',
-                            '&:hover': {
-                              borderColor: '#3182ce',
-                              backgroundColor: '#ebf8ff',
-                            },
-                            '&:disabled': {
-                              borderColor: '#e2e8f0',
-                              color: '#a0aec0',
-                            },
-                          }}
-                        >
-                          Reconcile
-                        </Button>
+                        <Box sx={{ display: 'flex', gap: 1 }}>
+                          <Button
+                            variant="outlined"
+                            size="small"
+                            startIcon={<AccountBalance />}
+                            onClick={() => handleReconcile(receivable)}
+                            disabled={receivable.status === 'paid' || receivable.amountPending === 0}
+                            sx={{
+                              borderRadius: '6px',
+                              textTransform: 'none',
+                              fontSize: '12px',
+                              padding: '4px 8px',
+                              borderColor: '#4299e1',
+                              color: '#4299e1',
+                              '&:hover': {
+                                borderColor: '#3182ce',
+                                backgroundColor: '#ebf8ff',
+                              },
+                              '&:disabled': {
+                                borderColor: '#e2e8f0',
+                                color: '#a0aec0',
+                              },
+                            }}
+                          >
+                            Reconcile
+                          </Button>
+                          <Button
+                            variant="outlined"
+                            size="small"
+                            onClick={() => handleViewDetails(receivable.id)}
+                            disabled={loadingDetails}
+                            sx={{
+                              borderRadius: '6px',
+                              textTransform: 'none',
+                              fontSize: '12px',
+                              padding: '4px 8px',
+                              borderColor: '#38a169',
+                              color: '#38a169',
+                              '&:hover': {
+                                borderColor: '#2f855a',
+                                backgroundColor: '#f0fff4',
+                              },
+                            }}
+                          >
+                            {loadingDetails ? 'Loading...' : 'View Details'}
+                          </Button>
+                        </Box>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -1555,6 +1616,207 @@ const RecievablesDashboard: React.FC = () => {
               }}
             >
               Process Reconciliation
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Receivable Details Modal */}
+        <Dialog 
+          open={detailsModalOpen} 
+          onClose={() => setDetailsModalOpen(false)}
+          maxWidth="lg"
+          fullWidth
+        >
+          <DialogTitle sx={{ 
+            fontSize: '20px', 
+            fontWeight: 600, 
+            color: '#2d3748',
+            borderBottom: '1px solid #e2e8f0',
+            padding: '20px 24px'
+          }}>
+            Receivable Details
+          </DialogTitle>
+          <DialogContent sx={{ padding: '24px' }}>
+            {selectedReceivableDetails ? (
+              <Box>
+                <Grid container spacing={3}>
+                  {/* Basic Information */}
+                  <Grid item xs={12} md={6}>
+                    <Card sx={{ height: '100%', borderRadius: '12px' }}>
+                      <CardContent>
+                        <Typography variant="h6" sx={{ marginBottom: 2, color: '#2d3748' }}>
+                          Basic Information
+                        </Typography>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                          <Box>
+                            <Typography variant="body2" color="text.secondary">ID</Typography>
+                            <Typography variant="body1" sx={{ fontFamily: 'monospace' }}>
+                              {selectedReceivableDetails.id}
+                            </Typography>
+                          </Box>
+                          <Box>
+                            <Typography variant="body2" color="text.secondary">Status</Typography>
+                            <Chip
+                              label={selectedReceivableDetails.status?.charAt(0).toUpperCase() + selectedReceivableDetails.status?.slice(1)}
+                              color={getStatusColor(selectedReceivableDetails.status) as any}
+                              size="small"
+                            />
+                          </Box>
+                          <Box>
+                            <Typography variant="body2" color="text.secondary">Description</Typography>
+                            <Typography variant="body1">{selectedReceivableDetails.description}</Typography>
+                          </Box>
+                          <Box>
+                            <Typography variant="body2" color="text.secondary">Purpose Code</Typography>
+                            <Typography variant="body1">{selectedReceivableDetails.purpose_code}</Typography>
+                          </Box>
+                          <Box>
+                            <Typography variant="body2" color="text.secondary">Transaction Type</Typography>
+                            <Typography variant="body1">{selectedReceivableDetails.transaction_type}</Typography>
+                          </Box>
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+
+                  {/* Financial Information */}
+                  <Grid item xs={12} md={6}>
+                    <Card sx={{ height: '100%', borderRadius: '12px' }}>
+                      <CardContent>
+                        <Typography variant="h6" sx={{ marginBottom: 2, color: '#2d3748' }}>
+                          Financial Information
+                        </Typography>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                          <Box>
+                            <Typography variant="body2" color="text.secondary">Maximum Reconcilable Amount</Typography>
+                            <Typography variant="h6" color="primary">
+                              {formatCurrency(parseFloat(selectedReceivableDetails.amount_maximum_reconcilable || '0'), selectedReceivableDetails.currency)}
+                            </Typography>
+                          </Box>
+                          <Box>
+                            <Typography variant="body2" color="text.secondary">Amount Locked</Typography>
+                            <Typography variant="body1">
+                              {formatCurrency(parseFloat(selectedReceivableDetails.amount_locked || '0'), selectedReceivableDetails.currency)}
+                            </Typography>
+                          </Box>
+                          <Box>
+                            <Typography variant="body2" color="text.secondary">Amount Reconciled</Typography>
+                            <Typography variant="body1">
+                              {formatCurrency(parseFloat(selectedReceivableDetails.amount_reconciled || '0'), selectedReceivableDetails.currency)}
+                            </Typography>
+                          </Box>
+                          <Box>
+                            <Typography variant="body2" color="text.secondary">Currency</Typography>
+                            <Typography variant="body1">{selectedReceivableDetails.currency}</Typography>
+                          </Box>
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+
+                  {/* Invoice Information */}
+                  <Grid item xs={12} md={6}>
+                    <Card sx={{ height: '100%', borderRadius: '12px' }}>
+                      <CardContent>
+                        <Typography variant="h6" sx={{ marginBottom: 2, color: '#2d3748' }}>
+                          Invoice Information
+                        </Typography>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                          <Box>
+                            <Typography variant="body2" color="text.secondary">Reference Number</Typography>
+                            <Typography variant="body1">{selectedReceivableDetails.invoice?.reference_number}</Typography>
+                          </Box>
+                          <Box>
+                            <Typography variant="body2" color="text.secondary">Amount</Typography>
+                            <Typography variant="body1">
+                              {formatCurrency(parseFloat(selectedReceivableDetails.invoice?.amount || '0'), selectedReceivableDetails.invoice?.currency)}
+                            </Typography>
+                          </Box>
+                          <Box>
+                            <Typography variant="body2" color="text.secondary">Creation Date</Typography>
+                            <Typography variant="body1">{formatDate(selectedReceivableDetails.invoice?.creation_date)}</Typography>
+                          </Box>
+                          <Box>
+                            <Typography variant="body2" color="text.secondary">Due Date</Typography>
+                            <Typography variant="body1">{formatDate(selectedReceivableDetails.invoice?.due_date)}</Typography>
+                          </Box>
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+
+                  {/* Metadata */}
+                  <Grid item xs={12} md={6}>
+                    <Card sx={{ height: '100%', borderRadius: '12px' }}>
+                      <CardContent>
+                        <Typography variant="h6" sx={{ marginBottom: 2, color: '#2d3748' }}>
+                          Metadata
+                        </Typography>
+                        {selectedReceivableDetails.metadata ? (
+                          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                            {selectedReceivableDetails.metadata.customer_reference && (
+                              <Box>
+                                <Typography variant="body2" color="text.secondary">Customer Reference</Typography>
+                                <Typography variant="body1">{selectedReceivableDetails.metadata.customer_reference}</Typography>
+                              </Box>
+                            )}
+                            {selectedReceivableDetails.metadata.order_id && (
+                              <Box>
+                                <Typography variant="body2" color="text.secondary">Order ID</Typography>
+                                <Typography variant="body1">{selectedReceivableDetails.metadata.order_id}</Typography>
+                              </Box>
+                            )}
+                            {selectedReceivableDetails.metadata.partner_id && (
+                              <Box>
+                                <Typography variant="body2" color="text.secondary">Partner ID</Typography>
+                                <Typography variant="body1" sx={{ fontFamily: 'monospace' }}>
+                                  {selectedReceivableDetails.metadata.partner_id}
+                                </Typography>
+                              </Box>
+                            )}
+                            {selectedReceivableDetails.metadata.document_id && (
+                              <Box>
+                                <Typography variant="body2" color="text.secondary">Document ID</Typography>
+                                <Typography variant="body1" sx={{ fontFamily: 'monospace' }}>
+                                  {selectedReceivableDetails.metadata.document_id}
+                                </Typography>
+                              </Box>
+                            )}
+                          </Box>
+                        ) : (
+                          <Typography variant="body2" color="text.secondary">No metadata available</Typography>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                </Grid>
+              </Box>
+            ) : (
+              <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 200 }}>
+                <CircularProgress />
+              </Box>
+            )}
+          </DialogContent>
+          <DialogActions sx={{ 
+            padding: '16px 24px 24px 24px',
+            borderTop: '1px solid #e2e8f0'
+          }}>
+            <Button
+              onClick={() => setDetailsModalOpen(false)}
+              variant="outlined"
+              sx={{
+                borderRadius: '8px',
+                textTransform: 'none',
+                padding: '8px 16px',
+                borderColor: '#e2e8f0',
+                color: '#718096',
+                '&:hover': {
+                  borderColor: '#cbd5e0',
+                  backgroundColor: '#f7fafc',
+                },
+              }}
+            >
+              Close
             </Button>
           </DialogActions>
         </Dialog>
