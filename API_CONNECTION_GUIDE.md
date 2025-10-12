@@ -80,6 +80,43 @@ curl -X POST http://43.205.26.213:7015/partners \
 - **404 errors**: Endpoint not found on server
 - **Timeout errors**: Server taking too long to respond
 
+## New API Integration
+
+### GET Partners Endpoint
+The partners table now integrates with the GET partners API:
+
+- **Get all partners**: `GET http://43.205.26.213:7015/partners`
+- **Get specific partner**: `GET http://43.205.26.213:7015/partners/{partner_id}`
+- **Required Header**: `Xflow-Account: account_F0A_1759166669125_GuHWS_000`
+
+### Features Added:
+1. **Automatic partner loading** - Partners are fetched from the API when the component loads
+2. **Real-time updates** - After creating a new partner, the list refreshes automatically
+3. **Fallback to mock data** - If API fails, the component falls back to sample data
+4. **Clickable partner rows** - Click on any partner row to see details
+5. **Comprehensive error handling** - Detailed error messages for different failure scenarios
+
+### API Response Format:
+The API returns partners in this format:
+```json
+{
+  "object": "list",
+  "data": [
+    {
+      "id": "partner_id",
+      "legal_name": "Company Name",
+      "email": "email@example.com",
+      "business_type": "company",
+      "city": "City",
+      "country": "Country Code",
+      "nickname": "Partner Nickname",
+      "status": "active"
+    }
+  ],
+  "has_next": false
+}
+```
+
 ## Testing
 
 I've added detailed logging to the partner account service. Check the browser console for:
@@ -87,5 +124,6 @@ I've added detailed logging to the partner account service. Check the browser co
 - Request details
 - Response details
 - Error information
+- Partner data transformation
 
 This will help identify exactly where the connection is failing.

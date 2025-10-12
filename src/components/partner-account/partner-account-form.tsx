@@ -84,7 +84,7 @@ const PartnerAccountForm: React.FC = () => {
     },
     nickname: '',
     type: 'partner',
-    account_id: 'acct_1234567890'
+    account_id: 'account_F0A_1759166669125_GuHWS_000'
   });
 
   const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
@@ -252,14 +252,56 @@ const PartnerAccountForm: React.FC = () => {
   const fetchPartners = async () => {
     try {
       setLoading(true);
-      // For now, use mock data. Replace with actual API call:
-      // const data = await partnerAccountService.getPartners();
-      // setPartners(data);
-      setPartners(mockPartners);
+      console.log('Fetching partners from API...');
+      
+      // Try to fetch from the new API first
+      try {
+        const data = await partnerAccountService.getAllPartners();
+        console.log('Partners fetched from API:', data);
+        
+        // Transform API data to match the expected format
+        const transformedPartners: PartnerItem[] = data.map((partner: any, index: number) => ({
+          id: partner.id || `partner_${index}`,
+          legalName: partner.business_details?.legal_name || 'Unknown',
+          email: partner.business_details?.email || 'No email',
+          businessType: partner.business_details?.type || 'Unknown',
+          city: partner.business_details?.physical_address?.city || 'Unknown',
+          country: partner.business_details?.physical_address?.country || 'Unknown',
+          nickname: partner.nickname || 'No nickname',
+          receivables: partner.receivables || 0,
+          amountPending: partner.amount_pending || 0,
+          currency: partner.currency || 'USD',
+          status: partner.status || 'active'
+        }));
+        
+        setPartners(transformedPartners);
+        toast.success('Partners loaded successfully');
+      } catch (apiError: any) {
+        console.warn('API fetch failed, using mock data:', apiError.message);
+        // Fallback to mock data if API fails
+        setPartners(mockPartners);
+        toast.warning('Using sample data - API connection failed');
+      }
     } catch (err: any) {
+      console.error('Error in fetchPartners:', err);
       toast.error('Failed to fetch partners');
+      // Fallback to mock data
+      setPartners(mockPartners);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchPartnerById = async (partnerId: string) => {
+    try {
+      console.log('Fetching partner by ID:', partnerId);
+      const partner = await partnerAccountService.getPartnerById(partnerId);
+      console.log('Partner details:', partner);
+      return partner;
+    } catch (error: any) {
+      console.error('Error fetching partner by ID:', error);
+      toast.error(`Failed to fetch partner details: ${error.message}`);
+      throw error;
     }
   };
 
@@ -298,22 +340,9 @@ const PartnerAccountForm: React.FC = () => {
       
       toast.success(response.message || 'Partner account created successfully!');
       
-      // Add new partner to the table
-      const newPartner: PartnerItem = {
-        id: Date.now().toString(),
-        legalName: formData.business_details.legal_name,
-        email: formData.business_details.email,
-        businessType: formData.business_details.type,
-        city: formData.business_details.physical_address.city,
-        country: formData.business_details.physical_address.country,
-        nickname: formData.nickname,
-        receivables: 0,
-        amountPending: 0,
-        currency: 'USD',
-        status: 'active'
-      };
-
-      setPartners(prev => [newPartner, ...prev]);
+      // Refresh the partners list from the API
+      console.log('Refreshing partners list after creation...');
+      await fetchPartners();
 
       // Reset form
       setFormData({
@@ -332,7 +361,7 @@ const PartnerAccountForm: React.FC = () => {
         },
         nickname: '',
         type: 'partner',
-        account_id: 'acct_1234567890'
+        account_id: 'account_F0A_1759166669125_GuHWS_000'
       });
       setIsFormOpen(false);
       
@@ -649,7 +678,18 @@ const PartnerAccountForm: React.FC = () => {
                 </TableHead>
                 <TableBody>
                   {partners.map((partner) => (
-                    <TableRow key={partner.id} sx={{ '&:hover': { backgroundColor: '#f7fafc' } }}>
+                    <TableRow 
+                      key={partner.id} 
+                      sx={{ 
+                        '&:hover': { backgroundColor: '#f7fafc', cursor: 'pointer' },
+                        cursor: 'pointer'
+                      }}
+                      onClick={() => {
+                        console.log('Partner clicked:', partner.id);
+                        // You can add more functionality here, like opening a modal or navigating to details
+                        toast.info(`Partner: ${partner.legalName} (ID: ${partner.id})`);
+                      }}
+                    >
                       <TableCell>
                         <Box>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
