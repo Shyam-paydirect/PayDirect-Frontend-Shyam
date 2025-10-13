@@ -146,13 +146,8 @@ class PartnerAccountService {
 
   async getPartnerAccounts(): Promise<any[]> {
     try {
-      const response = await axios.get(`${this.baseURL}/partner-accounts`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
-
-      return response.data;
+      // Delegate to unified partners endpoint (server doesn't expose /partner-accounts)
+      return await this.getAllPartners();
     } catch (error: any) {
       console.error('Error fetching partner accounts:', error);
       throw new Error('Failed to fetch partner accounts');
@@ -256,13 +251,8 @@ class PartnerAccountService {
 
   async getPartnerAccountById(accountId: string): Promise<any> {
     try {
-      const response = await axios.get(`${this.baseURL}/partner-accounts/${accountId}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
-
-      return response.data;
+      // Delegate to unified partner endpoint
+      return await this.getPartnerById(accountId);
     } catch (error: any) {
       console.error('Error fetching partner account:', error);
       throw new Error('Failed to fetch partner account details');

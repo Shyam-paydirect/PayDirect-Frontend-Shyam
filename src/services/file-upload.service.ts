@@ -48,6 +48,53 @@ class FileUploadService {
   }
 
   /**
+   * Build the public URL for a file by ID
+   */
+  getFileUrl(fileId: string): string {
+    return `${this.baseURL}/files/${fileId}`;
+  }
+
+  /**
+   * Build auth headers including Xflow-Account and Authorization if secret present
+   */
+  private getAuthHeaders(): Record<string, string> {
+    let secretKey: string | null = null;
+    try {
+      if (typeof window !== 'undefined') {
+        secretKey = localStorage.getItem('secret_key') || localStorage.getItem('api_secret');
+      }
+    } catch (_) {}
+    const envKey = (process as any)?.env?.NEXT_PUBLIC_API_KEY;
+    const effectiveKey = secretKey || envKey || null;
+    const headers: Record<string, string> = { 'Xflow-Account': this.accountHeader };
+    if (effectiveKey) headers['Authorization'] = `Bearer ${effectiveKey}`;
+    return headers;
+  }
+
+  /**
+   * Get a file's metadata by ID
+   * @param fileId - The file ID (e.g., file_F0A_...)
+   * @returns Promise with the file metadata including a URL
+   */
+  async getFileById(fileId: string): Promise<FileUploadResponse> {
+    try {
+      const response = await axios.get(`${this.baseURL}/files/${fileId}`, {
+        headers: this.getAuthHeaders(),
+        timeout: 15000,
+      });
+      return response.data as FileUploadResponse;
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        throw new Error('Document not found');
+      }
+      if (error.response?.status === 401) {
+        throw new Error('Unauthorized: Invalid account credentials');
+      }
+      throw new Error(error.response?.data?.message || error.message || 'Failed to fetch file');
+    }
+  }
+
+  /**
    * Upload a file to the server - using curl-style integration
    * @param fileData - The file and metadata to upload
    * @returns Promise with the upload response
@@ -128,9 +175,7 @@ class FileUploadService {
     try {
       // Try the health endpoint first
       const healthResponse = await axios.get(`${this.baseURL}/health`, {
-        headers: {
-          'Xflow-Account': this.accountHeader,
-        },
+        headers: this.getAuthHeaders(),
         timeout: 10000,
       });
       
@@ -144,9 +189,7 @@ class FileUploadService {
       // If health endpoint fails, try the files endpoint directly
       try {
         const filesResponse = await axios.get(`${this.baseURL}/files`, {
-          headers: {
-            'Xflow-Account': this.accountHeader,
-          },
+          headers: this.getAuthHeaders(),
           timeout: 10000,
         });
         
@@ -201,9 +244,7 @@ class FileUploadService {
     try {
       // Try a simple GET request to see if the endpoint exists
       const response = await axios.get(`${this.baseURL}/files`, {
-        headers: {
-          'Xflow-Account': this.accountHeader,
-        },
+        headers: this.getAuthHeaders(),
         timeout: 5000,
       });
       
@@ -244,9 +285,7 @@ class FileUploadService {
       }
       
       const response = await axios.post(`${this.baseURL}/files`, formData, {
-        headers: {
-          'Xflow-Account': this.accountHeader,
-        },
+        headers: this.getAuthHeaders(),
         timeout: 30000,
       });
 
@@ -282,9 +321,7 @@ class FileUploadService {
       }
       
       const response = await axios.post(`${this.baseURL}/files`, formData, {
-        headers: {
-          'Xflow-Account': this.accountHeader,
-        },
+        headers: this.getAuthHeaders(),
         timeout: 30000,
       });
 
@@ -480,10 +517,7 @@ class FileUploadService {
       }
       
       const response = await axios.post(`${this.baseURL}/files`, formData, {
-        headers: {
-          'Xflow-Account': this.accountHeader,
-          // Don't set Content-Type - let axios set it automatically with boundary
-        },
+        headers: this.getAuthHeaders(),
         timeout: 30000,
       });
 
@@ -540,10 +574,7 @@ class FileUploadService {
       
       // Make the request exactly like the curl command
       const response = await axios.post(`${this.baseURL}/files`, formData, {
-        headers: {
-          'Xflow-Account': this.accountHeader,
-          // Don't set Content-Type - let axios set it automatically with boundary
-        },
+        headers: this.getAuthHeaders(),
         timeout: 30000,
       });
 
@@ -613,9 +644,7 @@ class FileUploadService {
       }
       
       const response = await axios.post(`${this.baseURL}/files`, formData, {
-        headers: {
-          'Xflow-Account': this.accountHeader,
-        },
+        headers: this.getAuthHeaders(),
         timeout: 30000,
       });
 
@@ -699,9 +728,7 @@ class FileUploadService {
         cleanFormData.append('file', file);
         
         const cleanResponse = await axios.post(`${this.baseURL}/files`, cleanFormData, {
-          headers: {
-            'Xflow-Account': this.accountHeader,
-          },
+          headers: this.getAuthHeaders(),
           timeout: 30000,
         });
         
@@ -726,9 +753,7 @@ class FileUploadService {
         purposeFormData.append('purpose', 'finance_document');
         
         const purposeResponse = await axios.post(`${this.baseURL}/files`, purposeFormData, {
-          headers: {
-            'Xflow-Account': this.accountHeader,
-          },
+          headers: this.getAuthHeaders(),
           timeout: 30000,
         });
         

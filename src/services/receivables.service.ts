@@ -83,6 +83,26 @@ class ReceivablesService {
     return localStorage.getItem('xflow-account') || 'account_F0A_1759166669125_GuHWS_000';
   }
 
+  // Build auth headers including Xflow-Account and Authorization (Bearer <secret>) if available
+  private getAuthHeaders(extra: Record<string, string> = {}): Record<string, string> {
+    let secretKey: string | null = null;
+    try {
+      if (typeof window !== 'undefined') {
+        secretKey = localStorage.getItem('secret_key') || localStorage.getItem('api_secret');
+      }
+    } catch (_) {}
+    const envKey = (process as any)?.env?.NEXT_PUBLIC_API_KEY;
+    const effectiveKey = secretKey || envKey || null;
+    const headers: Record<string, string> = {
+      'Xflow-Account': this.getXflowAccountHeader(),
+      ...extra,
+    };
+    if (effectiveKey) {
+      headers['Authorization'] = `Bearer ${effectiveKey}`;
+    }
+    return headers;
+  }
+
   // Transform old format to new API format
   private transformToNewFormat(receivableData: ReceivablesData): any {
     // Format dates to YYYY-MM-DD format
@@ -178,16 +198,10 @@ class ReceivablesService {
       console.log('Creating receivable with data:', JSON.stringify(receivableData, null, 2));
       console.log('Making request to:', `${this.baseURL}/receivables`);
       console.log('Using Xflow-Account header:', this.getXflowAccountHeader());
-      console.log('Request headers:', {
-        'Content-Type': 'application/json',
-        'Xflow-Account': this.getXflowAccountHeader(),
-      });
+      console.log('Request headers:', this.getAuthHeaders({ 'Content-Type': 'application/json' }));
       
       const response = await axios.post(`${this.baseURL}/receivables`, receivableData, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Xflow-Account': this.getXflowAccountHeader(),
-        },
+        headers: this.getAuthHeaders({ 'Content-Type': 'application/json' }),
         timeout: 30000,
       });
 
@@ -209,10 +223,7 @@ class ReceivablesService {
         statusText: error.response?.statusText,
         url: `${this.baseURL}/receivables`,
         requestData: receivableData,
-        requestHeaders: {
-          'Content-Type': 'application/json',
-          'Xflow-Account': this.getXflowAccountHeader(),
-        }
+        requestHeaders: this.getAuthHeaders({ 'Content-Type': 'application/json' })
       });
       
       // Log the full response for debugging
@@ -310,10 +321,7 @@ class ReceivablesService {
   async getReceivables(): Promise<any> {
     try {
       const response = await axios.get(`${this.baseURL}/receivables`, {
-        headers: {
-          'Xflow-Account': this.getXflowAccountHeader(),
-          'Content-Type': 'application/json',
-        },
+        headers: this.getAuthHeaders({ 'Content-Type': 'application/json' }),
         timeout: 30000,
       });
 
@@ -349,10 +357,7 @@ class ReceivablesService {
       console.log('Using Xflow-Account header:', this.getXflowAccountHeader());
       
       const response = await axios.get(`${this.baseURL}/receivables/${receivableId}`, {
-        headers: {
-          'Xflow-Account': this.getXflowAccountHeader(),
-          'Content-Type': 'application/json',
-        },
+        headers: this.getAuthHeaders({ 'Content-Type': 'application/json' }),
         timeout: 30000,
       });
 
@@ -368,10 +373,7 @@ class ReceivablesService {
         status: error.response?.status,
         statusText: error.response?.statusText,
         url: `${this.baseURL}/receivables/${receivableId}`,
-        requestHeaders: {
-          'Xflow-Account': this.getXflowAccountHeader(),
-          'Content-Type': 'application/json',
-        }
+        requestHeaders: this.getAuthHeaders({ 'Content-Type': 'application/json' })
       });
       
       // Log the full response for debugging
@@ -413,10 +415,7 @@ class ReceivablesService {
   async updateReceivable(receivableId: string, receivableData: Partial<ReceivablesData>): Promise<ReceivablesResponse> {
     try {
       const response = await axios.put(`${this.baseURL}/receivables/${receivableId}`, receivableData, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
+        headers: this.getAuthHeaders({ 'Content-Type': 'application/json' }),
       });
 
       return {
@@ -440,9 +439,7 @@ class ReceivablesService {
   async deleteReceivable(receivableId: string): Promise<ReceivablesResponse> {
     try {
       const response = await axios.delete(`${this.baseURL}/receivables/${receivableId}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
+        headers: this.getAuthHeaders(),
       });
 
       return {

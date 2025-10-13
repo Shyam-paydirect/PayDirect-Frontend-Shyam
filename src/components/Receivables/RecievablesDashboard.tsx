@@ -106,12 +106,17 @@ const RecievablesDashboard: React.FC = () => {
   const [receivables, setReceivables] = useState<ReceivableItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [reconcileModalOpen, setReconcileModalOpen] = useState(false);
+  const [reconcileSuccessOpen, setReconcileSuccessOpen] = useState(false);
   const [selectedReceivable, setSelectedReceivable] = useState<ReceivableItem | null>(null);
   const [reconcileAmount, setReconcileAmount] = useState<string>('');
   const [reconcileCurrency, setReconcileCurrency] = useState<string>('USD');
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [selectedReceivableDetails, setSelectedReceivableDetails] = useState<any>(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
+  const [activeTab, setActiveTab] = useState<string>('all');
+  const [bankDetailsOpen, setBankDetailsOpen] = useState(false);
+  const [bankCurrency, setBankCurrency] = useState<string>('USD');
+  const [senderCountry, setSenderCountry] = useState<string>('United Kingdom');
 
   // Auto-open form when component loads and fetch receivables data
   useEffect(() => {
@@ -434,15 +439,69 @@ const RecievablesDashboard: React.FC = () => {
     setIsFormOpen(!isFormOpen);
   };
 
-  const handleViewDetails = async (receivableId: string) => {
+  const handleViewDetails = async (receivableId: string, row?: ReceivableItem) => {
     try {
       setLoadingDetails(true);
       console.log('Fetching details for receivable ID:', receivableId);
       
+      // Keep track of the row for quick access (amount/currency)
+      if (row) {
+        setSelectedReceivable(row);
+        setBankCurrency(row.currency || 'USD');
+      } else {
+        const found = receivables.find(r => r.id === receivableId);
+        if (found) {
+          setSelectedReceivable(found);
+          setBankCurrency(found.currency || 'USD');
+        }
+      }
+
       const details = await receivablesService.getReceivableById(receivableId);
       console.log('Receivable details fetched:', details);
       
-      setSelectedReceivableDetails(details);
+      // If a document id is present, fetch file metadata to show a view/download link
+      try {
+        const documentId = details?.invoice?.document;
+        if (documentId) {
+          const secretKey = (typeof window !== 'undefined') 
+            ? (localStorage.getItem('secret_key') || localStorage.getItem('api_secret')) 
+            : null;
+          const envKey = (process as any)?.env?.NEXT_PUBLIC_API_KEY;
+          const hasSecret = !!(secretKey || envKey);
+
+          if (hasSecret) {
+            const fileMeta = await fileUploadService.getFileById(documentId);
+            const mergedDetails = {
+              ...details,
+              invoice: {
+                ...details.invoice,
+                document_file: fileMeta,
+              }
+            };
+            setSelectedReceivableDetails(mergedDetails);
+          } else {
+            // Fallback: use direct URL pattern without authenticated lookup
+            const mergedDetails = {
+              ...details,
+              invoice: {
+                ...details.invoice,
+                document_file: {
+                  id: documentId,
+                  url: fileUploadService.getFileUrl(documentId),
+                  type: 'file',
+                }
+              }
+            } as any;
+            setSelectedReceivableDetails(mergedDetails);
+          }
+        } else {
+          setSelectedReceivableDetails(details);
+        }
+      } catch (fileErr: any) {
+        console.warn('Failed to fetch document metadata:', fileErr);
+        // Proceed with details even if file metadata fails
+        setSelectedReceivableDetails(details);
+      }
       setDetailsModalOpen(true);
       toast.success('Receivable details loaded successfully');
     } catch (error: any) {
@@ -463,6 +522,29 @@ const RecievablesDashboard: React.FC = () => {
     }
   };
 
+  // Map UI tabs to underlying status filters
+  const statusTabs: { id: string; label: string; color?: string; matches: (s: string) => boolean }[] = [
+    { id: 'all', label: 'All (includes cancelled)', matches: () => true },
+    { id: 'active', label: 'Active', matches: (s) => ['pending', 'overdue', 'active'].includes((s || '').toLowerCase()) },
+    { id: 'cancelled', label: 'Cancelled', matches: (s) => (s || '').toLowerCase() === 'cancelled' },
+    { id: 'completed', label: 'Completed', matches: (s) => ['paid', 'completed'].includes((s || '').toLowerCase()) },
+    { id: 'draft', label: 'Draft', matches: (s) => (s || '').toLowerCase() === 'draft' },
+    { id: 'hold', label: 'Hold', matches: (s) => ['hold', 'on_hold'].includes((s || '').toLowerCase()) },
+    { id: 'input_required', label: 'Input Required', matches: (s) => ['input_required', 'needs_input'].includes((s || '').toLowerCase()) },
+    { id: 'verifying', label: 'Verifying', matches: (s) => (s || '').toLowerCase() === 'verifying' },
+  ];
+
+  const computeCountFor = (tabId: string) => {
+    const tab = statusTabs.find(t => t.id === tabId);
+    if (!tab) return 0;
+    return receivables.filter(r => tab.matches(r.status as any)).length;
+  };
+
+  const filteredReceivables = React.useMemo(() => {
+    const tab = statusTabs.find(t => t.id === activeTab) || statusTabs[0];
+    return receivables.filter(r => tab.matches(r.status as any));
+  }, [activeTab, receivables]);
+
   const formatCurrency = (amount: number, currency: string) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -478,7 +560,19 @@ const RecievablesDashboard: React.FC = () => {
     });
   };
 
+  const openBankDetails = (row?: ReceivableItem) => {
+    if (row) {
+      setSelectedReceivable(row);
+      setReconcileAmount(row.amountPending.toString());
+      setReconcileCurrency(row.currency);
+      setBankCurrency(row.currency || 'USD');
+    }
+    toast.info('Opening bank transfer details');
+    setBankDetailsOpen(true);
+  };
+
   const handleReconcile = (receivable: ReceivableItem) => {
+    console.log('Reconcile clicked for:', receivable);
     setSelectedReceivable(receivable);
     setReconcileAmount(receivable.amountPending.toString());
     setReconcileCurrency(receivable.currency);
@@ -507,7 +601,7 @@ const RecievablesDashboard: React.FC = () => {
     ));
     
     toast.success('Receivable reconciled successfully!');
-    handleCloseReconcileModal();
+    setReconcileSuccessOpen(true);
   };
 
   // Load receivables on component mount
@@ -1172,6 +1266,31 @@ const RecievablesDashboard: React.FC = () => {
           </Card>
         </Collapse>
 
+        {/* Status Tabs */}
+        <Card className="table-card" sx={{ mb: 2 }}>
+          <CardContent sx={{ pb: 1 }}>
+            <Box className="status-tabs">
+              {statusTabs.map((tab) => (
+                <Button
+                  key={tab.id}
+                  variant={activeTab === tab.id ? 'contained' : 'outlined'}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`status-tab ${activeTab === tab.id ? 'active' : ''}`}
+                  sx={{ mr: 1, mb: 1, borderRadius: '16px', textTransform: 'none', padding: '6px 10px' }}
+                >
+                  <span style={{ marginRight: 6 }}>{tab.label}</span>
+                  <Chip
+                    label={computeCountFor(tab.id)}
+                    size="small"
+                    color={activeTab === tab.id ? 'default' : 'primary'}
+                    sx={{ height: 18, fontSize: '11px' }}
+                  />
+                </Button>
+              ))}
+            </Box>
+          </CardContent>
+        </Card>
+
         {/* Receivables Table */}
         <Card className="table-card">
           <CardContent>
@@ -1222,8 +1341,14 @@ const RecievablesDashboard: React.FC = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {receivables.map((receivable) => (
-                    <TableRow key={receivable.id} className="table-row">
+                  {filteredReceivables.map((receivable) => (
+                    <TableRow 
+                      key={receivable.id} 
+                      className="table-row"
+                      hover
+                      onClick={() => handleViewDetails(receivable.id, receivable)}
+                      sx={{ cursor: 'pointer' }}
+                    >
                       <TableCell>{formatDate(receivable.created)}</TableCell>
                       <TableCell>
                         <Typography variant="body2" className="invoice-number">
@@ -1253,52 +1378,28 @@ const RecievablesDashboard: React.FC = () => {
                           size="small"
                         />
                       </TableCell>
-                      <TableCell>
+                      <TableCell onClick={(e) => e.stopPropagation()}>
                         <Box sx={{ display: 'flex', gap: 1 }}>
                           <Button
-                            variant="outlined"
+                            variant="contained"
+                            color="primary"
                             size="small"
                             startIcon={<AccountBalance />}
-                            onClick={() => handleReconcile(receivable)}
-                            disabled={receivable.status === 'paid' || receivable.amountPending === 0}
+                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleReconcile(receivable); }}
+                            type="button"
+                            disabled={false}
                             sx={{
                               borderRadius: '6px',
                               textTransform: 'none',
                               fontSize: '12px',
                               padding: '4px 8px',
-                              borderColor: '#4299e1',
-                              color: '#4299e1',
-                              '&:hover': {
-                                borderColor: '#3182ce',
-                                backgroundColor: '#ebf8ff',
-                              },
                               '&:disabled': {
-                                borderColor: '#e2e8f0',
+                                backgroundColor: '#e2e8f0',
                                 color: '#a0aec0',
                               },
                             }}
                           >
                             Reconcile
-                          </Button>
-                          <Button
-                            variant="outlined"
-                            size="small"
-                            onClick={() => handleViewDetails(receivable.id)}
-                            disabled={loadingDetails}
-                            sx={{
-                              borderRadius: '6px',
-                              textTransform: 'none',
-                              fontSize: '12px',
-                              padding: '4px 8px',
-                              borderColor: '#38a169',
-                              color: '#38a169',
-                              '&:hover': {
-                                borderColor: '#2f855a',
-                                backgroundColor: '#f0fff4',
-                              },
-                            }}
-                          >
-                            {loadingDetails ? 'Loading...' : 'View Details'}
                           </Button>
                         </Box>
                       </TableCell>
@@ -1632,9 +1733,20 @@ const RecievablesDashboard: React.FC = () => {
             fontWeight: 600, 
             color: '#2d3748',
             borderBottom: '1px solid #e2e8f0',
-            padding: '20px 24px'
+            padding: '20px 24px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between'
           }}>
             Receivable Details
+            <Button 
+              variant="outlined" 
+              size="small" 
+              onClick={() => setBankDetailsOpen(true)}
+              sx={{ textTransform: 'none', borderRadius: '8px' }}
+            >
+              Bank Details
+            </Button>
           </DialogTitle>
           <DialogContent sx={{ padding: '24px' }}>
             {selectedReceivableDetails ? (
@@ -1733,6 +1845,20 @@ const RecievablesDashboard: React.FC = () => {
                             </Typography>
                           </Box>
                           <Box>
+                            <Typography variant="body2" color="text.secondary">Document</Typography>
+                            {selectedReceivableDetails.invoice?.document_file?.url ? (
+                              <Link href={selectedReceivableDetails.invoice.document_file.url} target="_blank" rel="noopener" sx={{ color: '#4299e1' }}>
+                                View Document ({selectedReceivableDetails.invoice?.document_file?.type?.toUpperCase() || 'FILE'})
+                              </Link>
+                            ) : selectedReceivableDetails.invoice?.document ? (
+                              <Link href={fileUploadService.getFileUrl(selectedReceivableDetails.invoice.document)} target="_blank" rel="noopener" sx={{ color: '#4299e1' }}>
+                                View Document
+                              </Link>
+                            ) : (
+                              <Typography variant="body2" color="text.secondary">N/A</Typography>
+                            )}
+                          </Box>
+                          <Box>
                             <Typography variant="body2" color="text.secondary">Creation Date</Typography>
                             <Typography variant="body1">{formatDate(selectedReceivableDetails.invoice?.creation_date)}</Typography>
                           </Box>
@@ -1817,6 +1943,156 @@ const RecievablesDashboard: React.FC = () => {
               }}
             >
               Close
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Bank Transfer Details Modal */}
+        <Dialog 
+          open={bankDetailsOpen}
+          onClose={() => setBankDetailsOpen(false)}
+          maxWidth="md"
+          fullWidth
+        >
+          <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography variant="h6" sx={{ fontWeight: 600 }}>Connected User Balance : Bank Transfer Details</Typography>
+            <IconButton onClick={() => setBankDetailsOpen(false)}>✕</IconButton>
+          </DialogTitle>
+          <DialogContent sx={{ p: 0 }}>
+            <Grid container>
+              <Grid item xs={12} md={5} sx={{ borderRight: { md: '1px solid #e2e8f0' }, p: 3 }}>
+                <Typography variant="subtitle2" sx={{ color: '#4a5568', mb: 1 }}>Receiving funds in</Typography>
+                <Typography variant="body1" sx={{ fontWeight: 600, mb: 2 }}>Connected User Balance</Typography>
+
+                <FormControl fullWidth sx={{ mb: 2 }}>
+                  <InputLabel>Currency</InputLabel>
+                  <Select value={bankCurrency} label="Currency" onChange={(e) => setBankCurrency(e.target.value)}>
+                    {['USD','EUR','GBP','INR','AUD','CAD','JPY'].map(c => (
+                      <MenuItem key={c} value={c}>{c}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+
+                <Typography variant="body2" sx={{ mb: 2 }}>
+                  <strong>Available Balance:</strong>&nbsp; {bankCurrency} {selectedReceivable?.amountPending?.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                </Typography>
+
+                <FormControl fullWidth sx={{ mb: 2 }}>
+                  <InputLabel>Sender Country</InputLabel>
+                  <Select value={senderCountry} label="Sender Country" onChange={(e) => setSenderCountry(e.target.value)}>
+                    {['United Kingdom','United States','India','Germany','France','Singapore'].map(c => (
+                      <MenuItem key={c} value={c}>{c}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+
+              <Grid item xs={12} md={7} sx={{ p: 3 }}>
+                <Typography variant="subtitle2" sx={{ color: '#4a5568', mb: 1 }}>Recommended Payment Methods</Typography>
+                <Card variant="outlined" sx={{ borderRadius: 2 }}>
+                  <CardContent sx={{ p: 2 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Chip label="SWIFT" size="small" color="default" />
+                        <Typography variant="body2" sx={{ color: '#4a5568' }}>Selected</Typography>
+                      </Box>
+                      <Button size="small" onClick={() => {
+                        const info = `Beneficiary: PayDirect\nReceiving Currency: ${bankCurrency}\nAccount Number: 91216802238219\nBIC Code: XFLOWSS33\nAccount Type: Business Checking\nBank: JPMORGAN CHASE BANK, N.A\nBank Address: 383 Madison Ave, New York, NY 10179, USA`;
+                        try { navigator.clipboard?.writeText(info); toast.success('Bank info copied'); } catch { /* no-op */ }
+                      }}>Copy Info</Button>
+                    </Box>
+
+                    <TableContainer component={Paper} variant="outlined">
+                      <Table size="small">
+                        <TableBody>
+                          <TableRow>
+                            <TableCell>Beneficiary</TableCell>
+                            <TableCell>PayDirect</TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell>Receiving Currency</TableCell>
+                            <TableCell>{bankCurrency}</TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell>Account Number</TableCell>
+                            <TableCell>91216802238219</TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell>BIC Code</TableCell>
+                            <TableCell>XFLOWSS33</TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell>Account Type</TableCell>
+                            <TableCell>Business Checking</TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell>Bank</TableCell>
+                            <TableCell>JPMORGAN CHASE BANK, N.A</TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell>Bank Address</TableCell>
+                            <TableCell>383 Madison Ave, New York, NY 10179, USA</TableCell>
+                          </TableRow>
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                  </CardContent>
+                </Card>
+              </Grid>
+            </Grid>
+          </DialogContent>
+          <DialogActions sx={{ p: 2 }}>
+            <Button variant="outlined" onClick={() => toast.info('Letter of Authorisation generation coming soon')}>Get Letter of Authorisation</Button>
+            <Button variant="outlined" onClick={() => toast.success('Downloaded selected details')}>Download Selected</Button>
+            <Button variant="contained" onClick={() => {
+              const info = `Beneficiary: PayDirect | Currency: ${bankCurrency} | Account: 91216802238219 | BIC: XFLOWSS33`;
+              try { navigator.clipboard?.writeText(info); toast.success('Copied'); } catch { /* no-op */ }
+            }}>Copy</Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Reconciliation Success Modal */}
+        <Dialog
+          open={reconcileSuccessOpen}
+          onClose={() => setReconcileSuccessOpen(false)}
+          maxWidth="sm"
+          fullWidth
+        >
+          <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography variant="h6" sx={{ fontWeight: 600 }}>Reconciliation Successful</Typography>
+            <IconButton onClick={() => setReconcileSuccessOpen(false)}>✕</IconButton>
+          </DialogTitle>
+          <DialogContent>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <Typography variant="body2">
+                <strong>{reconcileCurrency} {parseFloat(reconcileAmount || '0').toFixed(2)}</strong> is reconciled against invoice number <strong>{selectedReceivable?.invoiceNo}</strong>.
+              </Typography>
+
+              <Card variant="outlined">
+                <CardContent>
+                  <Typography variant="subtitle2" sx={{ mb: 1 }}>Payout Details</Typography>
+                  <Grid container>
+                    <Grid item xs={6}><Typography variant="body2" color="textSecondary">Payout Amount (INR):</Typography></Grid>
+                    <Grid item xs={6}><Typography variant="body2" align="right">{`INR ${(parseFloat(reconcileAmount || '0') * 16.275).toFixed(2)}`}</Typography></Grid>
+                    <Grid item xs={6}><Typography variant="body2" color="textSecondary">Bank account:</Typography></Grid>
+                    <Grid item xs={6}><Typography variant="body2" align="right">Ending with 0101</Typography></Grid>
+                    <Grid item xs={6}><Typography variant="body2" color="textSecondary">ETA:</Typography></Grid>
+                    <Grid item xs={6}><Typography variant="body2" align="right">{new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })}, by 9 PM IST</Typography></Grid>
+                  </Grid>
+                </CardContent>
+              </Card>
+            </Box>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              variant="contained"
+              onClick={() => {
+                setReconcileSuccessOpen(false);
+                handleCloseReconcileModal();
+                fetchReceivables();
+              }}
+            >
+              Done
             </Button>
           </DialogActions>
         </Dialog>
