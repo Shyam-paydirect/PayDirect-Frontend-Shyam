@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import { useRouter } from 'next/router';
 import { 
   Box, 
   Typography, 
@@ -19,7 +20,8 @@ import {
 } from '@mui/material';
 import { 
   Search, 
-  Refresh
+  Refresh,
+  Settings
 } from '@mui/icons-material';
 import "./PayoutsDashboard.css";
 
@@ -111,6 +113,7 @@ type StatusCounts = {
 };
 
 const PayoutsDashboard: React.FC = () => {
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [payouts, setPayouts] = useState<Payout[]>(dummyPayouts);
   const [loading, setLoading] = useState(false);
@@ -177,30 +180,47 @@ const PayoutsDashboard: React.FC = () => {
       <Card className="filters-card">
         <CardContent>
           <Box className="filters-container">
-            <TextField
-              placeholder="Search payouts..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Search />
-                  </InputAdornment>
-                ),
-              }}
-              className="search-field"
-            />
-            <Button
-              variant="outlined"
-              onClick={fetchPayouts}
-              disabled={loading}
-              sx={{
-                borderRadius: '8px',
-                textTransform: 'none',
-              }}
-            >
-              {loading ? <CircularProgress size={20} /> : 'Refresh'}
-            </Button>
+            <Box className="filters-left">
+              <TextField
+                placeholder="Search payouts..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Search />
+                    </InputAdornment>
+                  ),
+                }}
+                className="search-field"
+              />
+            </Box>
+            <Box className="filters-right">
+              <Button
+                variant="outlined"
+                disabled={loading}
+                sx={{
+                  borderRadius: '8px',
+                  textTransform: 'none',
+                }}
+                startIcon={<Settings />}
+                onClick={() => router.push('/settings')}
+              >
+                Settings
+              </Button>
+              <Button
+                variant="contained"
+                onClick={fetchPayouts}
+                disabled={loading}
+                sx={{
+                  borderRadius: '8px',
+                  textTransform: 'none',
+                }}
+                startIcon={!loading ? <Refresh /> : undefined}
+              >
+                {loading ? <CircularProgress size={20} /> : 'Refresh'}
+              </Button>
+            </Box>
           </Box>
         </CardContent>
       </Card>
@@ -235,9 +255,15 @@ const PayoutsDashboard: React.FC = () => {
                       </Typography>
                     </TableCell>
                     <TableCell>
-                      <Typography variant="body2" className="reference-number">
-                        {payout.payoutReference}
-                      </Typography>
+                      <Button
+                        variant="text"
+                        sx={{ textTransform: 'none', padding: 0, minWidth: 'unset' }}
+                        onClick={() => router.push(`/payout/${payout.payoutReference}`)}
+                      >
+                        <Typography variant="body2" className="reference-number" color="primary">
+                          {payout.payoutReference}
+                        </Typography>
+                      </Button>
                     </TableCell>
                     <TableCell>
                       <Typography variant="body2" className="amount">

@@ -3,11 +3,13 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 interface DashboardState {
   currentDashboard: string;
   dashboardTitle: string;
+  paymentsMode: 'send' | 'receive';
 }
 
 const initialState: DashboardState = {
   currentDashboard: 'currency-management',
   dashboardTitle: 'Payments',
+  paymentsMode: 'send',
 };
 
 const dashboardSlice = createSlice({
@@ -15,9 +17,20 @@ const dashboardSlice = createSlice({
   initialState,
   reducers: {
     setCurrentDashboard(state, action: PayloadAction<string>) {
-      localStorage.setItem("component", action.payload);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem("component", action.payload);
+      }
       state.currentDashboard = action.payload;
       state.dashboardTitle = getTitleByDashboard(action.payload);
+    },
+    setPaymentsMode(state, action: PayloadAction<'send' | 'receive'>) {
+      state.paymentsMode = action.payload;
+      // Persist the last chosen mode for future sessions
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem('paymentsMode', action.payload);
+        } catch {}
+      }
     },
   },
 });
@@ -72,4 +85,5 @@ function getTitleByDashboard(dashboard: string): string {
 }
 
 export const { setCurrentDashboard } = dashboardSlice.actions;
+export const { setPaymentsMode } = dashboardSlice.actions;
 export default dashboardSlice.reducer;

@@ -1332,7 +1332,7 @@ const RecievablesDashboard: React.FC = () => {
                   <TableRow>
                     <TableCell>Created</TableCell>
                     <TableCell>Invoice No.</TableCell>
-                    <TableCell>Partner Name</TableCell>
+                    <TableCell>Partner ID</TableCell>
                     <TableCell>Description</TableCell>
                     <TableCell>Receivable Amount</TableCell>
                     <TableCell>Amount Pending</TableCell>

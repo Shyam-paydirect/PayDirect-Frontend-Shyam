@@ -6,7 +6,7 @@ import Cookies from 'js-cookie';
 import { useRouter } from 'next/router';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '@/app/redux/store';
-import { setCurrentDashboard } from '@/app/redux/slices/dashboardSlice';
+import { setCurrentDashboard, setPaymentsMode } from '@/app/redux/slices/dashboardSlice';
 import "./main.css";
 import "@/styles/global.css";
 
@@ -15,7 +15,6 @@ const SideNavbar = dynamic(() => import('@/components/sideNavbar/side-navbar'), 
 const TopNavbar = dynamic(() => import('@/components/top-navbar'), { ssr: false });
 const CurrencyManagement = dynamic(() => import('@/components/currencyManagement/currency-management'), { ssr: false });
 const FinancialReporting = dynamic(() => import('@/components/financial-reporting/financial-reporting'), { ssr: false });
-const PaymentDetails = dynamic(() => import('@/components/paymentDetails/payment-details'), { ssr: false });
 const OrderPaymentComponent = dynamic(() => import('@/components/orderbook/orderbook'), { ssr: false });
 const Accounts = dynamic(() => import('@/components/account-details/account-details'), { ssr: false });
 const DocumentUploads = dynamic(() => import('@/components/documents-upload/documents-upload'), { ssr: false });
@@ -46,11 +45,24 @@ const Main: React.FC = () => {
     if (!Cookies.get("token")) {
       window.location.href = '/';
     }
+    // Default to Payments (Send) on initial load
+    if (typeof window !== 'undefined') {
+      try {
+        const storedMode = localStorage.getItem('paymentsMode') as 'send' | 'receive' | null;
+        if (storedMode) {
+          // eslint-disable-next-line
+          (dispatch as any)(setPaymentsMode(storedMode));
+        } else {
+          // eslint-disable-next-line
+          (dispatch as any)(setPaymentsMode('send'));
+        }
+      } catch {}
+    }
   }, [router]);
 
   const dashboardTitle = useSelector((state: RootState) => state.dashboard.currentDashboard);
-  const previousDashboard = localStorage.getItem('prev_component') || 'currency-management';
-  const currentDashboard = localStorage.getItem('component') || '';
+  const previousDashboard = (typeof window !== 'undefined' ? localStorage.getItem('prev_component') : null) || 'currency-management';
+  const currentDashboard = (typeof window !== 'undefined' ? localStorage.getItem('component') : null) || '';
   const mainDashboards = ['currency-management', 'financial-reporting', 'order-book', 'accounts', 'balances-dashboard', 'balance-transactions', 'deposits-dashboard', 'exchange-rates', 'payouts-dashboard'];
 
   const renderDashboard = () => {
@@ -63,8 +75,6 @@ const Main: React.FC = () => {
       return <FinancialReporting />;
     case 'order-book':
       return <OrderPaymentComponent />;
-    case 'payment-details':
-      return <PaymentDetails />;
     case 'accounts':
       return <Accounts />;
     case 'fx-rate-booker':
@@ -98,7 +108,12 @@ const Main: React.FC = () => {
     case 'partner-account':
       return <PartnerAccountForm />;
     default:
-      localStorage.setItem("prev_component", 'currency-management');
+      if (typeof window !== 'undefined') {
+        localStorage.setItem("prev_component", 'currency-management');
+      }
+      // Ensure we're on Send Payments by default
+      // eslint-disable-next-line
+      (dispatch as any)(setPaymentsMode('send'));
       return <CurrencyManagement />;
   }
 };

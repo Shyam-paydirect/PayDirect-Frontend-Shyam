@@ -17,6 +17,7 @@ const SideNavbar: React.FC<SideNavbarProps> = ({ onMenuItemClick }) => {
 
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const currentDashboard = useSelector((state: RootState) => state.dashboard.currentDashboard);
+  const paymentsMode = useSelector((state: RootState) => state.dashboard.paymentsMode);
 
   const toggleSidenav = () => setClose(!close);
   const closeSidenav = () => setClose(true);
@@ -32,23 +33,35 @@ const SideNavbar: React.FC<SideNavbarProps> = ({ onMenuItemClick }) => {
     }
   };
 
- // Sidebar menu items
-const menuItems = [
-  { id: 'currency-management', icon: 'ri-copper-diamond-line', text: 'Payments' },
-  { id: 'order-book', icon: 'ri-book-line', text: 'Order Book' },
-  { id: 'accounts', icon: 'ri-user-settings-line', text: 'Accounts' },
-  { id: 'balances-dashboard', icon: 'ri-bank-card-line', text: 'Balances' },
-  { id: 'balance-transactions', icon: 'ri-exchange-line', text: 'Balance Transactions' },
-  { id: 'deposits-dashboard', icon: 'ri-money-dollar-circle-line', text: 'Deposits' },
-  { id: 'exchange-rates', icon: 'ri-repeat-line', text: 'Exchange Rates' },
-  { id: 'payouts-dashboard', icon: 'ri-wallet-line', text: 'Payouts Dashboard' },
-  { id: 'recievables-dashboard', icon: 'ri-hand-coin-line', text: 'Receivables Dashboard' }, // ✅ Receivables Tab
-  { id: 'partner-account', icon: 'ri-user-add-line', text: 'Create Partner Account' } // ✅ Partner Account Tab
-];
+// Sidebar menu items - Payments is always visible, others depend on mode
+let menuItems = [
+  { id: 'currency-management', icon: 'ri-copper-diamond-line', text: 'Payments' }
+] as { id: string; icon: string; text: string }[];
+
+if (paymentsMode === 'send') {
+  // Send Payments mode - add send-specific items
+  menuItems.push(
+    { id: 'order-book', icon: 'ri-book-line', text: 'Order Book' },
+    { id: 'accounts', icon: 'ri-user-settings-line', text: 'Accounts' }
+  );
+} else {
+  // Receive Payments mode - show receive-specific items
+  menuItems.push(
+    { id: 'deposits-dashboard', icon: 'ri-money-dollar-circle-line', text: 'Deposits' },
+    { id: 'partner-account', icon: 'ri-user-add-line', text: 'Partner' },
+    { id: 'recievables-dashboard', icon: 'ri-hand-coin-line', text: 'Receivables' },
+    { id: 'payouts-dashboard', icon: 'ri-wallet-line', text: 'Payouts' },
+    { id: 'balances-dashboard', icon: 'ri-bank-card-line', text: 'Balances' }
+  );
+}
 
 
-// Conditionally add Request Letter tab only if it’s not already in the array
-if (Cookies.get('clientId')?.includes('UAT') && !menuItems.some(item => item.id === 'request-letter')) {
+// Add request letter only for send mode, optionally gated by clientId
+if (
+  paymentsMode === 'send' &&
+  Cookies.get('clientId')?.includes('UAT') &&
+  !menuItems.some(item => item.id === 'request-letter')
+) {
   menuItems.push({ id: 'request-letter', icon: 'ri-draft-line', text: 'Generate Request Letter' });
 }
 
