@@ -121,6 +121,14 @@ const RecievablesDashboard: React.FC = () => {
   const [senderCountry, setSenderCountry] = useState<string>('United Kingdom');
   const [partners, setPartners] = useState<any[]>([]);
 
+  const formatAxiosError = (error: any): string => {
+    const data = error?.response?.data;
+    // Prefer precise backend message fields
+    const xflowMsg = Array.isArray(data?.xflow_errors) && data?.xflow_errors[0]?.message;
+    const msg = xflowMsg || data?.message || data?.error || error?.message;
+    return msg || 'Request failed';
+  };
+
   // Auto-open form when component loads and fetch receivables data
   useEffect(() => {
     const prevComponent = localStorage.getItem('prev_component');
@@ -280,7 +288,7 @@ const RecievablesDashboard: React.FC = () => {
       
     } catch (error: any) {
       console.error('File upload error:', error);
-      toast.error(`File upload failed: ${error.message}`);
+      toast.error(`File upload failed: ${formatAxiosError(error)}`);
       
       // Reset file input
       if (event.target) {
@@ -313,17 +321,7 @@ const RecievablesDashboard: React.FC = () => {
     }
   };
 
-  const handleTestAPIConnection = async () => {
-    setDiagnosticResult('Testing API connection...');
-    
-    try {
-      const result = await fileUploadService.testConnection();
-      setDiagnosticResult(`API Connection Test:\n\nSuccess: ${result.success}\nMessage: ${result.message}`);
-      console.log('API connection test result:', result);
-    } catch (error: any) {
-      setDiagnosticResult(`API connection test failed: ${error.message}`);
-    }
-  };
+  // Removed Test API Connection handler as its UI was removed
 
   const handleTestCurlStyleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -438,8 +436,7 @@ const RecievablesDashboard: React.FC = () => {
       }
     } catch (err: any) {
       console.error('Error fetching receivables:', err);
-      const errorMessage = err.message || 'Failed to fetch receivables';
-      toast.error(`${errorMessage}. Using mock data.`);
+      toast.error(`Failed to fetch receivables: ${formatAxiosError(err)}\nUsing mock data.`);
       // Fallback to mock data if API fails
       setReceivables(mockReceivables);
     } finally {
@@ -518,7 +515,7 @@ const RecievablesDashboard: React.FC = () => {
       toast.success('Receivable details loaded successfully');
     } catch (error: any) {
       console.error('Error fetching receivable details:', error);
-      toast.error(`Failed to load receivable details: ${error.message}`);
+      toast.error(`Failed to load receivable details: ${formatAxiosError(error)}`);
     } finally {
       setLoadingDetails(false);
     }
@@ -627,21 +624,11 @@ const RecievablesDashboard: React.FC = () => {
       toast.success('Receivable reconciled successfully!');
       setReconcileSuccessOpen(true);
     } catch (error: any) {
-      const data = error?.response?.data;
-      const msg =
-        data?.message ||
-        data?.error ||
-        (Array.isArray(data?.xflow_errors) && data?.xflow_errors[0]?.message) ||
-        error?.message ||
-        'Failed to reconcile. Please try again.';
-      toast.error(msg);
+      toast.error(`Failed to reconcile: ${formatAxiosError(error)}`);
     }
   };
 
-  // Load receivables on component mount
-  React.useEffect(() => {
-    fetchReceivables();
-  }, []);
+  // Note: Initial receivables load is handled in the first useEffect above
 
   const validateForm = (): boolean => {
     const errors: { [key: string]: string } = {};
@@ -722,6 +709,15 @@ const RecievablesDashboard: React.FC = () => {
     try {
       const response = await receivablesService.createReceivable(formData as ReceivablesData);
       
+      if (!response?.success) {
+        // Soft-fail: toast exact message, keep user on same page and do not crash
+        const data: any = (response as any)?.data;
+        const xMsg = Array.isArray(data?.xflow_errors) && data?.xflow_errors[0]?.message;
+        const msg = xMsg || response?.message || 'Failed to create receivable';
+        toast.error(msg);
+        return;
+      }
+      
       toast.success(response.message || 'Receivable created successfully!');
 
       // Try to confirm the receivable immediately after creation
@@ -778,8 +774,9 @@ const RecievablesDashboard: React.FC = () => {
       setIsFormOpen(false);
       
     } catch (error: any) {
+      // Catch-all: toast error but do not let it surface to Next error overlay
       console.error('Error creating receivable:', error);
-      toast.error(error.message || 'Failed to create receivable. Please try again.');
+      toast.error(`Failed to create receivable: ${formatAxiosError(error)}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -1000,9 +997,6 @@ const RecievablesDashboard: React.FC = () => {
                   <Grid item xs={12} md={6}>
                     {renderTextField('invoice.reference_number', 'Reference Number')}
                   </Grid>
-                  <Grid item xs={12} md={6}>
-                    {renderTextField('invoice.document', 'Document ID')}
-                  </Grid>
                 </Grid>
 
                 {/* File Upload Section */}
@@ -1010,109 +1004,9 @@ const RecievablesDashboard: React.FC = () => {
                   <Typography variant="h6" className="section-title" sx={{ marginBottom: '16px' }}>
                     Invoice File Upload
                   </Typography>
-                  
-                  {/* API Info */}
-                  <Alert 
-                    severity="info" 
-                    sx={{ 
-                      marginBottom: '16px',
-                      backgroundColor: '#ebf8ff',
-                      border: '1px solid #bee3f8',
-                      '& .MuiAlert-icon': {
-                        color: '#3182ce'
-                      }
-                    }}
-                  >
-                    <Typography variant="body2" sx={{ color: '#2c5282', marginBottom: '8px' }}>
-                      Files are uploaded using curl-style integration to: <strong>https://exp.paydirectgo.com/files</strong>
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: '#2c5282', fontFamily: 'monospace', display: 'block' }}>
-                      Equivalent curl command:
-                    </Typography>
-                    <pre style={{ 
-                      fontSize: '10px', 
-                      backgroundColor: 'rgba(0,0,0,0.05)', 
-                      padding: '4px', 
-                      borderRadius: '4px',
-                      margin: '4px 0',
-                      overflow: 'auto'
-                    }}>
-                      {fileUploadService.getCurlCommand('your-file.pdf')}
-                    </pre>
-                  </Alert>
 
                   {/* Diagnostic Section */}
-                  <Box sx={{ marginBottom: '16px', display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
-                    <Button
-                      variant="outlined"
-                      size="small"
-                      onClick={handleTestAPIConnection}
-                      sx={{
-                        borderRadius: '6px',
-                        textTransform: 'none',
-                        fontSize: '12px',
-                        borderColor: '#4299e1',
-                        color: '#4299e1',
-                        '&:hover': {
-                          borderColor: '#3182ce',
-                          backgroundColor: '#ebf8ff',
-                        },
-                      }}
-                    >
-                      🔗 Test API Connection
-                    </Button>
-                    <Button
-                      variant="outlined"
-                      size="small"
-                      component="label"
-                      sx={{
-                        borderRadius: '6px',
-                        textTransform: 'none',
-                        fontSize: '12px',
-                        borderColor: '#38a169',
-                        color: '#38a169',
-                        '&:hover': {
-                          borderColor: '#2f855a',
-                          backgroundColor: '#f0fff4',
-                        },
-                      }}
-                    >
-                      🚀 Test Curl-Style Upload
-                      <input
-                        type="file"
-                        hidden
-                        accept=".pdf,.jpg,.jpeg,.png"
-                        onChange={handleTestCurlStyleUpload}
-                      />
-                    </Button>
-                    <Button
-                      variant="outlined"
-                      size="small"
-                      component="label"
-                      sx={{
-                        borderRadius: '6px',
-                        textTransform: 'none',
-                        fontSize: '12px',
-                        borderColor: '#e53e3e',
-                        color: '#e53e3e',
-                        '&:hover': {
-                          borderColor: '#c53030',
-                          backgroundColor: '#fed7d7',
-                        },
-                      }}
-                    >
-                      🔍 Diagnose Upload Issue
-                      <input
-                        type="file"
-                        hidden
-                        accept=".pdf,.jpg,.jpeg,.png"
-                        onChange={handleDiagnoseUpload}
-                      />
-                    </Button>
-                    <Typography variant="caption" sx={{ color: '#718096' }}>
-                      Use these tools to debug file upload problems
-                    </Typography>
-                  </Box>
+                  {/* Diagnostic buttons removed as per request */}
 
                   {/* Diagnostic Results */}
                   {diagnosticResult && (
@@ -1329,30 +1223,7 @@ const RecievablesDashboard: React.FC = () => {
           </Card>
         </Collapse>
 
-        {/* Status Tabs */}
-        <Card className="table-card" sx={{ mb: 2 }}>
-          <CardContent sx={{ pb: 1 }}>
-            <Box className="status-tabs">
-              {statusTabs.map((tab) => (
-                <Button
-                  key={tab.id}
-                  variant={activeTab === tab.id ? 'contained' : 'outlined'}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`status-tab ${activeTab === tab.id ? 'active' : ''}`}
-                  sx={{ mr: 1, mb: 1, borderRadius: '16px', textTransform: 'none', padding: '6px 10px' }}
-                >
-                  <span style={{ marginRight: 6 }}>{tab.label}</span>
-                  <Chip
-                    label={computeCountFor(tab.id)}
-                    size="small"
-                    color={activeTab === tab.id ? 'default' : 'primary'}
-                    sx={{ height: 18, fontSize: '11px' }}
-                  />
-                </Button>
-              ))}
-            </Box>
-          </CardContent>
-        </Card>
+        {/* Removed status filter tabs as requested */}
 
         {/* Receivables Table */}
         <Card className="table-card">
@@ -1372,21 +1243,7 @@ const RecievablesDashboard: React.FC = () => {
               >
                 {loading ? <CircularProgress size={20} /> : 'Refresh'}
               </Button>
-              <Button
-                variant="outlined"
-                onClick={() => {
-                  console.log('Testing API call...');
-                  fetchReceivables();
-                }}
-                disabled={loading}
-                sx={{
-                  borderRadius: '8px',
-                  textTransform: 'none',
-                  marginLeft: '8px',
-                }}
-              >
-                Test API
-              </Button>
+              {/* Removed Test API button as requested */}
             </Box>
 
             <TableContainer component={Paper} className="table-container">

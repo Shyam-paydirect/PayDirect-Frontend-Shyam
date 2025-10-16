@@ -251,30 +251,26 @@ class ReceivablesService {
         });
       }
       
-      // Provide more specific error messages
+      // Provide more specific error messages (soft-fail only)
       if (error.code === 'ECONNREFUSED') {
-        throw new Error(`Cannot connect to server at ${this.baseURL}. Please check if the server is running.`);
+        return { success: false, message: `Cannot connect to server at ${this.baseURL}. Please check if the server is running.` } as any;
       } else if (error.code === 'ENOTFOUND') {
-        throw new Error(`Server not found at ${this.baseURL}. Please check the URL.`);
+        return { success: false, message: `Server not found at ${this.baseURL}. Please check the URL.` } as any;
       } else if (error.code === 'ECONNABORTED') {
-        throw new Error('Request timeout. The server is taking too long to respond.');
-      } else if (error.response?.status === 400) {
-        // Handle 400 Bad Request with detailed error information
-        const errorMessage = error.response?.data?.message || error.response?.data?.error || 'Bad Request';
-        const errorDetails = error.response?.data?.details || error.response?.data;
-        console.error('400 Error Details:', errorDetails);
-        console.error('Request that failed:', JSON.stringify(receivableData, null, 2));
-        throw new Error(`Validation Error: ${errorMessage}. Check console for details.`);
-      } else if (error.response?.status === 404) {
-        throw new Error('Receivables endpoint not found. Please check if the server supports the /receivables endpoint.');
-      } else if (error.response?.status === 500) {
-        throw new Error('Server error. Please try again later.');
-      } else if (error.response?.data?.message) {
-        throw new Error(error.response.data.message);
+        return { success: false, message: 'Request timeout. The server is taking too long to respond.' } as any;
+      } else if (error.response) {
+        // Do NOT throw – return a structured failure so UI can stay on page
+        const status = error.response.status;
+        const data = error.response.data;
+        return {
+          success: false,
+          message: typeof data?.message === 'string' ? data.message : (data?.error || error.message || `HTTP ${status}`),
+          data: data,
+        };
       } else if (error.message) {
-        throw new Error(error.message);
+        return { success: false, message: error.message };
       } else {
-        throw new Error('Failed to create receivable. Please try again.');
+        return { success: false, message: 'Failed to create receivable. Please try again.' };
       }
     }
   }
@@ -293,7 +289,9 @@ class ReceivablesService {
       return await this.createReceivableNew(newFormatData);
     } catch (error: any) {
       console.error('Error creating receivable:', error);
-      throw error;
+      // Soft-fail: never throw to UI; return a structured failure
+      const msg = error?.response?.data?.message || error?.response?.data?.error || error?.message || 'Failed to create receivable';
+      return { success: false, message: msg, data: error?.response?.data } as any;
     }
   }
 
@@ -329,7 +327,8 @@ class ReceivablesService {
       return await this.createReceivableNew(newFormatData);
     } catch (error: any) {
       console.error('Error creating receivable with metadata:', error);
-      throw error;
+      const msg = error?.response?.data?.message || error?.response?.data?.error || error?.message || 'Failed to create receivable';
+      return { success: false, message: msg, data: error?.response?.data } as any;
     }
   }
 

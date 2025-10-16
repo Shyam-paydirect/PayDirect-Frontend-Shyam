@@ -108,24 +108,13 @@ class PartnerAccountService {
         url: `${this.baseURL}/partners`
       });
       
-      // Provide more specific error messages
-      if (error.code === 'ECONNREFUSED') {
-        throw new Error(`Cannot connect to server at ${this.baseURL}. Please check if the server is running.`);
-      } else if (error.code === 'ENOTFOUND') {
-        throw new Error(`Server not found at ${this.baseURL}. Please check the URL.`);
-      } else if (error.code === 'ECONNABORTED') {
-        throw new Error('Request timeout. The server is taking too long to respond.');
-      } else if (error.response?.status === 404) {
-        throw new Error('Partners endpoint not found. Please check if the server supports the /partners endpoint.');
-      } else if (error.response?.status === 500) {
-        throw new Error('Server error. Please try again later.');
-      } else if (error.response?.data?.message) {
-        throw new Error(error.response.data.message);
-      } else if (error.message) {
-        throw new Error(error.message);
-      } else {
-        throw new Error('Failed to create partner. Please try again.');
-      }
+      // Soft-fail: return structured response instead of throwing (avoid overlay)
+      const msg =
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        error?.message ||
+        'Failed to create partner';
+      return { success: false, message: msg, data: error?.response?.data } as any;
     }
   }
 
@@ -140,7 +129,8 @@ class PartnerAccountService {
       return await this.createPartner(newFormatData);
     } catch (error: any) {
       console.error('Error creating partner account:', error);
-      throw error;
+      const msg = error?.response?.data?.message || error?.response?.data?.error || error?.message || 'Failed to create partner account';
+      return { success: false, message: msg, data: error?.response?.data } as any;
     }
   }
 
@@ -150,7 +140,7 @@ class PartnerAccountService {
       return await this.getAllPartners();
     } catch (error: any) {
       console.error('Error fetching partner accounts:', error);
-      throw new Error('Failed to fetch partner accounts');
+      return [];
     }
   }
 
@@ -179,25 +169,13 @@ class PartnerAccountService {
         status: error.response?.status,
         url: `${this.baseURL}/partners/${partnerId}`
       });
-      
-      // Provide more specific error messages
-      if (error.code === 'ECONNREFUSED') {
-        throw new Error(`Cannot connect to server at ${this.baseURL}. Please check if the server is running.`);
-      } else if (error.code === 'ENOTFOUND') {
-        throw new Error(`Server not found at ${this.baseURL}. Please check the URL.`);
-      } else if (error.code === 'ECONNABORTED') {
-        throw new Error('Request timeout. The server is taking too long to respond.');
-      } else if (error.response?.status === 404) {
-        throw new Error(`Partner with ID ${partnerId} not found.`);
-      } else if (error.response?.status === 500) {
-        throw new Error('Server error. Please try again later.');
-      } else if (error.response?.data?.message) {
-        throw new Error(error.response.data.message);
-      } else if (error.message) {
-        throw new Error(error.message);
-      } else {
-        throw new Error('Failed to fetch partner details. Please try again.');
-      }
+      // Soft-fail
+      const msg =
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        error?.message ||
+        `Failed to fetch partner ${partnerId}`;
+      return { success: false, message: msg, data: error?.response?.data } as any;
     }
   }
 
@@ -231,24 +209,8 @@ class PartnerAccountService {
         url: `${this.baseURL}/partners`
       });
       
-      // Provide more specific error messages
-      if (error.code === 'ECONNREFUSED') {
-        throw new Error(`Cannot connect to server at ${this.baseURL}. Please check if the server is running.`);
-      } else if (error.code === 'ENOTFOUND') {
-        throw new Error(`Server not found at ${this.baseURL}. Please check the URL.`);
-      } else if (error.code === 'ECONNABORTED') {
-        throw new Error('Request timeout. The server is taking too long to respond.');
-      } else if (error.response?.status === 404) {
-        throw new Error('Partners endpoint not found. Please check if the server supports the /partners endpoint.');
-      } else if (error.response?.status === 500) {
-        throw new Error('Server error. Please try again later.');
-      } else if (error.response?.data?.message) {
-        throw new Error(error.response.data.message);
-      } else if (error.message) {
-        throw new Error(error.message);
-      } else {
-        throw new Error('Failed to fetch partners. Please try again.');
-      }
+      // Soft-fail: avoid overlay, return empty list
+      return [];
     }
   }
 
@@ -258,7 +220,7 @@ class PartnerAccountService {
       return await this.getPartnerById(accountId);
     } catch (error: any) {
       console.error('Error fetching partner account:', error);
-      throw new Error('Failed to fetch partner account details');
+      return { success: false, message: 'Failed to fetch partner account details' } as any;
     }
   }
 }
