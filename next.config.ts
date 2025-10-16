@@ -5,11 +5,11 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/api/partners/:path*',
-        destination: 'http://43.205.26.213:7015/partners/:path*',
+        destination: 'https://exp.paydirectgo.com/partners/:path*',
       },
       {
         source: '/api/files/:path*',
-        destination: 'http://43.205.26.213:7015/files/:path*',
+        destination: 'https://exp.paydirectgo.com/files/:path*',
       },
     ];
   },

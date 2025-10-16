@@ -5,7 +5,7 @@ import axios from 'axios';
 const APITest: React.FC = () => {
   const [testResult, setTestResult] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
-  const [customUrl, setCustomUrl] = useState('http://43.205.26.213:7015/files');
+  const [customUrl, setCustomUrl] = useState('https://exp.paydirectgo.com/files');
 
   const testDirectAPI = async () => {
     setIsLoading(true);

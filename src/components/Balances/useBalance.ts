@@ -30,7 +30,7 @@ export const useBalance = (accountId?: string) => {
 
     try {
       // Determine base URL and account id
-      const baseURL = (process as any)?.env?.NEXT_PUBLIC_API_BASE_URL || 'http://43.205.26.213:7015';
+      const baseURL = (process as any)?.env?.NEXT_PUBLIC_API_BASE_URL || 'https://exp.paydirectgo.com';
       let acct = accountId || '';
       if (!acct) {
         try {

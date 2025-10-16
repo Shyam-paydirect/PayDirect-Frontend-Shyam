@@ -76,7 +76,7 @@ class ReceivablesService {
   private xflowBaseURL: string;
 
   constructor() {
-    this.baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://43.205.26.213:7015';
+    this.baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://exp.paydirectgo.com';
     this.xflowBaseURL = process.env.NEXT_PUBLIC_XFLOW_API_URL || 'https://api.xflowpay.com/v1';
   }
 

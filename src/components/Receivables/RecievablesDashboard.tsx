@@ -1024,7 +1024,7 @@ const RecievablesDashboard: React.FC = () => {
                     }}
                   >
                     <Typography variant="body2" sx={{ color: '#2c5282', marginBottom: '8px' }}>
-                      Files are uploaded using curl-style integration to: <strong>http://43.205.26.213:7015/files</strong>
+                      Files are uploaded using curl-style integration to: <strong>https://exp.paydirectgo.com/files</strong>
                     </Typography>
                     <Typography variant="caption" sx={{ color: '#2c5282', fontFamily: 'monospace', display: 'block' }}>
                       Equivalent curl command:

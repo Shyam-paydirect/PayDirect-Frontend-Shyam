@@ -43,7 +43,7 @@ class FileUploadService {
   private accountHeader: string;
 
   constructor() {
-    this.baseURL = 'http://43.205.26.213:7015';
+    this.baseURL = 'https://exp.paydirectgo.com';
     this.accountHeader = 'account_F0A_1759166669125_GuHWS_000';
   }
 

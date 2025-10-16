@@ -49,7 +49,7 @@ class PartnerAccountService {
     // Use the specified IP address for the API
     this.baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 
                    process.env.REACT_APP_API_BASE_URL || 
-                   'http://43.205.26.213:7015';
+                   'https://exp.paydirectgo.com';
     
     console.log('PartnerAccountService initialized with baseURL:', this.baseURL);
   }

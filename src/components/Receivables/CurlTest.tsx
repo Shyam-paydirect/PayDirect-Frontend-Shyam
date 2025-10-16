@@ -5,7 +5,7 @@ import { ContentCopy } from '@mui/icons-material';
 const CurlTest: React.FC = () => {
   const [copied, setCopied] = useState(false);
 
-  const curlCommand = `curl -X POST http://43.205.26.213:7015/files \\
+  const curlCommand = `curl -X POST https://exp.paydirectgo.com/files \\
   -H "Xflow-Account: account_F0A_1759166669125_GuHWS_000" \\
   -F "file=@/path/to/your/document.pdf" \\
   -F "purpose=finance_document"`;
@@ -87,7 +87,7 @@ const CurlTest: React.FC = () => {
           <strong>📋 Working Example:</strong>
         </Typography>
         <pre style={{ fontSize: '11px', margin: '8px 0', backgroundColor: '#f5f5f5', padding: '8px', borderRadius: '4px' }}>
-{`curl -X POST http://43.205.26.213:7015/files \\
+{`curl -X POST https://exp.paydirectgo.com/files \\
   -H "Xflow-Account: account_F0A_1759166669125_GuHWS_000" \\
   -F "file=@test.pdf" \\
   -F "purpose=finance_document"`}
