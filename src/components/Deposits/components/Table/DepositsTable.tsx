@@ -23,7 +23,8 @@ const DepositsTable: React.FC<DepositsTableProps> = ({
 
   return (
     <div className="table-card">
-      <table className="w-full text-xs sm:text-sm deposits-table">
+      <div className="table-scroll-x">
+        <table className="w-full text-xs sm:text-sm deposits-table">
         <thead className="deposits-thead">
           <tr>
             <th>Created</th>
@@ -68,7 +69,8 @@ const DepositsTable: React.FC<DepositsTableProps> = ({
             </tr>
           ))}
         </tbody>
-      </table>
+        </table>
+      </div>
     </div>
   );
 };

@@ -6,6 +6,12 @@
   overflow: hidden;
 }
 
+/* Horizontal scroll like receivables table */
+.table-scroll-x {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 .deposits-table {
   border-collapse: separate;
   border-spacing: 0;

@@ -23,7 +23,7 @@ const dummy = {
   totalAmount: '965.70',
   summary: {
     gross: { label: 'Total Gross Amount', value: 'USD 20.00' },
-    fees: { label: 'Xflow Payout Fees', value: 'USD 9.00' },
+    fees: { label: 'Payout Fees', value: 'USD 9.00' },
     netPayout: { label: 'Net Payout', value: 'USD 11.00' },
     fx: { label: 'Exch. Rate (USD 1.00)', value: 'INR 87.79057' },
     final: { label: 'Final Settled Amount', value: 'INR 965.70' },
@@ -31,7 +31,7 @@ const dummy = {
   bankDetails: {
     bankInfo: 'citi Prefilled Name - XXXX0101',
     descriptor: '17603460039PVF01',
-    utr: 'XFLOWTESTUTR6021856361',
+    utr: 'TESTUTR6021856361',
   },
   documents: [{ name: 'Payment Advice from JPMC', url: '#' }],
   breakup: {
@@ -135,7 +135,7 @@ const PayoutDetailsPage: React.FC = () => {
           <div />
           <div style={{ width: 240 }}>
             <div style={totalRow}><span>Gross Payout</span><span>{dummy.breakup.totals.gross}</span></div>
-            <div style={totalRow}><span>Xflow Payout Fees</span><span>{dummy.breakup.totals.fees}</span></div>
+            <div style={totalRow}><span>Payout Fees</span><span>{dummy.breakup.totals.fees}</span></div>
             <div style={{ height: 1, background: '#e5e7eb', margin: '8px 0' }} />
             <div style={{ ...totalRow, fontWeight: 700 }}><span>Net Payout</span><span>{dummy.breakup.totals.net}</span></div>
           </div>

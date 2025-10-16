@@ -42,7 +42,7 @@ const APITest: React.FC = () => {
 
   const testWithCurl = () => {
     const curlCommand = `curl -X POST ${customUrl} \\
-  -H "Xflow-Account: account_F0A_1759166669125_GuHWS_000" \\
+  -H "Account: account_F0A_1759166669125_GuHWS_000" \\
   -F "file=@/path/to/your/document.pdf" \\
   -F "purpose=finance_document"`;
     

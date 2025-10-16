@@ -2060,7 +2060,7 @@ const RecievablesDashboard: React.FC = () => {
                         <Typography variant="body2" sx={{ color: '#4a5568' }}>Selected</Typography>
                       </Box>
                       <Button size="small" onClick={() => {
-                        const info = `Beneficiary: PayDirect\nReceiving Currency: ${bankCurrency}\nAccount Number: 91216802238219\nBIC Code: XFLOWSS33\nAccount Type: Business Checking\nBank: JPMORGAN CHASE BANK, N.A\nBank Address: 383 Madison Ave, New York, NY 10179, USA`;
+                        const info = `Beneficiary: PayDirect\nReceiving Currency: ${bankCurrency}\nAccount Number: 91216802238219\nBIC Code: XXXXSS33\nAccount Type: Business Checking\nBank: JPMORGAN CHASE BANK, N.A\nBank Address: 383 Madison Ave, New York, NY 10179, USA`;
                         try { navigator.clipboard?.writeText(info); toast.success('Bank info copied'); } catch { /* no-op */ }
                       }}>Copy Info</Button>
                     </Box>
@@ -2082,7 +2082,7 @@ const RecievablesDashboard: React.FC = () => {
                           </TableRow>
                           <TableRow>
                             <TableCell>BIC Code</TableCell>
-                            <TableCell>XFLOWSS33</TableCell>
+                            <TableCell>XXXXSS33</TableCell>
                           </TableRow>
                           <TableRow>
                             <TableCell>Account Type</TableCell>
@@ -2108,7 +2108,7 @@ const RecievablesDashboard: React.FC = () => {
             <Button variant="outlined" onClick={() => toast.info('Letter of Authorisation generation coming soon')}>Get Letter of Authorisation</Button>
             <Button variant="outlined" onClick={() => toast.success('Downloaded selected details')}>Download Selected</Button>
             <Button variant="contained" onClick={() => {
-              const info = `Beneficiary: PayDirect | Currency: ${bankCurrency} | Account: 91216802238219 | BIC: XFLOWSS33`;
+              const info = `Beneficiary: PayDirect | Currency: ${bankCurrency} | Account: 91216802238219 | BIC: XXXXSS33`;
               try { navigator.clipboard?.writeText(info); toast.success('Copied'); } catch { /* no-op */ }
             }}>Copy</Button>
           </DialogActions>
