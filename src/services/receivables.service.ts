@@ -553,26 +553,13 @@ class ReceivablesService {
 
   // Fetch deposits list from Xflow API
   async fetchDeposits(): Promise<any[]> {
-    const url = `${this.xflowBaseURL}/deposits`;
-    // Build headers (Bearer + Xflow-Account)
-    let secretKey: string | null = null;
-    try {
-      if (typeof window !== 'undefined') {
-        secretKey = localStorage.getItem('secret_key') || localStorage.getItem('api_secret') || null;
-      }
-    } catch (_) {}
-    const envKey = (process as any)?.env?.NEXT_PUBLIC_API_KEY;
-    const apiKey = secretKey || envKey;
-    if (!apiKey) throw new Error('Missing API key. Set secret_key or NEXT_PUBLIC_API_KEY');
-
-    const headers: Record<string, string> = {
-      Authorization: `Bearer ${apiKey}`,
-      'Xflow-Account': this.getAccountId(),
-    };
-    const res = await axios.get(url, { headers });
-    // normalise to array
-    if (Array.isArray(res.data)) return res.data;
-    if (Array.isArray(res.data?.data)) return res.data.data;
+    // Prefer backend proxy endpoint per requirement
+    const url = `${this.baseURL}/deposits`;
+    const headers = this.getAuthHeaders({ 'Content-Type': 'application/json' });
+    const res = await axios.get(url, { headers, params: { limit: 10, status: 'completed' } });
+    const data = res.data;
+    if (Array.isArray(data)) return data;
+    if (Array.isArray(data?.data)) return data.data;
     return [];
   }
 }
