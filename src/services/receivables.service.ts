@@ -180,7 +180,7 @@ class ReceivablesService {
     };
 
     const transformedData: NewReceivablesData = {
-      account_id: null, // API expects null for account_id
+      account_id:receivableData.account_id, // API expects null for account_id
       currency: receivableData.currency,
       amount_maximum_reconcilable: receivableData.amount_maximum_reconcilable,
       purpose_code: mapPurposeCode(receivableData.purpose_code),
@@ -190,7 +190,7 @@ class ReceivablesService {
         amount: receivableData.invoice.amount || receivableData.amount_maximum_reconcilable,
         creation_date: formatDate(receivableData.invoice.creation_date),
         currency: receivableData.invoice.currency || receivableData.currency,
-        document: null, // API expects document to always be null in requests
+        document: receivableData.invoice.document || null,
         due_date: formatDate(receivableData.invoice.due_date),
         reference_number: receivableData.invoice.reference_number
       },
@@ -477,43 +477,79 @@ class ReceivablesService {
 
   // Reconcile a receivable
   async reconcileReceivable(receivableId: string, payload: any): Promise<any> {
-    const url = `${this.baseURL}/receivables/${receivableId}/reconcile`;
-    const headers = this.getAuthHeaders({ 'Content-Type': 'application/json' });
-    const res = await axios.post(url, payload, { headers });
-    return res.data;
+    try {
+      console.log('🔹 [reconcileReceivable] Called');
+      console.log('📦 Receivable ID:', receivableId);
+      console.log('📤 Payload:', payload);
+  
+      const url = `${this.baseURL}/receivables/${receivableId}/reconcile`;
+      console.log('🌐 Full URL:', url);
+  
+      const headers = this.getAuthHeaders({ 'Content-Type': 'application/json' });
+      console.log('🪪 Headers:', headers);
+  
+      console.log('🚀 Sending POST request...');
+      const res = await axios.post(url, payload, { headers });
+  
+      console.log('✅ [reconcileReceivable] Response received:');
+      console.log(res.data);
+  
+      return res.data;
+    } catch (error: any) {
+      console.error('❌ [reconcileReceivable] Error occurred:');
+      if (error.response) {
+        console.error('🔸 Status:', error.response.status);
+        console.error('🔸 Response Data:', error.response.data);
+      } else if (error.request) {
+        console.error('📡 No response received from server');
+      } else {
+        console.error('⚙️ Request setup error:', error.message);
+      }
+      throw error;
+    }
   }
 
-  // Reconcile via Xflow public API (requires Bearer key and account_id)
-  async reconcileReceivableXflow(receivableId: string, amount: string, accountId?: string): Promise<any> {
-    const url = `${this.xflowBaseURL}/receivables/${receivableId}/reconcile`;
-    // Prefer explicit account id, otherwise derive from local storage/env
-    const acct = accountId || this.getAccountId();
-    // Secret can come from localStorage or env
-    let secretKey: string | null = null;
-    try {
-      if (typeof window !== 'undefined') {
-        secretKey = localStorage.getItem('secret_key') || localStorage.getItem('api_secret') || null;
-      }
-    } catch (_) {}
-    const envKey = (process as any)?.env?.NEXT_PUBLIC_API_KEY;
-    const apiKey = secretKey || envKey;
-    if (!apiKey) {
-      throw new Error('Missing API key. Set localStorage.secret_key or NEXT_PUBLIC_API_KEY');
-    }
-
-    const headers: Record<string, string> = {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    };
-
-    const body = {
-      account_id: acct,
-      amount: amount,
-    };
-
+  // Confirm a receivable
+  async confirmReceivable(receivableId: string, documentId?: string): Promise<any> {
+    const url = `${this.baseURL}/receivables/${receivableId}/confirm`;
+    const headers = this.getAuthHeaders({ 'Content-Type': 'application/json' });
+    const body = documentId ? { document_id: documentId } : {};
     const res = await axios.post(url, body, { headers });
     return res.data;
   }
+  
+
+  // Reconcile via Xflow public API (requires Bearer key and account_id)
+  // async reconcileReceivableXflow(receivableId: string, amount: string, accountId?: string): Promise<any> {
+  //   const url = `${this.xflowBaseURL}/receivables/${receivableId}/reconcile`;
+  //   // Prefer explicit account id, otherwise derive from local storage/env
+  //   const acct = accountId || this.getAccountId();
+  //   // Secret can come from localStorage or env
+  //   let secretKey: string | null = null;
+  //   try {
+  //     if (typeof window !== 'undefined') {
+  //       secretKey = localStorage.getItem('secret_key') || localStorage.getItem('api_secret') || null;
+  //     }
+  //   } catch (_) {}
+  //   const envKey = (process as any)?.env?.NEXT_PUBLIC_API_KEY;
+  //   const apiKey = secretKey || envKey;
+  //   if (!apiKey) {
+  //     throw new Error('Missing API key. Set localStorage.secret_key or NEXT_PUBLIC_API_KEY');
+  //   }
+
+  //   const headers: Record<string, string> = {
+  //     'Authorization': `Bearer ${apiKey}`,
+  //     'Content-Type': 'application/json',
+  //   };
+
+  //   const body = {
+  //     account_id: acct,
+  //     amount: amount,
+  //   };
+
+  //   const res = await axios.post(url, body, { headers });
+  //   return res.data;
+  // }
 
   // Fetch deposits list from Xflow API
   async fetchDeposits(): Promise<any[]> {

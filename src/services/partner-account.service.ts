@@ -212,6 +212,9 @@ class PartnerAccountService {
         headers: {
           'Xflow-Account': this.getXflowAccountHeader(),
         },
+        params: {
+          account_id: this.getXflowAccountHeader(),
+        },
         timeout: 30000,
       });
 

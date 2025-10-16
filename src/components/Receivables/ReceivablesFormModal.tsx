@@ -25,6 +25,8 @@ import {
 } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 import receivablesService, { ReceivablesData } from '../../services/receivables.service';
+import fileUploadService from '../../services/file-upload.service';
+import partnerAccountService from '../../services/partner-account.service';
 
 interface ReceivablesFormData {
   account_id: string;
@@ -74,22 +76,39 @@ const ReceivablesFormModal: React.FC<ReceivablesFormModalProps> = ({ open, onClo
   const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<UploadedFile | null>(null);
+  const [partners, setPartners] = useState<any[]>([]);
+
+  React.useEffect(() => {
+    (async () => {
+      try {
+        const list: any = await partnerAccountService.getAllPartners();
+        setPartners(Array.isArray(list) ? list : ((list as any)?.data || []));
+      } catch (e) {
+        console.warn('Failed to fetch partners for dropdown');
+      }
+    })();
+  }, []);
 
   const handleInputChange = (field: string, value: string) => {
     if (field.includes('.')) {
       const [parent, child] = field.split('.');
-      setFormData(prev => ({
-        ...prev,
-        [parent]: {
-          ...prev[parent as keyof ReceivablesFormData],
-          [child]: value
+      setFormData(prev => {
+        if (parent === 'invoice') {
+          return {
+            ...prev,
+            invoice: {
+              ...prev.invoice,
+              [child]: value
+            }
+          } as ReceivablesFormData;
         }
-      }));
+        return { ...prev };
+      });
     } else {
       setFormData(prev => ({
         ...prev,
         [field]: value
-      }));
+      } as ReceivablesFormData));
     }
     
     // Clear validation error when user starts typing
@@ -101,7 +120,7 @@ const ReceivablesFormModal: React.FC<ReceivablesFormModalProps> = ({ open, onClo
     }
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -119,16 +138,23 @@ const ReceivablesFormModal: React.FC<ReceivablesFormModalProps> = ({ open, onClo
       return;
     }
 
-    const uploadedFile: UploadedFile = {
-      file,
-      name: file.name,
-      size: file.size,
-      type: file.type
-    };
+    try {
+      const uploadResponse = await fileUploadService.uploadFile({ file, purpose: 'finance_document' as any });
 
-    setUploadedFile(uploadedFile);
-    handleInputChange('invoice.document', file.name);
-    toast.success('File uploaded successfully');
+      const uploaded: UploadedFile = {
+        file,
+        name: file.name,
+        size: file.size,
+        type: file.type
+      };
+      setUploadedFile(uploaded);
+      // Set returned document id into the form
+      handleInputChange('invoice.document', uploadResponse.id);
+      toast.success('File uploaded successfully');
+    } catch (err: any) {
+      console.error('File upload failed:', err);
+      toast.error(err?.message || 'File upload failed');
+    }
   };
 
   const handleRemoveFile = () => {
@@ -206,8 +232,24 @@ const ReceivablesFormModal: React.FC<ReceivablesFormModalProps> = ({ open, onClo
         transaction_type: formData.transaction_type
       };
 
-      await receivablesService.createReceivable(payload);
+      const createRes = await receivablesService.createReceivable(payload);
       toast.success('Receivable created successfully!');
+
+      // Immediately confirm the receivable if we can infer its id
+      try {
+        const created = (createRes as any)?.data || createRes;
+        const createdId = created?.receivable_id || created?.id || created?.data?.receivable_id || created?.data?.id;
+        if (createdId) {
+          const docId = formData.invoice.document || undefined;
+          await receivablesService.confirmReceivable(createdId, docId);
+          toast.success('Receivable confirmed');
+        } else {
+          console.warn('Could not infer receivable id from create response:', createRes);
+        }
+      } catch (confirmErr: any) {
+        const msg = confirmErr?.response?.data?.message || confirmErr?.message || 'Failed to confirm receivable.';
+        toast.error(msg);
+      }
       
       // Reset form
       setFormData({
@@ -244,31 +286,34 @@ const ReceivablesFormModal: React.FC<ReceivablesFormModalProps> = ({ open, onClo
     required: boolean = false,
     multiline: boolean = false,
     rows: number = 1
-  ) => (
-    <TextField
-      fullWidth
-      name={name}
-      label={label}
-      type={type}
-      value={type === 'date' ? 
-        (name.includes('.') ? 
-          formData[name.split('.')[0] as keyof ReceivablesFormData][name.split('.')[1] as keyof typeof formData.invoice] : 
-          formData[name as keyof ReceivablesFormData]
-        ) : 
-        (name.includes('.') ? 
-          formData[name.split('.')[0] as keyof ReceivablesFormData][name.split('.')[1] as keyof typeof formData.invoice] : 
-          formData[name as keyof ReceivablesFormData]
-        )
-      }
-      onChange={(e) => handleInputChange(name, e.target.value)}
-      error={!!validationErrors[name]}
-      helperText={validationErrors[name]}
-      required={required}
-      multiline={multiline}
-      rows={rows}
-      InputLabelProps={{ shrink: type === 'date' ? true : undefined }}
-    />
-  );
+  ) => {
+    const value = name.includes('.')
+      ? (() => {
+          const [parent, child] = name.split('.');
+          if (parent === 'invoice') {
+            return (formData.invoice as any)[child] ?? '';
+          }
+          return '';
+        })()
+      : (formData as any)[name] ?? '';
+
+    return (
+      <TextField
+        fullWidth
+        name={name}
+        label={label}
+        type={type}
+        value={value}
+        onChange={(e) => handleInputChange(name, e.target.value)}
+        error={!!(validationErrors as any)[name]}
+        helperText={(validationErrors as any)[name]}
+        required={required}
+        multiline={multiline}
+        rows={rows}
+        InputLabelProps={{ shrink: type === 'date' ? true : undefined }}
+      />
+    );
+  };
 
   return (
     <Dialog 
@@ -308,7 +353,20 @@ const ReceivablesFormModal: React.FC<ReceivablesFormModalProps> = ({ open, onClo
             </Grid>
             
             <Grid item xs={12} sm={6}>
-              {renderTextField('account_id', 'Account ID', 'text', true)}
+              <FormControl fullWidth required>
+                <InputLabel>Partner ID</InputLabel>
+                <Select
+                  value={formData.account_id}
+                  label="Partner ID"
+                  onChange={(e) => handleInputChange('account_id', e.target.value as string)}
+                >
+                  {partners.map((p: any) => (
+                    <MenuItem key={p.id || p.account_id} value={p.id || p.account_id}>
+                      {(p.nickname || p.legal_name || p.name || p.id || p.account_id)}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </Grid>
             
             <Grid item xs={12} sm={6}>

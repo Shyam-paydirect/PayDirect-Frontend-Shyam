@@ -41,6 +41,7 @@ import {
 } from '@mui/icons-material';
 import { toast, ToastContainer } from 'react-toastify';
 import receivablesService, { ReceivablesData, ReceivableApiItem } from '../../services/receivables.service';
+import partnerAccountService from '../../services/partner-account.service';
 import fileUploadService from '../../services/file-upload.service';
 import './RecievablesDashboard.css';
 
@@ -118,6 +119,7 @@ const RecievablesDashboard: React.FC = () => {
   const [bankDetailsOpen, setBankDetailsOpen] = useState(false);
   const [bankCurrency, setBankCurrency] = useState<string>('USD');
   const [senderCountry, setSenderCountry] = useState<string>('United Kingdom');
+  const [partners, setPartners] = useState<any[]>([]);
 
   // Auto-open form when component loads and fetch receivables data
   useEffect(() => {
@@ -127,6 +129,15 @@ const RecievablesDashboard: React.FC = () => {
     }
     // Fetch receivables data on component mount
     fetchReceivables();
+    // Fetch partners for Partner ID dropdown
+    (async () => {
+      try {
+        const list: any = await partnerAccountService.getAllPartners();
+        setPartners(Array.isArray(list) ? list : ((list as any)?.data || []));
+      } catch (e) {
+        console.warn('Failed to fetch partners for dropdown');
+      }
+    })();
   }, []);
 
   // Mock data for receivables table
@@ -247,7 +258,7 @@ const RecievablesDashboard: React.FC = () => {
       // Upload file using the FileUploadService - simplified to match curl call
       const uploadResponse = await fileUploadService.uploadFile({
         file: file,
-        purpose: 'finance_document' // Keep purpose for interface compatibility
+        purpose: 'finance_document' as any
       });
 
       // Store the uploaded file data
@@ -712,6 +723,22 @@ const RecievablesDashboard: React.FC = () => {
       const response = await receivablesService.createReceivable(formData as ReceivablesData);
       
       toast.success(response.message || 'Receivable created successfully!');
+
+      // Try to confirm the receivable immediately after creation
+      try {
+        const created = (response as any)?.data || response;
+        const createdId = created?.receivable_id || created?.id || created?.data?.receivable_id || created?.data?.id;
+        if (createdId) {
+          const docId = formData.invoice.document || uploadedFileId || undefined;
+          await receivablesService.confirmReceivable(createdId, docId);
+          toast.success('Receivable confirmed');
+        } else {
+          console.warn('Could not infer receivable id from create response:', response);
+        }
+      } catch (confirmErr: any) {
+        const msg = confirmErr?.response?.data?.message || confirmErr?.message || 'Failed to confirm receivable.';
+        toast.error(msg);
+      }
       
       // Add new receivable to the table
       const newReceivable: ReceivableItem = {
@@ -921,7 +948,20 @@ const RecievablesDashboard: React.FC = () => {
                 
                 <Grid container spacing={4}>
                   <Grid item xs={12} md={6}>
-                    {renderTextField('account_id', 'Account ID')}
+                    <FormControl fullWidth>
+                      <InputLabel>Partner ID</InputLabel>
+                      <Select
+                        value={formData.account_id}
+                        label="Partner ID"
+                        onChange={(e) => handleInputChange('account_id', e.target.value as string)}
+                      >
+                        {partners.map((p: any) => (
+                          <MenuItem key={p.id || p.account_id} value={p.id || p.account_id}>
+                            {(p.nickname || p.legal_name || p.name || p.id || p.account_id)}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
                   </Grid>
                   <Grid item xs={12} md={6}>
                     {renderTextField('amount_maximum_reconcilable', 'Maximum Reconcilable Amount', 'number')}
