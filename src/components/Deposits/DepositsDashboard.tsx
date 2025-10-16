@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import receivablesService from '@/services/receivables.service';
 import SummaryCards from './components/Summary/SummaryCards';
 import SearchAndFilters from './components/Filters/SearchAndFilters';
 import DepositsTable from './components/Table/DepositsTable';
@@ -38,32 +39,30 @@ const DepositsDashboard: React.FC = () => {
 
   const fetchDeposits = async () => {
     setLoading(true);
-    setTimeout(() => {
-      const mockDeposits: Deposit[] = [
-        {
-          id: "dep_0001",
-          amount: 31930,
-          currency: "INR",
-          status: "pending",
-          createdAt: "2025-09-29T14:00:00Z",
-          paymentMethod: "Net Banking",
-          metadata: [{ key: "orderId", value: "ORD-87953" }]
-        },
-        {
-          id: "dep_0002",
-          amount: 110833,
-          currency: "INR",
-          status: "completed",
-          createdAt: "2025-09-30T01:00:00Z",
-          paymentMethod: "International Wire",
-          metadata: [{ key: "refundId", value: "REF-1461" }]
-        }
-      ];
-
-      setDeposits(mockDeposits);
-      setFilteredDeposits(mockDeposits);
+    try {
+      const apiDeposits = await receivablesService.fetchDeposits();
+      const mapped: Deposit[] = (apiDeposits || []).map((d: any) => {
+        const createdIso = d.created_at
+          || d.createdAt
+          || (typeof d.created === 'number' ? new Date(d.created * 1000).toISOString() : new Date().toISOString());
+        const metaObj = d.metadata && typeof d.metadata === 'object' ? d.metadata : {};
+        return {
+          id: d.id || d.deposit_id || 'dep_' + Math.random().toString(36).slice(2),
+          amount: Number(d.amount || 0),
+          currency: d.currency || 'USD',
+          status: (d.status || 'pending').toLowerCase(),
+          createdAt: createdIso,
+          paymentMethod: d.payment_method || d.method || 'Bank Transfer',
+          metadata: Object.entries(metaObj).map(([key, value]) => ({ key, value: String(value) })) as any,
+        };
+      });
+      setDeposits(mapped);
+      setFilteredDeposits(mapped);
+    } catch (e: any) {
+      console.error('Failed to fetch deposits', e?.response?.data || e?.message);
+    } finally {
       setLoading(false);
-    }, 500);
+    }
   };
 
   const stats = {

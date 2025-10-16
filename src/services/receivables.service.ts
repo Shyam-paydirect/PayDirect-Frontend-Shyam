@@ -73,14 +73,29 @@ export interface ReceivableApiItem {
 
 class ReceivablesService {
   private baseURL: string;
+  private xflowBaseURL: string;
 
   constructor() {
     this.baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://43.205.26.213:7015';
+    this.xflowBaseURL = process.env.NEXT_PUBLIC_XFLOW_API_URL || 'https://api.xflowpay.com/v1';
   }
 
   // Get Xflow-Account header from localStorage or use default
   private getXflowAccountHeader(): string {
-    return localStorage.getItem('xflow-account') || 'account_F0A_1759166669125_GuHWS_000';
+    // Prefer browser storage, then env, then a safe default
+    try {
+      if (typeof window !== 'undefined') {
+        const ls = localStorage.getItem('xflow-account');
+        if (ls) return ls;
+      }
+    } catch (_) {}
+    const envAcct = (process as any)?.env?.NEXT_PUBLIC_XFLOW_ACCOUNT;
+    return envAcct || 'account_F0A_1759166669125_GuHWS_000';
+  }
+
+  // Expose the configured account id for consumers that need to build payloads
+  public getAccountId(): string {
+    return this.getXflowAccountHeader();
   }
 
   // Build auth headers including Xflow-Account and Authorization (Bearer <secret>) if available
@@ -458,6 +473,71 @@ class ReceivablesService {
         throw new Error('Failed to delete receivable. Please try again.');
       }
     }
+  }
+
+  // Reconcile a receivable
+  async reconcileReceivable(receivableId: string, payload: any): Promise<any> {
+    const url = `${this.baseURL}/receivables/${receivableId}/reconcile`;
+    const headers = this.getAuthHeaders({ 'Content-Type': 'application/json' });
+    const res = await axios.post(url, payload, { headers });
+    return res.data;
+  }
+
+  // Reconcile via Xflow public API (requires Bearer key and account_id)
+  async reconcileReceivableXflow(receivableId: string, amount: string, accountId?: string): Promise<any> {
+    const url = `${this.xflowBaseURL}/receivables/${receivableId}/reconcile`;
+    // Prefer explicit account id, otherwise derive from local storage/env
+    const acct = accountId || this.getAccountId();
+    // Secret can come from localStorage or env
+    let secretKey: string | null = null;
+    try {
+      if (typeof window !== 'undefined') {
+        secretKey = localStorage.getItem('secret_key') || localStorage.getItem('api_secret') || null;
+      }
+    } catch (_) {}
+    const envKey = (process as any)?.env?.NEXT_PUBLIC_API_KEY;
+    const apiKey = secretKey || envKey;
+    if (!apiKey) {
+      throw new Error('Missing API key. Set localStorage.secret_key or NEXT_PUBLIC_API_KEY');
+    }
+
+    const headers: Record<string, string> = {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    };
+
+    const body = {
+      account_id: acct,
+      amount: amount,
+    };
+
+    const res = await axios.post(url, body, { headers });
+    return res.data;
+  }
+
+  // Fetch deposits list from Xflow API
+  async fetchDeposits(): Promise<any[]> {
+    const url = `${this.xflowBaseURL}/deposits`;
+    // Build headers (Bearer + Xflow-Account)
+    let secretKey: string | null = null;
+    try {
+      if (typeof window !== 'undefined') {
+        secretKey = localStorage.getItem('secret_key') || localStorage.getItem('api_secret') || null;
+      }
+    } catch (_) {}
+    const envKey = (process as any)?.env?.NEXT_PUBLIC_API_KEY;
+    const apiKey = secretKey || envKey;
+    if (!apiKey) throw new Error('Missing API key. Set secret_key or NEXT_PUBLIC_API_KEY');
+
+    const headers: Record<string, string> = {
+      Authorization: `Bearer ${apiKey}`,
+      'Xflow-Account': this.getAccountId(),
+    };
+    const res = await axios.get(url, { headers });
+    // normalise to array
+    if (Array.isArray(res.data)) return res.data;
+    if (Array.isArray(res.data?.data)) return res.data.data;
+    return [];
   }
 }
 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { 
   Box, 
   Typography,
@@ -586,22 +587,44 @@ const RecievablesDashboard: React.FC = () => {
     setReconcileCurrency('USD');
   };
 
-  const handleReconcileSubmit = () => {
+  const handleReconcileSubmit = async () => {
     if (!selectedReceivable || !reconcileAmount) return;
-    
-    // Update the receivable status and amount pending
-    setReceivables(prev => prev.map(item => 
-      item.id === selectedReceivable.id 
-        ? { 
-            ...item, 
-            amountPending: Math.max(0, item.amountPending - parseFloat(reconcileAmount)),
-            status: item.amountPending - parseFloat(reconcileAmount) <= 0 ? 'paid' : item.status
-          }
-        : item
-    ));
-    
-    toast.success('Receivable reconciled successfully!');
-    setReconcileSuccessOpen(true);
+
+    try {
+      const receivableId = selectedReceivable.id || selectedReceivable.invoiceNo || 'receivable_f0A_1760260901747_HKbwU_000';
+
+      // Call our backend reconcile endpoint
+      await receivablesService.reconcileReceivable(
+        receivableId,
+        {
+          account_id: receivablesService.getAccountId(),
+          amount: parseFloat(reconcileAmount).toFixed(2)
+        }
+      );
+
+      // Optimistically update UI on success
+      setReceivables(prev => prev.map(item => 
+        item.id === selectedReceivable.id 
+          ? { 
+              ...item, 
+              amountPending: Math.max(0, item.amountPending - parseFloat(reconcileAmount)),
+              status: item.amountPending - parseFloat(reconcileAmount) <= 0 ? 'paid' : item.status
+            }
+          : item
+      ));
+
+      toast.success('Receivable reconciled successfully!');
+      setReconcileSuccessOpen(true);
+    } catch (error: any) {
+      const data = error?.response?.data;
+      const msg =
+        data?.message ||
+        data?.error ||
+        (Array.isArray(data?.xflow_errors) && data?.xflow_errors[0]?.message) ||
+        error?.message ||
+        'Failed to reconcile. Please try again.';
+      toast.error(msg);
+    }
   };
 
   // Load receivables on component mount
