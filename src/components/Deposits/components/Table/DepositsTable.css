@@ -1,0 +1,59 @@
+.table-card {
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.deposits-table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.deposits-thead {
+  background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+}
+
+.deposits-thead th {
+  font-weight: 600;
+  color: #2d3748;
+  border-bottom: 2px solid #e2e8f0;
+  padding: 14px 16px;
+  font-size: 14px;
+  text-align: left;
+}
+
+.deposits-table tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+.deposits-table tbody tr:hover {
+  background-color: #f7fafc;
+}
+
+.deposits-table tbody td {
+  border-bottom: 1px solid #e2e8f0;
+  padding: 14px 16px;
+  font-size: 14px;
+}
+
+.deposits-table .amount {
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.deposits-table .invoice-number {
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.deposits-table .bold { font-weight: 700; }
+.deposits-table .semibold { font-weight: 600; }
+
+@media (max-width: 640px) {
+  .deposits-thead th { font-size: 13px; padding: 10px 12px; }
+  .deposits-table tbody td { font-size: 13px; padding: 10px 12px; }
+}
+
+

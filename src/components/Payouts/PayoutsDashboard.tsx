@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import receivablesService from "@/services/receivables.service";
 import { useRouter } from 'next/router';
 import { 
   Box, 
@@ -142,10 +143,26 @@ const PayoutsDashboard: React.FC = () => {
   const fetchPayouts = async () => {
     try {
       setLoading(true);
-      // For now, use mock data. Replace with actual API call:
-      // const data = await payoutsService.getPayouts();
-      // setPayouts(data);
-      setPayouts(dummyPayouts);
+      const apiPayouts = await receivablesService.fetchPayouts();
+      const mapped: Payout[] = (apiPayouts || []).map((p: any) => {
+        const createdIso = p.created_at
+          || p.createdAt
+          || (typeof p.created === 'number' ? new Date(p.created * 1000).toISOString() : new Date().toISOString());
+        const expectedTs = typeof p.arrival_date === 'number' ? p.arrival_date * 1000
+          : (p.expected_on ? Date.parse(p.expected_on) : NaN);
+        return {
+          id: p.id || p.payout_id || Math.random().toString(36).slice(2),
+          initiatedOn: new Date(createdIso).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }),
+          payoutReference: p.statement_descriptor || p.unique_transaction_reference || p.reference || p.payout_reference || p.id || 'PAYOUT',
+          grossPayout: Number(p.amount || p.gross_payout || 0),
+          grossPayoutCurrency: p.currency || p.gross_payout_currency || 'USD',
+          settledAmount: Number(p.settled_amount || p.net_amount || p.amount || 0),
+          settledAmountCurrency: p.settled_amount_currency || p.settled_currency || p.currency || 'INR',
+          status: String(p.status || 'Pending').charAt(0).toUpperCase() + String(p.status || 'Pending').slice(1) as any,
+          expectedOn: isNaN(expectedTs) ? '' : new Date(expectedTs).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }),
+        };
+      });
+      setPayouts(mapped);
     } catch (err: any) {
       console.error('Failed to fetch payouts:', err);
     } finally {

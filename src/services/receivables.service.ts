@@ -562,6 +562,50 @@ class ReceivablesService {
     if (Array.isArray(data?.data)) return data.data;
     return [];
   }
+
+  // Fetch payouts list via backend to avoid browser CORS/network limits
+  async fetchPayouts(): Promise<any[]> {
+    // Prefer frontend proxy route to avoid CORS without backend changes
+    const url = `/api/payouts`;
+    // Pull secret from localStorage/env to forward via custom header
+    let secretKey: string | null = null;
+    try {
+      if (typeof window !== 'undefined') {
+        secretKey = localStorage.getItem('secret_key') || localStorage.getItem('api_secret') || null;
+      }
+    } catch (_) {}
+    const envKey = (process as any)?.env?.NEXT_PUBLIC_API_KEY;
+    const apiKey = secretKey || envKey;
+
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'Cache-Control': 'no-cache',
+      'Xflow-Account': this.getAccountId(),
+    };
+    if (apiKey) headers['x-proxy-authorization'] = `Bearer ${apiKey}`;
+
+    const params = { account_id: this.getAccountId(), _ts: Date.now() } as any;
+    try {
+      const res = await axios.get(url, { headers, params });
+      const data = res.data;
+      // Common shapes
+      if (Array.isArray(data)) return data;
+      if (Array.isArray(data?.data)) {
+        if (data.data.length > 0) return data.data;
+        // Backend returned empty list
+        return [];
+      }
+      if (data?.object === 'list' && Array.isArray(data?.data)) {
+        if (data.data.length > 0) return data.data;
+        return [];
+      }
+      // Unknown shape → return empty and avoid CORS fallback
+      return [];
+    } catch {
+      // Network/304/etc → return empty and avoid CORS fallback (browser)
+      return [];
+    }
+  }
 }
 
 export default new ReceivablesService();

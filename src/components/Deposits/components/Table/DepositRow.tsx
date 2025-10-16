@@ -22,14 +22,13 @@ const DepositRow: React.FC<DepositRowProps> = ({
       className="hover:bg-gray-50 cursor-pointer"
       onClick={() => onSelectDeposit(deposit)}
     >
-      <td className="px-4 py-2">{deposit.id}</td>
-      <td className="px-4 py-2">{formatAmount(deposit.amount, deposit.currency)}</td>
-      <td className="px-4 py-2">{deposit.currency}</td>
+      <td className="px-4 py-2 font-medium text-gray-900">{formatDate(deposit.createdAt)}</td>
+      <td className="px-4 py-2 font-semibold text-gray-900">{deposit.id}</td>
+      <td className="px-4 py-2 font-medium text-gray-900">{deposit.paymentMethod}</td>
+      <td className="px-4 py-2 font-semibold text-gray-900">{formatAmount(deposit.amount, deposit.currency)}</td>
       <td className="px-4 py-2">
         <StatusBadge status={deposit.status} />
       </td>
-      <td className="px-4 py-2">{deposit.paymentMethod}</td>
-      <td className="px-4 py-2">{formatDate(deposit.createdAt)}</td>
     </tr>
   );
 };

@@ -104,13 +104,20 @@ const DepositsDashboard: React.FC = () => {
           setShowFilters={setShowFilters}
         />
 
-        <DepositsTable
-          deposits={paginatedDeposits}
-          loading={loading}
-          formatAmount={formatAmount}
-          formatDate={formatDate}
-          onSelectDeposit={setSelectedDeposit}
-        />
+        <div className="table-card" style={{ padding: 16 }}>
+          {/* Section Heading */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+            <h2 style={{ margin: 0, fontWeight: 700, color: '#2d3748' }}>Deposits</h2>
+          </div>
+          <div style={{ height: 1, background: '#e2e8f0', marginBottom: 12 }} />
+          <DepositsTable
+            deposits={paginatedDeposits}
+            loading={loading}
+            formatAmount={formatAmount}
+            formatDate={formatDate}
+            onSelectDeposit={setSelectedDeposit}
+          />
+        </div>
 
         {totalPages > 1 && (
           <PaginationControls
